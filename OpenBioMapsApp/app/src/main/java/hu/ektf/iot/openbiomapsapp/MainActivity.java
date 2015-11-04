@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,15 +22,26 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonElement;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 
+import retrofit.Callback;
+import retrofit.RestAdapter;
+import retrofit.RetrofitError;
+import retrofit.client.Response;
+
 public class MainActivity extends AppCompatActivity {
 
     //Static stuffs
     final static int REQUESTCODE_RECORDING = 1;
+    final static String END_POINT = "http://openbiomaps.org/pds";
 
     //Gps stuffs
     GpsHandler gpsHandler;
@@ -37,7 +49,10 @@ public class MainActivity extends AppCompatActivity {
 
     //Views
     TextView tvPosition, tvVoiceRecords;
-    Button tvButton, buttonShowMap, buttonAudioRecord;
+    Button tvButton, buttonShowMap, buttonAudioRecord, buttonGet;
+
+    //retrofit
+    IDownloader downloader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +60,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         gpsHandler = new GpsHandler(MainActivity.this);
 
+        RestAdapter retrofit = new RestAdapter.Builder().setEndpoint(END_POINT).build();
+
+        downloader = retrofit.create(IDownloader.class);
+
         //Getting the views
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
         tvVoiceRecords = (TextView) findViewById(R.id.textViewAudioRecords);
         tvButton = (Button) findViewById(R.id.buttonPosition);
         buttonShowMap = (Button) findViewById(R.id.buttonShowMap);
         buttonAudioRecord = (Button) findViewById(R.id.buttonAudioRecord);
+        buttonGet = (Button) findViewById(R.id.buttonGet);
 
         tvButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,6 +113,48 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        buttonGet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                 downloader.getUploadedData(new Callback<Response>() {
+                     @Override
+                     public void success(Response s, Response response) {
+                         Log.d("success",s.toString());
+                         //Try to get response body
+                         BufferedReader reader = null;
+                         StringBuilder sb = new StringBuilder();
+                         try {
+
+                             reader = new BufferedReader(new InputStreamReader(s.getBody().in()));
+
+                             String line;
+
+                             try {
+                                 while ((line = reader.readLine()) != null) {
+                                     sb.append(line);
+                                 }
+                             } catch (IOException e) {
+                                 e.printStackTrace();
+                             }
+                         } catch (IOException e) {
+                             e.printStackTrace();
+                         }
+
+
+                         String result = sb.toString();
+                         Log.d("result",result);
+                     }
+
+                     @Override
+                     public void failure(RetrofitError error) {
+                        Log.d("Error",error.toString());
+                     }
+                 });
+            }
+        });
+
+
     }
 
     @Override
