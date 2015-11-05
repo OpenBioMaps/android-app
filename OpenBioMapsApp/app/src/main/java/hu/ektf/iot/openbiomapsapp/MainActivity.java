@@ -2,6 +2,7 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     Location currentLocation;
 
     //Views
+    EditText etNote;
     TextView tvPosition, tvVoiceRecords;
     Button tvButton, buttonShowMap, buttonAudioRecord, buttonGet, buttonCamera;
     private RecyclerView imageList;
@@ -92,6 +94,7 @@ public class MainActivity extends AppCompatActivity {
         downloader = retrofit.create(IDownloader.class);
 
         //Getting the views
+        etNote = (EditText) findViewById(R.id.etNote);
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
         tvVoiceRecords = (TextView) findViewById(R.id.textViewAudioRecords);
         tvButton = (Button) findViewById(R.id.buttonPosition);
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
         buttonGet = (Button) findViewById(R.id.buttonGet);
         imageList = (RecyclerView) findViewById(R.id.imageList);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-
+		buttonLocal = (Button) findViewById(R.id.buttonLocal);
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -212,6 +215,21 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonLocal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ContentValues contentValues = new ContentValues();
+
+                contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
+                contentValues.put(LocalDB.GEOMETRY,etNote.getText().toString()+" geometry teszt");
+                contentValues.put(LocalDB.SOUND_FILE,etNote.getText().toString()+" soundfile teszt");
+                contentValues.put(LocalDB.IMAGE_FILE,etNote.getText().toString()+" imagefile teszt");
+                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
+
+                Toast.makeText(getBaseContext(),
+                        uri.toString(), Toast.LENGTH_LONG).show();
+            }
+        });
 
     }
 
