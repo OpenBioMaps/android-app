@@ -101,15 +101,16 @@
         android:layout_alignLeft="@+id/buttonPosition"
         android:layout_alignStart="@+id/etNote" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="img0001.jpg, img0002.jpg, img0003.jpg"
-        android:id="@+id/textViewImages"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/imageList"
         android:layout_below="@+id/buttonCamera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/buttonCamera"
-        android:layout_alignStart="@+id/buttonCamera" />
+        android:layout_alignStart="@+id/buttonCamera"
+        android:paddingTop="5dp"
+        android:scrollbars="horizontal"
+        />
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -126,7 +127,7 @@
         android:id="@+id/buttonGet"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/textViewImages"
+        android:layout_below="@id/imageList"
         android:layout_centerHorizontal="true"
         android:text="Get Uploaded Data"/>
 </RelativeLayout>
