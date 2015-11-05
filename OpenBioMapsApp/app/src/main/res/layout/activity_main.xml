@@ -129,5 +129,12 @@
         android:layout_below="@id/textViewImages"
         android:layout_centerHorizontal="true"
         android:text="Get Uploaded Data"/>
+    <Button
+        android:id="@+id/buttonLocal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/buttonGet"
+        android:layout_centerHorizontal="true"
+        android:text="Save local db"/>
 </RelativeLayout>
 </ScrollView>
