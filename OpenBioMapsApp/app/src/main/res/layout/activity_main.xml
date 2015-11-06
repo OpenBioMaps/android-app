@@ -28,7 +28,7 @@
         android:layout_marginRight="10dip"
         android:scrollbarAlwaysDrawVerticalTrack="true"
         android:inputType="textMultiLine"
-        android:layout_height="150dip"
+        android:layout_height="75dip"
         android:gravity="top"
         android:padding="5dip"
         android:layout_below="@+id/textViewNote"
@@ -80,15 +80,16 @@
         android:layout_alignLeft="@+id/buttonPosition"
         android:layout_alignStart="@+id/etNote" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/voice_records_text"
-        android:id="@+id/textViewAudioRecords"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/audioRecycler"
         android:layout_below="@+id/buttonAudioRecord"
-        android:layout_alignLeft="@+id/buttonAudioRecord"
-        android:layout_alignStart="@+id/buttonAudioRecord" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/buttonCamera"
+        android:layout_alignStart="@+id/buttonCamera"
+        android:paddingTop="5dp"
+        android:scrollbars="horizontal"
+        />
 
     <Button
         android:id="@+id/buttonCamera"
@@ -97,7 +98,7 @@
         android:text="@string/button_create_image_text"
         android:padding="5dip"
         android:layout_marginTop="8dip"
-        android:layout_below="@+id/textViewAudioRecords"
+        android:layout_below="@+id/audioRecycler"
         android:layout_alignLeft="@+id/buttonPosition"
         android:layout_alignStart="@+id/etNote" />
 

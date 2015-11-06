@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    >
+
+    <hu.ektf.iot.openbiomapsapp.view.SquareImageView
+        android:id="@+id/imageAudio"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_margin="2dp"
+        android:scaleType="centerCrop"
+        app:fixedAlong="height">
+
+    </hu.ektf.iot.openbiomapsapp.view.SquareImageView>
+
+    <TextView
+        android:id="@+id/tvAudio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageAudio"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="2dp" />
+</RelativeLayout>

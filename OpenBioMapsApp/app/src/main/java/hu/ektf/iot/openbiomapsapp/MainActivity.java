@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
@@ -67,11 +68,13 @@ public class MainActivity extends AppCompatActivity {
 
     //Views
     EditText etNote;
-    TextView tvPosition, tvVoiceRecords;
-    Button tvButton, buttonShowMap, buttonAudioRecord, buttonGet, buttonCamera;
-    private RecyclerView imageList;
-    private ImageListAdapter adapter;
+    TextView tvPosition;
+    Button tvButton, buttonShowMap, buttonAudioRecord, buttonGet, buttonCamera, buttonLocal;
+    private RecyclerView imageRecycler, audioRecycler;
+    private ImageListAdapter adapterImage;
+    private AudioListAdapter adapterAudio;
     private ArrayList<String> imagesList = new ArrayList<>();
+    private ArrayList<String> audiosList = new ArrayList<>();
     private String selectedImagePath;
     private File imageFile;
 
@@ -84,8 +87,12 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             selectedImagePath = savedInstanceState.getString("selectedImagePath");
             ArrayList<String> siImagesList = savedInstanceState.getStringArrayList("imagesList");
+            ArrayList<String> siAudiosList = savedInstanceState.getStringArrayList("audiosList");
             if (siImagesList != null) {
                 imagesList.addAll(siImagesList);
+            }
+            if (siAudiosList != null) {
+                audiosList.addAll(siAudiosList);
             }
         }
         setContentView(R.layout.activity_main);
@@ -96,12 +103,12 @@ public class MainActivity extends AppCompatActivity {
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
-        tvVoiceRecords = (TextView) findViewById(R.id.textViewAudioRecords);
         tvButton = (Button) findViewById(R.id.buttonPosition);
         buttonShowMap = (Button) findViewById(R.id.buttonShowMap);
         buttonAudioRecord = (Button) findViewById(R.id.buttonAudioRecord);
         buttonGet = (Button) findViewById(R.id.buttonGet);
-        imageList = (RecyclerView) findViewById(R.id.imageList);
+        imageRecycler = (RecyclerView) findViewById(R.id.imageList);
+        audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
 		buttonLocal = (Button) findViewById(R.id.buttonLocal);
         buttonCamera.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +119,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(imagesList.size() == 0) {
+            imageRecycler.setVisibility(View.GONE);}
+        if(audiosList.size() == 0) {
+            audioRecycler.setVisibility(View.GONE);
+        }
 
         tvButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,10 +157,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
         int unitWidth = getListUnitWidth();
-        adapter = new ImageListAdapter(imagesList);
-        adapter.setImageSize(unitWidth);
+        adapterImage = new ImageListAdapter(imagesList);
+        adapterAudio = new AudioListAdapter(audiosList);
+        adapterImage.setImageSize(unitWidth);
+        adapterAudio.setImageSize(unitWidth-5);
 
-        adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        adapterImage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), ImagePagerActivity.class);
@@ -157,11 +172,27 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        adapterAudio.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent();
+                intent.setAction(android.content.Intent.ACTION_VIEW);
+                String audiourl = "content://media/external/audio/media/" + audiosList.get(position);
+                Uri myUri = Uri.parse(audiourl);
+                intent.setDataAndType(myUri, "audio/*");
+                startActivity(intent);
+            }
+        });
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        imageList.setLayoutManager(layoutManager);
+        imageRecycler.setLayoutManager(layoutManager);
+        RecyclerView.LayoutManager layoutAudio = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        audioRecycler.setLayoutManager(layoutAudio);
         setListHeight(unitWidth);
-        imageList.setHasFixedSize(true);
-        imageList.setAdapter(adapter);
+        imageRecycler.setHasFixedSize(true);
+        audioRecycler.setHasFixedSize(true);
+        imageRecycler.setAdapter(adapterImage);
+        audioRecycler.setAdapter(adapterAudio);
 
         buttonAudioRecord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,8 +232,6 @@ public class MainActivity extends AppCompatActivity {
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-
-
                         String result = sb.toString();
                         Log.d("result", result);
                     }
@@ -256,6 +285,7 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         outState.putString("selectedImagePath", selectedImagePath);
         outState.putStringArrayList("imagesList", imagesList);
+        outState.putStringArrayList("audiosList", audiosList);
     }
 
     @Override
@@ -283,16 +313,18 @@ public class MainActivity extends AppCompatActivity {
         if (imageFile != null) {
             String local = "file://" + imageFile.getPath();
             imagesList.add(local);
-            adapter.notifyDataSetChanged();
-            imageList.setVisibility(View.VISIBLE);
+            adapterImage.notifyDataSetChanged();
+            imageRecycler.setVisibility(View.VISIBLE);
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
         if (requestCode == REQUESTCODE_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
-                String fileName = audioUri.getLastPathSegment() + ".3gp";
+                String fileName = audioUri.getLastPathSegment();
                 Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
-                tvVoiceRecords.setText(tvVoiceRecords.getText() + fileName + " ");
+                audiosList.add(fileName);
+                adapterAudio.notifyDataSetChanged();
+                audioRecycler.setVisibility(View.VISIBLE);
                 //TODO: save audio to local db
             } else {
                 Toast.makeText(getApplicationContext(), R.string.error_audio_capture_text, Toast.LENGTH_LONG).show();
@@ -379,9 +411,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setListHeight(int height) {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageList.getLayoutParams();
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageRecycler.getLayoutParams();
         params.height = height;
-        imageList.setLayoutParams(params);
+        imageRecycler.setLayoutParams(params);
+        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) audioRecycler.getLayoutParams();
+        params2.height = height;
+        audioRecycler.setLayoutParams(params2);
     }
 
     /**
