@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -219,38 +220,21 @@ public class MainActivity extends AppCompatActivity {
         buttonSaveLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-
-                Uri storage = Uri.parse(URL);
-                Cursor c = managedQuery(storage,null,null,null,"_ID");
-                if (c.moveToFirst()) {
-                    do{
-                        Log.d("In storage ", c.getString(c.getColumnIndex(LocalDB._ID))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.COMMENT))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.GEOMETRY))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.SOUND_FILE))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE)));
-                    } while (c.moveToNext());
-                }
-            }
-        });
-        /*
-        buttonLocal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
-                //TODO PROPER VARIABLES HAVE TO GET PROPER VALUES
                 contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
                 contentValues.put(LocalDB.GEOMETRY,formattedPosition);
                 contentValues.put(LocalDB.SOUND_FILE,"SOUNDFILE");
                 contentValues.put(LocalDB.IMAGE_FILE,"IMAGEFILE");
-                contentValues.put(LocalDB.DATE,"SYSDATE");
+                Calendar c = Calendar.getInstance();
+                int seconds = c.get(Calendar.SECOND);
+                contentValues.put(LocalDB.DATE,String.valueOf(seconds));
+                contentValues.put(LocalDB.RESPONSE,0);
                 Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
 
                 Toast.makeText(getBaseContext(),
                         uri.toString(), Toast.LENGTH_LONG).show();
             }
-        });*/
+        });
     }
 
     @Override
