@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -224,16 +225,16 @@ public class MainActivity extends AppCompatActivity {
                 Cursor c = managedQuery(storage,null,null,null,"_ID");
                 if (c.moveToFirst()) {
                     do{
-                        Log.d("In storage ",c.getString(c.getColumnIndex(LocalDB._ID))
-                                +", "+c.getString(c.getColumnIndex(LocalDB.COMMENT))
-                                +", "+c.getString(c.getColumnIndex(LocalDB.GEOMETRY))
-                                +", "+c.getString(c.getColumnIndex(LocalDB.SOUND_FILE))
-                                +", "+c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE)));
+                        Log.d("In storage ", c.getString(c.getColumnIndex(LocalDB._ID))
+                                + ", " + c.getString(c.getColumnIndex(LocalDB.COMMENT))
+                                + ", " + c.getString(c.getColumnIndex(LocalDB.GEOMETRY))
+                                + ", " + c.getString(c.getColumnIndex(LocalDB.SOUND_FILE))
+                                + ", " + c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE)));
                     } while (c.moveToNext());
                 }
             }
         });
-
+        /*
         buttonLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -249,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(getBaseContext(),
                         uri.toString(), Toast.LENGTH_LONG).show();
             }
-        });
+        });*/
     }
 
     @Override
