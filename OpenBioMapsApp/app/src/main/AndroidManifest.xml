@@ -27,8 +27,15 @@
             </intent-filter>
         </activity>
 
-        <provider android:name=".LocalDB" android:authorities="hu.ektf.iot.openbiomapsapp"/>
+        <provider
+            android:name=".LocalDB"
+            android:authorities="hu.ektf.iot.openbiomapsapp" />
 
+        <activity
+            android:name=".UploadActivity"
+            android:label="@string/title_activity_upload"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
     </application>
 
 </manifest>

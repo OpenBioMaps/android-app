@@ -21,7 +21,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,10 +32,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,19 +43,15 @@ import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
 
 public class MainActivity extends AppCompatActivity {
 
     //Static stuffs
-
     final public static String END_POINT = "http://openbiomaps.org/pds";
 
     //REQ CODES
-    final static int REQUESTCODE_RECORDING = 1;
+    final static int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
     private static final int REQ_CAMERA = 3;
 
@@ -69,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
     //Views
     EditText etNote;
     TextView tvPosition;
-    Button tvButton, buttonShowMap, buttonAudioRecord, buttonGet, buttonCamera, buttonLocal;
+    Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSaveLocal, buttonReset;
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
     private AudioListAdapter adapterAudio;
@@ -79,7 +72,9 @@ public class MainActivity extends AppCompatActivity {
     private File imageFile;
 
     //retrofit
-    IDownloader downloader;
+    private IDownloader downloader;
+
+    private Integer currentRecordId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,14 +98,15 @@ public class MainActivity extends AppCompatActivity {
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
-        tvButton = (Button) findViewById(R.id.buttonPosition);
+        buttonPosition = (Button) findViewById(R.id.buttonPosition);
         buttonShowMap = (Button) findViewById(R.id.buttonShowMap);
         buttonAudioRecord = (Button) findViewById(R.id.buttonAudioRecord);
-        buttonGet = (Button) findViewById(R.id.buttonGet);
-        imageRecycler = (RecyclerView) findViewById(R.id.imageList);
+        imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
         audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-		buttonLocal = (Button) findViewById(R.id.buttonLocal);
+        buttonSaveLocal = (Button) findViewById(R.id.buttonSaveLocal);
+        buttonReset = (Button) findViewById(R.id.buttonReset);
+
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -120,13 +116,14 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if(imagesList.size() == 0) {
-            imageRecycler.setVisibility(View.GONE);}
-        if(audiosList.size() == 0) {
+        if (imagesList.size() == 0) {
+            imageRecycler.setVisibility(View.GONE);
+        }
+        if (audiosList.size() == 0) {
             audioRecycler.setVisibility(View.GONE);
         }
 
-        tvButton.setOnClickListener(new View.OnClickListener() {
+        buttonPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 buttonShowMap.setEnabled(false);
@@ -137,13 +134,21 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 currentLocation = gpsHandler.getLocation();
-                //We dont reach this part if the gps is off
                 if (currentLocation != null) {
                     tvPosition.setText("szélesség: " + currentLocation.getLatitude() + "\nhosszúság: " + currentLocation.getLongitude());
                     buttonShowMap.setEnabled(true);
+                    buttonSaveLocal.setEnabled(true);
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
                 }
+            }
+        });
+
+        buttonReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                resetFields();
+                currentRecordId = null;
             }
         });
 
@@ -160,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         adapterImage = new ImageListAdapter(imagesList);
         adapterAudio = new AudioListAdapter(audiosList);
         adapterImage.setImageSize(unitWidth);
-        adapterAudio.setImageSize(unitWidth-5);
+        adapterAudio.setImageSize(unitWidth - 5);
 
         adapterImage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -201,59 +206,21 @@ public class MainActivity extends AppCompatActivity {
                         new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
                 if (isAvailable(MainActivity.this, intent)) {
                     startActivityForResult(intent,
-                            REQUESTCODE_RECORDING);
+                            REQ_RECORDING);
                 }
             }
         });
 
-        buttonGet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                downloader.getUploadedData(new Callback<Response>() {
-                    @Override
-                    public void success(Response s, Response response) {
-                        Log.d("success", s.toString());
-                        //Try to get response body
-                        BufferedReader reader = null;
-                        StringBuilder sb = new StringBuilder();
-                        try {
-
-                            reader = new BufferedReader(new InputStreamReader(s.getBody().in()));
-
-                            String line;
-
-                            try {
-                                while ((line = reader.readLine()) != null) {
-                                    sb.append(line);
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        String result = sb.toString();
-                        Log.d("result", result);
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d("Error", error.toString());
-                    }
-                });
-            }
-        });
-
-        buttonLocal.setOnClickListener(new View.OnClickListener() {
+        buttonSaveLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
 
-                contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
-                contentValues.put(LocalDB.GEOMETRY,etNote.getText().toString()+" geometry teszt");
-                contentValues.put(LocalDB.SOUND_FILE,etNote.getText().toString()+" soundfile teszt");
-                contentValues.put(LocalDB.IMAGE_FILE,etNote.getText().toString()+" imagefile teszt");
-                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
+                contentValues.put(LocalDB.COMMENT, etNote.getText().toString());
+                contentValues.put(LocalDB.GEOMETRY, etNote.getText().toString() + " geometry teszt");
+                contentValues.put(LocalDB.SOUND_FILE, etNote.getText().toString() + " soundfile teszt");
+                contentValues.put(LocalDB.IMAGE_FILE, etNote.getText().toString() + " imagefile teszt");
+                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
 
                 Toast.makeText(getBaseContext(),
                         uri.toString(), Toast.LENGTH_LONG).show();
@@ -317,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
             imageRecycler.setVisibility(View.VISIBLE);
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
-        if (requestCode == REQUESTCODE_RECORDING) {
+        if (requestCode == REQ_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
@@ -338,6 +305,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
+        if (id == R.id.action_upload) {
+            Intent intent = new Intent(MainActivity.this, UploadActivity.class);
+            startActivity(intent);
+        }
         if (id == R.id.action_server_settings) {
             LayoutInflater li = LayoutInflater.from(MainActivity.this);
             View dialogView = li.inflate(R.layout.dialog_server_settings, null);
@@ -541,5 +512,17 @@ public class MainActivity extends AppCompatActivity {
     private static boolean isSDPresent() {
         return android.os.Environment.getExternalStorageState().equals(
                 android.os.Environment.MEDIA_MOUNTED);
+    }
+
+    private void resetFields() {
+        etNote.setText("");
+        imagesList.clear();
+        audiosList.clear();
+        adapterAudio.notifyDataSetChanged();
+        adapterImage.notifyDataSetChanged();
+        audioRecycler.setVisibility(View.GONE);
+        imageRecycler.setVisibility(View.GONE);
+        currentLocation = null;
+        buttonSaveLocal.setEnabled(false);
     }
 }

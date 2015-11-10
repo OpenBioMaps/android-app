@@ -24,9 +24,12 @@
     <string name="no_file">Fájl létrehozása nem sikerült</string>
     <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
     <string name="image_source_cancel">Mégse</string>
+    <string name="button_save_text">MENTÉS</string>
+    <string name="button_reset">ÚJAT KEZD</string>
     <string-array name="image_source">
         <item>SD kártya</item>
         <item>Kép készítése</item>
     </string-array>
+    <string name="title_activity_upload">UploadActivity</string>
 
 </resources>
