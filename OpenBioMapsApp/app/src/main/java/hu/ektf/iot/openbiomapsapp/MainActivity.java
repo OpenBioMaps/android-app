@@ -2,6 +2,7 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -54,7 +55,6 @@ import retrofit.client.Response;
 public class MainActivity extends AppCompatActivity {
 
     //Static stuffs
-
     final public static String END_POINT = "http://openbiomaps.org/pds";
 
     //REQ CODES
@@ -80,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
     //retrofit
     IDownloader downloader;
+
+    private String formattedPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                 //We dont reach this part if the gps is off
                 if (currentLocation != null) {
                     tvPosition.setText("szélesség: " + currentLocation.getLatitude() + "\nhosszúság: " + currentLocation.getLongitude());
+                    formattedPosition = "szélesség: " + currentLocation.getLatitude() + " hosszúság: " + currentLocation.getLongitude();
                     buttonShowMap.setEnabled(true);
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
@@ -209,38 +212,19 @@ public class MainActivity extends AppCompatActivity {
         buttonGet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                downloader.getUploadedData(new Callback<Response>() {
-                    @Override
-                    public void success(Response s, Response response) {
-                        Log.d("success", s.toString());
-                        //Try to get response body
-                        BufferedReader reader = null;
-                        StringBuilder sb = new StringBuilder();
-                        try {
+                String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
 
-                            reader = new BufferedReader(new InputStreamReader(s.getBody().in()));
-
-                            String line;
-
-                            try {
-                                while ((line = reader.readLine()) != null) {
-                                    sb.append(line);
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        String result = sb.toString();
-                        Log.d("result", result);
-                    }
-
-                    @Override
-                    public void failure(RetrofitError error) {
-                        Log.d("Error", error.toString());
-                    }
-                });
+                Uri storage = Uri.parse(URL);
+                Cursor c = managedQuery(storage,null,null,null,"_ID");
+                if (c.moveToFirst()) {
+                    do{
+                        Log.d("In storage ",c.getString(c.getColumnIndex(LocalDB._ID))
+                                +", "+c.getString(c.getColumnIndex(LocalDB.COMMENT))
+                                +", "+c.getString(c.getColumnIndex(LocalDB.GEOMETRY))
+                                +", "+c.getString(c.getColumnIndex(LocalDB.SOUND_FILE))
+                                +", "+c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE)));
+                    } while (c.moveToNext());
+                }
             }
         });
 
@@ -248,18 +232,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
-
+                //TODO PROPER VARIABLES HAVE TO GET PROPER VALUES
                 contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
-                contentValues.put(LocalDB.GEOMETRY,etNote.getText().toString()+" geometry teszt");
-                contentValues.put(LocalDB.SOUND_FILE,etNote.getText().toString()+" soundfile teszt");
-                contentValues.put(LocalDB.IMAGE_FILE,etNote.getText().toString()+" imagefile teszt");
+                contentValues.put(LocalDB.GEOMETRY,formattedPosition);
+                contentValues.put(LocalDB.SOUND_FILE,"SOUNDFILE");
+                contentValues.put(LocalDB.IMAGE_FILE,"IMAGEFILE");
+                contentValues.put(LocalDB.DATE,"SYSDATE");
                 Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
 
                 Toast.makeText(getBaseContext(),
                         uri.toString(), Toast.LENGTH_LONG).show();
             }
         });
-
     }
 
     @Override
