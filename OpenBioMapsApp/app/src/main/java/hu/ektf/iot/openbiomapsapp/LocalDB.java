@@ -48,7 +48,7 @@ public class LocalDB extends android.content.ContentProvider {
     private SQLiteDatabase db;
     static final String DATABASE_NAME = "iot.openbiomapsapp";
     static final String TABLE_NAME = "storage";
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 2;
     static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
                     "(_ID INTEGER PRIMARY KEY AUTOINCREMENT, "+

@@ -126,24 +126,12 @@
         android:enabled="false" />
 
     <Button
-        android:id="@+id/buttonSaveLocal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_save_text"
-        android:layout_below="@+id/imageRecycler"
-        android:layout_toLeftOf="@+id/buttonShowMap"
-        android:layout_alignLeft="@+id/imageRecycler"
-        android:layout_alignStart="@+id/imageRecycler"
-        android:enabled="false" />
-    <Button
         android:id="@+id/buttonReset"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/button_reset"
         android:layout_below="@+id/imageRecycler"
-        android:layout_toRightOf="@+id/buttonSaveLocal"
-        android:layout_alignRight="@+id/buttonShowMap"
-        android:layout_alignEnd="@+id/buttonShowMap"
+        android:layout_centerHorizontal="true"
         android:enabled="true" />
 </RelativeLayout>
 </ScrollView>
