@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import java.util.HashMap;
 
@@ -47,7 +48,7 @@ public class LocalDB extends android.content.ContentProvider {
     private SQLiteDatabase db;
     static final String DATABASE_NAME = "iot.openbiomapsapp";
     static final String TABLE_NAME = "storage";
-    static final int DATABASE_VERSION = 1;
+    static final int DATABASE_VERSION = 2;
     static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
                     "(_ID INTEGER PRIMARY KEY AUTOINCREMENT, "+
@@ -129,8 +130,23 @@ public class LocalDB extends android.content.ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
-        //TODO
-        return 0;
+        int count = 0;
+
+        switch (uriMatcher.match(uri)){
+            case RECORDS:
+                count = db.update(TABLE_NAME, contentValues, selection, selectionArgs);
+                break;
+
+            case RECORD_ID:
+                count = db.update(TABLE_NAME, contentValues, _ID + " = " + uri.getPathSegments().get(1) +
+                        (!TextUtils.isEmpty(selection) ? " AND (" +selection + ')' : ""), selectionArgs);
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri );
+        }
+        getContext().getContentResolver().notifyChange(uri, null);
+        return count;
     }
 
     @Override

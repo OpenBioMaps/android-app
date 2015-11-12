@@ -35,8 +35,11 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -69,15 +72,16 @@ public class MainActivity extends AppCompatActivity {
     private AudioListAdapter adapterAudio;
     private ArrayList<String> imagesList = new ArrayList<>();
     private ArrayList<String> audiosList = new ArrayList<>();
-    private String selectedImagePath;
-    private File imageFile;
 
     //retrofit
     private IDownloader downloader;
 
+    //LocalDB management
     private String formattedPosition;
-
     private Integer currentRecordId;
+    private String selectedImagePath;
+    private String soundPath = "";
+    private File imageFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,6 +149,10 @@ public class MainActivity extends AppCompatActivity {
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
                 }
+
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                SaveLocal(setContentValues(etNote.getText().toString(),tvPosition.getText().toString(),soundPath,selectedImagePath,dateFormat.format(date),0));
             }
         });
 
@@ -214,42 +222,79 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        buttonSaveLocal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-
-                Uri storage = Uri.parse(URL);
-                Cursor c = managedQuery(storage, null, null, null, "_ID");
-                if (c.moveToFirst()) {
-                    do {
-                        Log.d("In storage ", c.getString(c.getColumnIndex(LocalDB._ID))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.COMMENT))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.GEOMETRY))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.SOUND_FILE))
-                                + ", " + c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE)));
-                    } while (c.moveToNext());
-                }
-            }
-        });
-
+        /*
         buttonSaveLocal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ContentValues contentValues = new ContentValues();
-                //TODO PROPER VARIABLES HAVE TO GET PROPER VALUES
-                contentValues.put(LocalDB.COMMENT, etNote.getText().toString());
-                contentValues.put(LocalDB.GEOMETRY, formattedPosition);
-                contentValues.put(LocalDB.SOUND_FILE, "SOUNDFILE");
-                contentValues.put(LocalDB.IMAGE_FILE, "IMAGEFILE");
-                contentValues.put(LocalDB.DATE, "SYSDATE");
-                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
+                contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
+                contentValues.put(LocalDB.GEOMETRY,formattedPosition);
+                contentValues.put(LocalDB.SOUND_FILE,soundPath);
+                contentValues.put(LocalDB.IMAGE_FILE,selectedImagePath);
+                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                Date date = new Date();
+                contentValues.put(LocalDB.DATE,dateFormat.format(date));
+                contentValues.put(LocalDB.RESPONSE, "0"); //TODO save the proper response code
+                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
 
                 Toast.makeText(getBaseContext(),
                         uri.toString(), Toast.LENGTH_LONG).show();
+                Log.d("LocalDB record",etNote.getText().toString()
+                        +" "+formattedPosition+" "+soundPath+" "+selectedImagePath+" "+dateFormat.format(date)+
+                " "+"0");
             }
-        });
+        });*/
+    }
+
+    private boolean SaveLocal(ContentValues contentValues) {
+        currentRecordId = getCurrentRecordId();
+        if(currentRecordId>0)
+        {
+            //TODO UPDATE
+        }
+        else
+        {
+            //TODO INSERT
+        }
+        return true;
+    }
+
+    private ContentValues setContentValues(String note, String position, String soundPath, String imagePath, String date, int response) {
+
+        ContentValues contentValues = new ContentValues();
+
+        contentValues.put(LocalDB.COMMENT,note);
+        contentValues.put(LocalDB.GEOMETRY,position);
+        contentValues.put(LocalDB.SOUND_FILE,soundPath);
+        contentValues.put(LocalDB.IMAGE_FILE,imagePath);
+        contentValues.put(LocalDB.DATE, date);
+        contentValues.put(LocalDB.RESPONSE, response);
+
+        return contentValues;
+    }
+
+    private int getCurrentRecordId() {
+        String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
+
+        Uri storage = Uri.parse(URL);
+        Cursor c = managedQuery(storage, null, null, null, "_ID");
+
+        ArrayList<Integer> ids = new ArrayList<Integer>();
+
+        if(c.moveToFirst())
+        {
+            do
+            {
+                ids.add(Integer.valueOf(c.getString(c.getColumnIndex(LocalDB._ID))));
+            }while(c.moveToNext());
+
+            Collections.sort(ids);
+            return ids.get(ids.size()-1);
+        }
+        else
+        {
+            return -1;
+        }
     }
 
     @Override
@@ -311,6 +356,8 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
+                soundPath = audioUri.getPath();
+                Log.d("soundPath",soundPath);
                 Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
