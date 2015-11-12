@@ -26,6 +26,8 @@
     <string name="image_source_cancel">Mégse</string>
     <string name="button_save_text">MENTÉS</string>
     <string name="button_reset">ÚJAT KEZD</string>
+    <string name="button_upload_text">FELTÖLTÉS</string>
+    <string name="button_export_text">ADATOK EXPORTÁLÁSA</string>
     <string-array name="image_source">
         <item>SD kártya</item>
         <item>Kép készítése</item>
