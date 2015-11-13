@@ -8,9 +8,10 @@ import android.support.v7.widget.RecyclerView;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
-import hu.ektf.iot.openbiomapsapp.helper.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.object.ListObject;
 
+// TODO Set the parent activity to be the MainActivity in the manifest
 public class UploadActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;

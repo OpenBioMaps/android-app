@@ -13,11 +13,11 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -51,13 +50,17 @@ import retrofit.RestAdapter;
 
 public class MainActivity extends AppCompatActivity {
 
-    //Static stuffs
-    final public static String END_POINT = "http://openbiomaps.org/pds";
+    public final static String END_POINT = "http://openbiomaps.org/pds";
 
     //REQ CODES
-    final static int REQ_RECORDING = 1;
+    private static final int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
     private static final int REQ_CAMERA = 3;
+
+    // State key constants
+    private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
+    private static final String IMAGES_LIST = "imagesList";
+    private static final String AUDIOS_LIST = "audiosList";
 
     //Gps stuffs
     GpsHandler gpsHandler;
@@ -79,6 +82,8 @@ public class MainActivity extends AppCompatActivity {
     //LocalDB management
     private String formattedPosition;
     private Integer currentRecordId;
+
+    // File
     private String selectedImagePath;
     private String soundPath = "";
     private File imageFile;
@@ -86,10 +91,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
         if (savedInstanceState != null) {
-            selectedImagePath = savedInstanceState.getString("selectedImagePath");
-            ArrayList<String> siImagesList = savedInstanceState.getStringArrayList("imagesList");
-            ArrayList<String> siAudiosList = savedInstanceState.getStringArrayList("audiosList");
+            selectedImagePath = savedInstanceState.getString(SELECTED_IMAGE_PATH);
+            ArrayList<String> siImagesList = savedInstanceState.getStringArrayList(IMAGES_LIST);
+            ArrayList<String> siAudiosList = savedInstanceState.getStringArrayList(AUDIOS_LIST);
             if (siImagesList != null) {
                 imagesList.addAll(siImagesList);
             }
@@ -97,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                 audiosList.addAll(siAudiosList);
             }
         }
-        setContentView(R.layout.activity_main);
         gpsHandler = new GpsHandler(MainActivity.this);
         RestAdapter retrofit = new RestAdapter.Builder().setEndpoint(END_POINT).build();
         downloader = retrofit.create(IDownloader.class);
@@ -111,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
         audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-        buttonSaveLocal = (Button) findViewById(R.id.buttonSaveLocal);
+        //buttonSaveLocal = (Button) findViewById(R.id.buttonSaveLocal);
         buttonReset = (Button) findViewById(R.id.buttonReset);
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
@@ -142,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 currentLocation = gpsHandler.getLocation();
                 if (currentLocation != null) {
+                    // TODO Use strings
                     tvPosition.setText("szélesség: " + currentLocation.getLatitude() + "\nhosszúság: " + currentLocation.getLongitude());
                     formattedPosition = "szélesség: " + currentLocation.getLatitude() + " hosszúság: " + currentLocation.getLongitude();
                     buttonShowMap.setEnabled(true);
@@ -259,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    // TODO greate a getContentValues function in the ListObject class, and use that to generate the ContentVlues
     private ContentValues setContentValues(String note, String position, String soundPath, String imagePath, String date, int response) {
 
         ContentValues contentValues = new ContentValues();
@@ -274,6 +282,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private int getCurrentRecordId() {
+        // TODO Use the ContentProvider to query the last edited element
         String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
 
         Uri storage = Uri.parse(URL);
@@ -318,9 +327,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString("selectedImagePath", selectedImagePath);
-        outState.putStringArrayList("imagesList", imagesList);
-        outState.putStringArrayList("audiosList", audiosList);
+        outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
+        outState.putStringArrayList(IMAGES_LIST, imagesList);
+        outState.putStringArrayList(AUDIOS_LIST, audiosList);
     }
 
     @Override
@@ -518,6 +527,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // TODO Could be separated in a FileHelper file
     @SuppressLint("NewApi")
     private String getPath(Uri uri) {
         if (uri == null) {
@@ -555,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
         return path;
     }
 
+    // TODO Could be separated in a FileHelper file
     /**
      * This method creates an File object helping the image uploading process.
      *
@@ -579,6 +590,7 @@ public class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    // TODO Could be separated in a FileHelper file
     private static boolean isSDPresent() {
         return android.os.Environment.getExternalStorageState().equals(
                 android.os.Environment.MEDIA_MOUNTED);

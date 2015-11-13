@@ -17,6 +17,7 @@ import java.util.HashMap;
 /**
  * Created by gerybravo on 2015.11.05..
  */
+//TODO Rename to OpenBioContentProvider
 public class LocalDB extends android.content.ContentProvider {
 
     static final String PROVIDER_NAME = "hu.ektf.iot.openbiomapsapp";
