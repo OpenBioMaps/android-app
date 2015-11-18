@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.HashMap;
 
@@ -25,13 +26,13 @@ public class LocalDB extends android.content.ContentProvider {
     static final Uri CONTENT_URI = Uri.parse(URL);
     private static Uri getContentUri(){return CONTENT_URI;}
 
-    static final String _ID = "_ID";
-    static final String COMMENT = "COMMENT";
-    static final String GEOMETRY = "GEOMETRY";
-    static final String SOUND_FILE = "SOUND_FILE";
-    static final String IMAGE_FILE = "IMAGE_FILE";
-    static final String DATE = "DATE";
-    static final String RESPONSE = "RESPONSE";
+    public static final String _ID = "_ID";
+    public static final String COMMENT = "COMMENT";
+    public static final String GEOMETRY = "GEOMETRY";
+    public static final String SOUND_FILE = "SOUND_FILE";
+    public static final String IMAGE_FILE = "IMAGE_FILE";
+    public static final String DATE = "DATE";
+    public static final String RESPONSE = "RESPONSE";
 
     private static HashMap<String, String> STORAGE_PROJECTION_MAP;
 
@@ -49,7 +50,7 @@ public class LocalDB extends android.content.ContentProvider {
     private SQLiteDatabase db;
     static final String DATABASE_NAME = "iot.openbiomapsapp";
     static final String TABLE_NAME = "storage";
-    static final int DATABASE_VERSION = 2;
+    static final int DATABASE_VERSION = 3;
     static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
                     "(_ID INTEGER PRIMARY KEY AUTOINCREMENT, "+
@@ -96,6 +97,7 @@ public class LocalDB extends android.content.ContentProvider {
         {
             Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
             getContext().getContentResolver().notifyChange(_uri, null);
+            Log.d("LocalDB","insert done");
             return _uri;
         }
         throw new SQLException("Failed to add a record into " + uri);
@@ -120,12 +122,14 @@ public class LocalDB extends android.content.ContentProvider {
 
         Cursor cursor = qb.query(db,projectiion,selection,selectionArgs,null,null,null);
         cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        Log.d("LocalDB", "query done");
         return cursor;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        //TODO
+        //TODO @szugyi do we need this?
+        Log.d("LocalDB","delete done");
         return 0;
     }
 
@@ -147,12 +151,14 @@ public class LocalDB extends android.content.ContentProvider {
                 throw new IllegalArgumentException("Unknown URI " + uri );
         }
         getContext().getContentResolver().notifyChange(uri, null);
+        Log.d("LocalDB", "update done");
         return count;
     }
 
     @Override
     public String getType(Uri uri) {
-        //TODO
+        //TODO @szugyi do we need this?
+        Log.d("LocalDB","getType done");
         return "";
     }
 }

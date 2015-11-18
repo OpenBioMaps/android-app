@@ -2,6 +2,7 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +48,7 @@ import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
 import retrofit.RestAdapter;
 
 public class MainActivity extends AppCompatActivity {
@@ -81,9 +84,10 @@ public class MainActivity extends AppCompatActivity {
 
     //LocalDB management
     private String formattedPosition;
-    private Integer currentRecordId;
+    private Integer currentRecordId = -1;
 
     // File
+    private NoteRecord noteRecord;
     private String selectedImagePath;
     private String soundPath = "";
     private File imageFile;
@@ -117,7 +121,6 @@ public class MainActivity extends AppCompatActivity {
         imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
         audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-        //buttonSaveLocal = (Button) findViewById(R.id.buttonSaveLocal);
         buttonReset = (Button) findViewById(R.id.buttonReset);
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
@@ -152,22 +155,24 @@ public class MainActivity extends AppCompatActivity {
                     tvPosition.setText("szélesség: " + currentLocation.getLatitude() + "\nhosszúság: " + currentLocation.getLongitude());
                     formattedPosition = "szélesség: " + currentLocation.getLatitude() + " hosszúság: " + currentLocation.getLongitude();
                     buttonShowMap.setEnabled(true);
-                    buttonSaveLocal.setEnabled(true);
+
+                    Calendar c = Calendar.getInstance();
+                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    String formattedDate = df.format(c.getTime());
+                    noteRecord = new NoteRecord(etNote.getText().toString(),currentLocation,formattedDate,null,null,0);
+                    SaveLocal(noteRecord.getContentValues());
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
                 }
-
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                Date date = new Date();
-                SaveLocal(setContentValues(etNote.getText().toString(),tvPosition.getText().toString(),soundPath,selectedImagePath,dateFormat.format(date),0));
             }
         });
 
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SaveLocal(noteRecord.getContentValues());
+                Log.d("buttonReset","saved record to local");
                 resetFields();
-                currentRecordId = null;
             }
         });
 
@@ -229,64 +234,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        /*
-        buttonSaveLocal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ContentValues contentValues = new ContentValues();
-                contentValues.put(LocalDB.COMMENT,etNote.getText().toString());
-                contentValues.put(LocalDB.GEOMETRY,formattedPosition);
-                contentValues.put(LocalDB.SOUND_FILE,soundPath);
-                contentValues.put(LocalDB.IMAGE_FILE,selectedImagePath);
-                DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-                Date date = new Date();
-                contentValues.put(LocalDB.DATE,dateFormat.format(date));
-                contentValues.put(LocalDB.RESPONSE, "0"); //TODO save the proper response code
-                Uri uri = getContentResolver().insert(LocalDB.CONTENT_URI,contentValues);
-
-                Toast.makeText(getBaseContext(),
-                        uri.toString(), Toast.LENGTH_LONG).show();
-                Log.d("LocalDB record",etNote.getText().toString()
-                        +" "+formattedPosition+" "+soundPath+" "+selectedImagePath+" "+dateFormat.format(date)+
-                " "+"0");
-            }
-        });*/
-    }
-
-    private boolean SaveLocal(ContentValues contentValues) {
-        currentRecordId = getCurrentRecordId();
-        if(currentRecordId>0)
-        {
-            //TODO UPDATE
-        }
-        else
-        {
-            //TODO INSERT
-        }
-        return true;
-    }
-
-    // TODO greate a getContentValues function in the ListObject class, and use that to generate the ContentVlues
-    private ContentValues setContentValues(String note, String position, String soundPath, String imagePath, String date, int response) {
-
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(LocalDB.COMMENT,note);
-        contentValues.put(LocalDB.GEOMETRY,position);
-        contentValues.put(LocalDB.SOUND_FILE,soundPath);
-        contentValues.put(LocalDB.IMAGE_FILE,imagePath);
-        contentValues.put(LocalDB.DATE, date);
-        contentValues.put(LocalDB.RESPONSE, response);
-
-        return contentValues;
     }
 
     private int getCurrentRecordId() {
-        // TODO Use the ContentProvider to query the last edited element
         String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
 
         Uri storage = Uri.parse(URL);
-        Cursor c = managedQuery(storage, null, null, null, "_ID");
+        Cursor c = getContentResolver().query(storage, null, null, null, "_ID");
 
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
@@ -304,6 +258,22 @@ public class MainActivity extends AppCompatActivity {
         {
             return -1;
         }
+    }
+
+    private boolean SaveLocal(ContentValues contentValues) {
+        Uri uri;
+        if(currentRecordId>0)
+        {
+            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI,currentRecordId);
+            getContentResolver().update(uri,contentValues,null,null);
+        }
+        else
+        {
+            uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
+            currentRecordId = getCurrentRecordId();
+        }
+        Log.d("currentRecordId",currentRecordId.toString());
+        return true;
     }
 
     @Override
@@ -359,6 +329,8 @@ public class MainActivity extends AppCompatActivity {
             imagesList.add(local);
             adapterImage.notifyDataSetChanged();
             imageRecycler.setVisibility(View.VISIBLE);
+            noteRecord.setImagesList(imagesList);
+            SaveLocal(noteRecord.getContentValues());
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
         if (requestCode == REQ_RECORDING) {
@@ -371,7 +343,9 @@ public class MainActivity extends AppCompatActivity {
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
                 audioRecycler.setVisibility(View.VISIBLE);
-                //TODO: save audio to local db
+
+                noteRecord.setSoundsList(audiosList);
+                SaveLocal(noteRecord.getContentValues());
             } else {
                 Toast.makeText(getApplicationContext(), R.string.error_audio_capture_text, Toast.LENGTH_LONG).show();
             }
@@ -520,6 +494,7 @@ public class MainActivity extends AppCompatActivity {
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
                         Uri.fromFile(photoFile));
+
                 startActivityForResult(takePictureIntent, REQ_CAMERA);
             } else {
                 Toast.makeText(this, R.string.no_file, Toast.LENGTH_LONG).show();
@@ -605,6 +580,7 @@ public class MainActivity extends AppCompatActivity {
         audioRecycler.setVisibility(View.GONE);
         imageRecycler.setVisibility(View.GONE);
         currentLocation = null;
-        buttonSaveLocal.setEnabled(false);
+        currentRecordId = -1;
+        noteRecord = null;
     }
 }
