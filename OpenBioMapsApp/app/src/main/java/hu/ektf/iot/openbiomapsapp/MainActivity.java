@@ -39,7 +39,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -52,12 +51,8 @@ import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
-import retrofit.RestAdapter;
 
 public class MainActivity extends AppCompatActivity {
-
-    public final static String END_POINT = "http://openbiomaps.org/pds";
-
     //REQ CODES
     private static final int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
@@ -84,9 +79,6 @@ public class MainActivity extends AppCompatActivity {
     private AudioListAdapter adapterAudio;
     private ArrayList<String> imagesList = new ArrayList<>();
     private ArrayList<String> audiosList = new ArrayList<>();
-
-    //retrofit
-    private IDownloader downloader;
 
     //LocalDB management
     private String formattedPosition;
@@ -115,8 +107,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
-        RestAdapter retrofit = new RestAdapter.Builder().setEndpoint(END_POINT).build();
-        downloader = retrofit.create(IDownloader.class);
+
+        //((BioMapsApplication) getApplication()).testService();
 
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
@@ -193,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String formattedDate = df.format(c.getTime());
-                    noteRecord = new NoteRecord(etNote.getText().toString(),currentLocation,formattedDate,null,null,0);
+                    noteRecord = new NoteRecord(etNote.getText().toString(), currentLocation, formattedDate, null, null, 0);
                     SaveLocal(noteRecord.getContentValues());
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
@@ -205,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 SaveLocal(noteRecord.getContentValues());
-                Log.d("buttonReset","saved record to local");
+                Log.d("buttonReset", "saved record to local");
                 resetFields();
             }
         });
@@ -277,35 +269,28 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
-        if(c.moveToFirst())
-        {
-            do
-            {
+        if (c.moveToFirst()) {
+            do {
                 ids.add(Integer.valueOf(c.getString(c.getColumnIndex(LocalDB._ID))));
-            }while(c.moveToNext());
+            } while (c.moveToNext());
 
             Collections.sort(ids);
-            return ids.get(ids.size()-1);
-        }
-        else
-        {
+            return ids.get(ids.size() - 1);
+        } else {
             return -1;
         }
     }
 
     private boolean SaveLocal(ContentValues contentValues) {
         Uri uri;
-        if(currentRecordId>0)
-        {
-            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI,currentRecordId);
-            getContentResolver().update(uri,contentValues,null,null);
-        }
-        else
-        {
+        if (currentRecordId > 0) {
+            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI, currentRecordId);
+            getContentResolver().update(uri, contentValues, null, null);
+        } else {
             uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
             currentRecordId = getCurrentRecordId();
         }
-        Log.d("currentRecordId",currentRecordId.toString());
+        Log.d("currentRecordId", currentRecordId.toString());
         return true;
     }
 
@@ -371,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
                 soundPath = audioUri.getPath();
-                Log.d("soundPath",soundPath);
+                Log.d("soundPath", soundPath);
                 Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
@@ -574,6 +559,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO Could be separated in a FileHelper file
+
     /**
      * This method creates an File object helping the image uploading process.
      *
