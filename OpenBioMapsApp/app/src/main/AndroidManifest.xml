@@ -33,7 +33,9 @@
 
         <activity
             android:name=".UploadActivity"
-            android:label="@string/title_activity_upload"></activity>
+            android:label="@string/title_activity_upload"
+            android:parentActivityName=".MainActivity"
+            ></activity>
     </application>
 
 </manifest>

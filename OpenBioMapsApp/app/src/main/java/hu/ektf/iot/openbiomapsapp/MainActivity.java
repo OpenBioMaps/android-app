@@ -10,11 +10,13 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -29,6 +31,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -69,7 +72,10 @@ public class MainActivity extends AppCompatActivity {
     //Views
     EditText etNote;
     TextView tvPosition;
-    Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSaveLocal, buttonReset;
+    Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonReset;
+    ProgressBar progressGps;
+    private Handler mHandler = new Handler();
+
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
     private AudioListAdapter adapterAudio;
@@ -117,8 +123,8 @@ public class MainActivity extends AppCompatActivity {
         imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
         audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-        //buttonSaveLocal = (Button) findViewById(R.id.buttonSaveLocal);
         buttonReset = (Button) findViewById(R.id.buttonReset);
+        progressGps = (ProgressBar) findViewById(R.id.progressGps);
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,23 +142,49 @@ public class MainActivity extends AppCompatActivity {
             audioRecycler.setVisibility(View.GONE);
         }
 
+        gpsHandler.setExternalListener(new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                progressGps.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onStatusChanged(String s, int i, Bundle bundle) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String s) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String s) {
+
+            }
+        });
+
         buttonPosition.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 buttonShowMap.setEnabled(false);
                 final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+                //IF GPS IS OFF, WE JUST SHOW UP AN DIALOG:
                 if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     buildAlertMessageNoGps();
                     return;
                 }
+                //IF GPS IS ON:
+                progressGps.setVisibility(View.VISIBLE);
                 currentLocation = gpsHandler.getLocation();
                 if (currentLocation != null) {
-                    // TODO Use strings
-                    tvPosition.setText("szélesség: " + currentLocation.getLatitude() + "\nhosszúság: " + currentLocation.getLongitude());
-                    formattedPosition = "szélesség: " + currentLocation.getLatitude() + " hosszúság: " + currentLocation.getLongitude();
+
+                    String strLocation = getResources().getString(R.string.location_text);
+                    String formattedLocation = String.format(strLocation, currentLocation.getLatitude(), currentLocation.getLongitude());
+
+                    tvPosition.setText(formattedLocation);
                     buttonShowMap.setEnabled(true);
-                    buttonSaveLocal.setEnabled(true);
                 } else {
                     tvPosition.setText(R.string.no_gps_data);
                 }
@@ -284,7 +316,6 @@ public class MainActivity extends AppCompatActivity {
     private int getCurrentRecordId() {
         // TODO Use the ContentProvider to query the last edited element
         String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-
         Uri storage = Uri.parse(URL);
         Cursor c = managedQuery(storage, null, null, null, "_ID");
 
@@ -605,6 +636,5 @@ public class MainActivity extends AppCompatActivity {
         audioRecycler.setVisibility(View.GONE);
         imageRecycler.setVisibility(View.GONE);
         currentLocation = null;
-        buttonSaveLocal.setEnabled(false);
     }
 }

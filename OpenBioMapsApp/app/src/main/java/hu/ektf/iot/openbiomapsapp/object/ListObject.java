@@ -16,8 +16,6 @@ public class ListObject {
     private Integer status;
     Location l;
 
-
-
     public Integer getStatus() {
         return status;
     }

@@ -11,7 +11,6 @@ import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.object.ListObject;
 
-// TODO Set the parent activity to be the MainActivity in the manifest
 public class UploadActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
@@ -30,6 +29,8 @@ public class UploadActivity extends AppCompatActivity {
 
         mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
+
+        LocalDB localDB = new LocalDB();
 
         ArrayList<ListObject> listObjects = new ArrayList<ListObject>();
         ListObject lo = new ListObject();

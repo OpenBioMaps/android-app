@@ -20,9 +20,19 @@ public class GpsHandler {
     private static final int UPDATE_DISTANCE = 0;
 
     private static Location location;
-    private static LocationListener locationListener = new LocationListener() {
+
+    private LocationListener externalListener = null;
+
+    public void setExternalListener(LocationListener ll) {
+        this.externalListener = ll;
+    }
+
+    private LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             Location currentLocation = getLocation();
+            if(externalListener != null) {
+                externalListener.onLocationChanged(currentLocation);
+            }
             if (isBetterLocation(location, currentLocation)) {
                 setLocation(location);
             }

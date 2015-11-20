@@ -133,5 +133,12 @@
         android:layout_below="@+id/imageRecycler"
         android:layout_centerHorizontal="true"
         android:enabled="true" />
+
+    <ProgressBar
+        android:id="@+id/progressGps"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        />
 </RelativeLayout>
 </ScrollView>
