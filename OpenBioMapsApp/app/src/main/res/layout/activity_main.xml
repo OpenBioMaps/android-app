@@ -73,7 +73,7 @@
         android:id="@+id/buttonAudioRecord"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/button__voice_record_text"
+        android:text="@string/button_voice_record_text"
         android:padding="5dip"
         android:layout_marginTop="8dip"
         android:layout_below="@+id/textViewPosition"
@@ -139,6 +139,8 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:visibility="gone"
+        android:layout_toRightOf="@+id/textViewPosition"
+        android:layout_below="@+id/buttonShowMap"
         />
 </RelativeLayout>
 </ScrollView>

@@ -1,38 +1,47 @@
 <resources>
     <string name="app_name">OpenBioMapsApp</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="title_activity_upload">UploadActivity</string>
+    <string name="title_activity_main">MainActivity</string>
+    <!-- ActionBar strings -->
     <string name="action_upload">Feltöltés</string>
     <string name="action_server_settings">Szerver beállítások</string>
     <string name="action_app_settings">Alkalmazás beállítások</string>
-    <string name="settings_save">Mentés</string>
-    <string name="settings_cancel">Mégse</string>
-    <string name="settings_server_title">Szerver elérhetősége</string>
+    <!-- Button strings -->
     <string name="button_show_map_text">Mutasd térképen</string>
-    <string name="button__voice_record_text">Hangfelvétel</string>
+    <string name="button_voice_record_text">Hangfelvétel</string>
     <string name="button_create_image_text">Kép csatolása</string>
     <string name="button_position_text">Pozíció rögzítése</string>
-    <string name="tv_note_text">Jegyzet</string>
-    <string name="tv_current_time_text">2015.11.01 - 11:55:23</string>
-    <string name="tv_position_text">x: 47.233021, y: 21.912772</string>
-    <string name="dialog_text_gps">Nincs bekapcsolva a készüléken a GPS. Engedélyezi annak bekapcsolását?</string>
-    <string name="dialog_text_yes">Igen</string>
-    <string name="dialog_text_no">Nem</string>
-    <string name="no_gps_data">Nincs GPS érték! Próbálja újra!</string>
-    <string name="error_audio_capture_text">Hiba a hangfelvételnél!</string>
-    <string name="voice_records_text">Hangfelvételek: </string>
-    <string name="title_image_chooser">Válassz képet</string>
-    <string name="no_file">Fájl létrehozása nem sikerült</string>
-    <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
-    <string name="image_source_cancel">Mégse</string>
     <string name="button_save_text">MENTÉS</string>
     <string name="button_reset">ÚJAT KEZD</string>
     <string name="button_upload_text">FELTÖLTÉS</string>
     <string name="button_export_text">ADATOK EXPORTÁLÁSA</string>
-    <string name="location_text">szélesség: %1$f ,hosszúság: %2$f</string>
+    <!-- Dialog strings -->
+    <string name="dialog_text_gps">Nincs bekapcsolva a készüléken a GPS. Engedélyezi annak bekapcsolását?</string>
+    <string name="dialog_text_yes">Igen</string>
+    <string name="dialog_text_no">Nem</string>
+    <string name="settings_save">Mentés</string>
+    <string name="settings_cancel">Mégse</string>
+    <string name="settings_server_title">Szerver elérhetősége</string>
+
+    <string name="title_image_chooser">Válassz képet</string>
+    <string name="no_file">Fájl létrehozása nem sikerült</string>
+    <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
+    <string name="image_source_cancel">Mégse</string>
+
     <string-array name="image_source">
         <item>SD kártya</item>
         <item>Kép készítése</item>
     </string-array>
-    <string name="title_activity_upload">UploadActivity</string>
+
+    <!-- TextView strings -->
+    <string name="tv_note_text">Jegyzet</string>
+    <string name="tv_current_time_text">2015.11.01 - 11:55:23</string>
+    <string name="tv_position_text">Rögzítse pozícióját!</string>
+    <string name="tv_no_gps_data">Nincs GPS érték! Próbálja újra!</string>
+    <string name="error_audio_capture_text">Hiba a hangfelvételnél!</string>
+    <string name="voice_records_text">Hangfelvételek: </string>
+    <string name="waiting_for_gps">Lekérdezés folyamatban...</string>
+    <string name="location_text">szélesség: %1$f \nhosszúság: %2$f</string>
+    <string name="text_no_note">Nincs jegyzet</string>
 
 </resources>

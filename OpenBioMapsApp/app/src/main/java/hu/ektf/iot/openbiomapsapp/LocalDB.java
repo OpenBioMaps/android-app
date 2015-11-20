@@ -28,11 +28,12 @@ public class LocalDB extends android.content.ContentProvider {
 
     public static final String _ID = "_ID";
     public static final String COMMENT = "COMMENT";
-    public static final String GEOMETRY = "GEOMETRY";
     public static final String SOUND_FILE = "SOUND_FILE";
     public static final String IMAGE_FILE = "IMAGE_FILE";
     public static final String DATE = "DATE";
     public static final String RESPONSE = "RESPONSE";
+    public static final String LATITUDE = "LATITUDE";
+    public static final String LONGITUDE = "LONGITUDE";
 
     private static HashMap<String, String> STORAGE_PROJECTION_MAP;
 
@@ -55,7 +56,8 @@ public class LocalDB extends android.content.ContentProvider {
             "CREATE TABLE " + TABLE_NAME +
                     "(_ID INTEGER PRIMARY KEY AUTOINCREMENT, "+
                     "COMMENT TEXT, "+
-                    "GEOMETRY TEXT NOT NULL, "+
+                    "LATITUDE TEXT NOT NULL, "+
+                    "LONGITUDE TEXT NOT NULL,"+
                     "SOUND_FILE TEXT, "+
                     "IMAGE_FILE TEXT, "+
                     "DATE TEXT, " +
@@ -104,7 +106,7 @@ public class LocalDB extends android.content.ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projectiion, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
@@ -119,8 +121,7 @@ public class LocalDB extends android.content.ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI "+ uri);
         }
-
-        Cursor cursor = qb.query(db,projectiion,selection,selectionArgs,null,null,null);
+        Cursor cursor = qb.query(db,projection,selection,selectionArgs,null,null,null);
         cursor.setNotificationUri(getContext().getContentResolver(),uri);
         Log.d("LocalDB", "query done");
         return cursor;

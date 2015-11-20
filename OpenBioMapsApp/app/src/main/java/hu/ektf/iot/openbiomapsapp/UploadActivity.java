@@ -1,11 +1,19 @@
 package hu.ektf.iot.openbiomapsapp;
 
+import android.database.Cursor;
+import android.location.Location;
+import android.location.LocationManager;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
@@ -31,17 +39,43 @@ public class UploadActivity extends AppCompatActivity {
                 new DividerItemDecoration(this, R.drawable.divider));
 
         ArrayList<NoteRecord> listObjects = new ArrayList<NoteRecord>();
-        NoteRecord lo = new NoteRecord("Két darab cinege a fán, jaj de szépek, teszt szöveg",null,"2015.11.21 - 11:16",null,null,0);
-        listObjects.add(lo);
 
-        NoteRecord lo2 = new NoteRecord("Két darab cinege a fán, jaj de szépek, teszt szöveg",null,"2015.11.21 - 11:16",null,null,0);
-        listObjects.add(lo2);
+        String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
 
-        NoteRecord lo3 = new NoteRecord("Két darab cinege a fán, jaj de szépek, teszt szöveg",null,"2015.11.21 - 11:16",null,null,0);
-        listObjects.add(lo3);
+        Uri storage = Uri.parse(URL);
+        Cursor c = managedQuery(storage,null,null,null,"_ID");
+        if (c.moveToFirst()) {
+            do{
 
-        NoteRecord lo4 = new NoteRecord("Két darab cinege a fán, jaj de szépek, teszt szöveg",null,"2015.11.21 - 11:16",null,null,0);
-        listObjects.add(lo4);
+                String id = c.getString(c.getColumnIndex(LocalDB._ID));
+                String latitude = c.getString(c.getColumnIndex(LocalDB.LATITUDE));
+                String longitude = c.getString(c.getColumnIndex(LocalDB.LONGITUDE));
+                String comment = c.getString(c.getColumnIndex(LocalDB.COMMENT));
+                String sound_file = c.getString(c.getColumnIndex(LocalDB.SOUND_FILE));
+                String image_file = c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE));
+                String response = c.getString(c.getColumnIndex(LocalDB.RESPONSE));
+                String date = c.getString(c.getColumnIndex(LocalDB.DATE));
+
+                        Log.d("In storage, ID: ", id
+                                        + ", COMMENT: " + comment
+                                        + ", LATITUDE: " + latitude
+                                        + ", LONGITUDE: " + longitude
+                                        + ", SOUND_FILE" + sound_file
+                                        + ", IMAGE_FILE" + image_file
+                                        + ", RESPONSE" + response
+                                        + ", DATE" + date
+                        );
+                Location locfromdb = new Location(LocationManager.PASSIVE_PROVIDER);
+                locfromdb.setLatitude(Double.valueOf(latitude));
+                locfromdb.setLongitude(Double.valueOf(longitude));
+
+                ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
+                ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
+                NoteRecord nr = new NoteRecord(comment, locfromdb, date, soundsfromdb, imagesfromdb, Integer.valueOf(response));
+                listObjects.add(nr);
+
+            } while (c.moveToNext());
+        }
 
         mAdapter = new UploadListAdapter(listObjects);
         mRecyclerView.setAdapter(mAdapter);

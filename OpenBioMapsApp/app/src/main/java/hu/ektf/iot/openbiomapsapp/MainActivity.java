@@ -23,6 +23,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -39,7 +40,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -149,7 +149,14 @@ public class MainActivity extends AppCompatActivity {
         gpsHandler.setExternalListener(new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                progressGps.setVisibility(View.GONE);
+                if(location != null) {
+                    progressGps.setVisibility(View.GONE);
+                    currentLocation = location;
+                    String strLocation = getResources().getString(R.string.location_text);
+                    String formattedLocation = String.format(strLocation, currentLocation.getLatitude(), currentLocation.getLongitude());
+                    tvPosition.setText(formattedLocation);
+                    buttonShowMap.setEnabled(true);
+                }
             }
 
             @Override
@@ -180,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 //IF GPS IS ON:
-                progressGps.setVisibility(View.VISIBLE);
                 currentLocation = gpsHandler.getLocation();
                 if (currentLocation != null) {
 
@@ -193,10 +199,11 @@ public class MainActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String formattedDate = df.format(c.getTime());
-                    noteRecord = new NoteRecord(etNote.getText().toString(),currentLocation,formattedDate,null,null,0);
+                    noteRecord = new NoteRecord(etNote.getText().toString(), currentLocation,formattedDate,imagesList, audiosList, 0);
                     SaveLocal(noteRecord.getContentValues());
                 } else {
-                    tvPosition.setText(R.string.no_gps_data);
+                    progressGps.setVisibility(View.VISIBLE);
+                    tvPosition.setText(R.string.waiting_for_gps);
                 }
             }
         });
@@ -305,7 +312,7 @@ public class MainActivity extends AppCompatActivity {
             uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
             currentRecordId = getCurrentRecordId();
         }
-        Log.d("currentRecordId",currentRecordId.toString());
+        Log.d("currentRecordId", currentRecordId.toString());
         return true;
     }
 
