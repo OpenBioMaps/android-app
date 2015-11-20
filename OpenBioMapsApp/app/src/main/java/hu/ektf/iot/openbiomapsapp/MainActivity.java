@@ -24,7 +24,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -51,6 +50,7 @@ import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     //REQ CODES
@@ -107,8 +107,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
-
-        //((BioMapsApplication) getApplication()).testService();
 
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
@@ -197,7 +195,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 SaveLocal(noteRecord.getContentValues());
-                Log.d("buttonReset", "saved record to local");
+                Timber.d("buttonReset", "saved record to local");
                 resetFields();
             }
         });
@@ -260,6 +258,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //((BioMapsApplication) getApplication()).testService();
     }
 
     private int getCurrentRecordId() {
@@ -290,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
             uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
             currentRecordId = getCurrentRecordId();
         }
-        Log.d("currentRecordId", currentRecordId.toString());
+        Timber.d("currentRecordId", currentRecordId.toString());
         return true;
     }
 
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
                 soundPath = audioUri.getPath();
-                Log.d("soundPath", soundPath);
+                Timber.d("soundPath", soundPath);
                 Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
