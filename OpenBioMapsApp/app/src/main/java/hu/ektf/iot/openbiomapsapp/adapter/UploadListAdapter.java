@@ -10,10 +10,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.object.ListObject;
+import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
 
 public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.ViewHolder> {
-    ArrayList<ListObject> mDataset;
+    ArrayList<NoteRecord> mDataset;
     public static class ViewHolder extends RecyclerView.ViewHolder {
         public TextView tvNote;
         public TextView tvDate;
@@ -30,7 +30,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
         }
     }
 
-    public UploadListAdapter(ArrayList<ListObject> listObjects) {
+    public UploadListAdapter(ArrayList<NoteRecord> listObjects) {
         mDataset = listObjects;
     }
 
@@ -45,7 +45,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        ListObject listObject = mDataset.get(position);
+        NoteRecord listObject = mDataset.get(position);
         holder.tvDate.setText(listObject.getDate());
         holder.tvNote.setText(listObject.getNote());
         holder.tvCoord.setText("Koordináták: (21.12, 11.21)");
