@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.location.Location;
 import android.text.TextUtils;
 
+import org.parceler.Parcel;
+
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.LocalDB;
@@ -11,6 +13,7 @@ import hu.ektf.iot.openbiomapsapp.LocalDB;
 /**
  * Created by Pádi on 2015. 11. 10..
  */
+@Parcel
 public class NoteRecord {
     private String comment;
     private Location location;

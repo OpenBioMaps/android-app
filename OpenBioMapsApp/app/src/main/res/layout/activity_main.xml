@@ -1,73 +1,72 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/ScrollView01"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
+    android:layout_height="fill_parent"
+    tools:context=".MainActivity">
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:descendantFocusability="beforeDescendants"
+        android:focusableInTouchMode="true"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
 
-    <TextView
-        android:id="@+id/textViewNote"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/tv_note_text"
-        />
+        <TextView
+            android:id="@+id/textViewNote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tv_note_text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <EditText
-        android:id="@+id/etNote"
-        android:layout_width="fill_parent"
-        android:textSize="18sp"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="10dip"
-        android:layout_marginTop="10dip"
-        android:layout_marginRight="10dip"
-        android:scrollbarAlwaysDrawVerticalTrack="true"
-        android:inputType="textMultiLine"
-        android:layout_height="75dip"
-        android:gravity="top"
-        android:padding="5dip"
-        android:layout_below="@+id/textViewNote"
-        >
-    </EditText>
+        <EditText
+            android:id="@+id/etNote"
+            android:layout_width="fill_parent"
+            android:layout_height="75dip"
+            android:layout_alignParentLeft="true"
+            android:layout_below="@+id/textViewNote"
+            android:layout_marginLeft="10dip"
+            android:layout_marginRight="10dip"
+            android:layout_marginTop="10dip"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:padding="5dip"
+            android:scrollbarAlwaysDrawVerticalTrack="true"
+            android:textSize="18sp"></EditText>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:id="@+id/textViewDate"
-        android:text="@string/tv_current_time_text"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/etNote"
-        />
+        <TextView
+            android:id="@+id/textViewDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignRight="@+id/etNote"
+            android:text="@string/tv_current_time_text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/buttonPosition"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_position_text"
-        android:padding="5dip"
-        android:layout_marginTop="8dip"
-        android:layout_below="@+id/etNote"
-        android:layout_alignLeft="@+id/etNote"
-        android:layout_alignStart="@+id/etNote"
-        android:layout_toLeftOf="@+id/textViewDate"
-        android:layout_toStartOf="@+id/textViewDate" />
+        <Button
+            android:id="@+id/buttonPosition"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/etNote"
+            android:layout_alignStart="@+id/etNote"
+            android:layout_below="@+id/etNote"
+            android:layout_marginTop="8dip"
+            android:layout_toLeftOf="@+id/textViewDate"
+            android:layout_toStartOf="@+id/textViewDate"
+            android:padding="5dip"
+            android:text="@string/button_position_text" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="@string/tv_position_text"
-        android:layout_marginLeft="10dip"
-        android:id="@+id/textViewPosition"
-        android:layout_below="@+id/buttonPosition"
-        android:layout_marginTop="8dip"
-         />
+        <TextView
+            android:id="@+id/textViewPosition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonPosition"
+            android:layout_marginLeft="10dip"
+            android:layout_marginTop="8dip"
+            android:text="@string/tv_position_text"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <Button
         android:id="@+id/buttonAudioRecord"
@@ -80,59 +79,57 @@
         android:layout_alignLeft="@+id/buttonPosition"
         android:layout_alignStart="@+id/etNote" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/audioRecycler"
-        android:layout_below="@+id/buttonAudioRecord"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonCamera"
-        android:layout_alignStart="@+id/buttonCamera"
-        android:paddingTop="5dp"
-        android:scrollbars="horizontal"
-        />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/audioRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/buttonCamera"
+            android:layout_alignStart="@+id/buttonCamera"
+            android:layout_below="@+id/buttonAudioRecord"
+            android:paddingTop="5dp"
+            android:scrollbars="horizontal" />
 
-    <Button
-        android:id="@+id/buttonCamera"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/button_create_image_text"
-        android:padding="5dip"
-        android:layout_marginTop="8dip"
-        android:layout_below="@+id/audioRecycler"
-        android:layout_alignLeft="@+id/buttonPosition"
-        android:layout_alignStart="@+id/etNote" />
+        <Button
+            android:id="@+id/buttonCamera"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/buttonPosition"
+            android:layout_alignStart="@+id/etNote"
+            android:layout_below="@+id/audioRecycler"
+            android:layout_marginTop="8dip"
+            android:padding="5dip"
+            android:text="@string/button_create_image_text" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/imageRecycler"
-        android:layout_below="@+id/buttonCamera"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/buttonCamera"
-        android:layout_alignStart="@+id/buttonCamera"
-        android:paddingTop="5dp"
-        android:scrollbars="horizontal"
-        />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/imageRecycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/buttonCamera"
+            android:layout_alignStart="@+id/buttonCamera"
+            android:layout_below="@+id/buttonCamera"
+            android:paddingTop="5dp"
+            android:scrollbars="horizontal" />
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_show_map_text"
-        android:id="@+id/buttonShowMap"
-        android:layout_alignBottom="@+id/buttonPosition"
-        android:layout_toRightOf="@+id/buttonPosition"
-        android:layout_alignRight="@+id/etNote"
-        android:layout_alignEnd="@+id/etNote"
-        android:enabled="false" />
+        <Button
+            android:id="@+id/buttonShowMap"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/buttonPosition"
+            android:layout_alignEnd="@+id/etNote"
+            android:layout_alignRight="@+id/etNote"
+            android:layout_toRightOf="@+id/buttonPosition"
+            android:enabled="false"
+            android:text="@string/button_show_map_text" />
 
-    <Button
-        android:id="@+id/buttonReset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/button_reset"
-        android:layout_below="@+id/imageRecycler"
-        android:layout_centerHorizontal="true"
-        android:enabled="true" />
+        <Button
+            android:id="@+id/buttonReset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imageRecycler"
+            android:layout_centerHorizontal="true"
+            android:enabled="true"
+            android:text="@string/button_reset" />
 
     <ProgressBar
         android:id="@+id/progressGps"

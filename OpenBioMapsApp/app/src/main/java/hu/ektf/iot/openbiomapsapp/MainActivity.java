@@ -25,7 +25,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -37,6 +36,8 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import org.parceler.Parcels;
 
 import java.io.File;
 import java.io.IOException;
@@ -52,12 +53,9 @@ import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
-import retrofit.RestAdapter;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-
-    public final static String END_POINT = "http://openbiomaps.org/pds";
-
     //REQ CODES
     private static final int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
@@ -67,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
     private static final String IMAGES_LIST = "imagesList";
     private static final String AUDIOS_LIST = "audiosList";
+    private static final String NOTE = "note";
 
     //Gps stuffs
     GpsHandler gpsHandler;
@@ -84,9 +83,6 @@ public class MainActivity extends AppCompatActivity {
     private AudioListAdapter adapterAudio;
     private ArrayList<String> imagesList = new ArrayList<>();
     private ArrayList<String> audiosList = new ArrayList<>();
-
-    //retrofit
-    private IDownloader downloader;
 
     //LocalDB management
     private String formattedPosition;
@@ -113,10 +109,12 @@ public class MainActivity extends AppCompatActivity {
             if (siAudiosList != null) {
                 audiosList.addAll(siAudiosList);
             }
+
+            if(savedInstanceState.containsKey(NOTE)){
+                noteRecord = Parcels.unwrap(savedInstanceState.getParcelable(NOTE));
+            }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
-        RestAdapter retrofit = new RestAdapter.Builder().setEndpoint(END_POINT).build();
-        downloader = retrofit.create(IDownloader.class);
 
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 SaveLocal(noteRecord.getContentValues());
-                Log.d("buttonReset","saved record to local");
+                Timber.d("buttonReset", "saved record to local");
                 resetFields();
             }
         });
@@ -275,6 +273,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //((BioMapsApplication) getApplication()).testService();
     }
 
     private int getCurrentRecordId() {
@@ -284,35 +284,28 @@ public class MainActivity extends AppCompatActivity {
 
         ArrayList<Integer> ids = new ArrayList<Integer>();
 
-        if(c.moveToFirst())
-        {
-            do
-            {
+        if (c.moveToFirst()) {
+            do {
                 ids.add(Integer.valueOf(c.getString(c.getColumnIndex(LocalDB._ID))));
-            }while(c.moveToNext());
+            } while (c.moveToNext());
 
             Collections.sort(ids);
-            return ids.get(ids.size()-1);
-        }
-        else
-        {
+            return ids.get(ids.size() - 1);
+        } else {
             return -1;
         }
     }
 
     private boolean SaveLocal(ContentValues contentValues) {
         Uri uri;
-        if(currentRecordId>0)
-        {
-            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI,currentRecordId);
-            getContentResolver().update(uri,contentValues,null,null);
-        }
-        else
-        {
+        if (currentRecordId > 0) {
+            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI, currentRecordId);
+            getContentResolver().update(uri, contentValues, null, null);
+        } else {
             uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
             currentRecordId = getCurrentRecordId();
         }
-        Log.d("currentRecordId", currentRecordId.toString());
+        Timber.d("currentRecordId", currentRecordId.toString());
         return true;
     }
 
@@ -340,6 +333,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
         outState.putStringArrayList(IMAGES_LIST, imagesList);
         outState.putStringArrayList(AUDIOS_LIST, audiosList);
+        outState.putParcelable(NOTE, Parcels.wrap(noteRecord));
     }
 
     @Override
@@ -378,7 +372,7 @@ public class MainActivity extends AppCompatActivity {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
                 soundPath = audioUri.getPath();
-                Log.d("soundPath",soundPath);
+                Timber.d("soundPath", soundPath);
                 Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
@@ -581,6 +575,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO Could be separated in a FileHelper file
+
     /**
      * This method creates an File object helping the image uploading process.
      *

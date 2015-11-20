@@ -11,9 +11,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.util.HashMap;
+
+import timber.log.Timber;
 
 /**
  * Created by gerybravo on 2015.11.05..
@@ -22,9 +23,12 @@ import java.util.HashMap;
 public class LocalDB extends android.content.ContentProvider {
 
     static final String PROVIDER_NAME = "hu.ektf.iot.openbiomapsapp";
-    static final String URL = "content://"+PROVIDER_NAME+"/storage";
+    static final String URL = "content://" + PROVIDER_NAME + "/storage";
     static final Uri CONTENT_URI = Uri.parse(URL);
-    private static Uri getContentUri(){return CONTENT_URI;}
+
+    private static Uri getContentUri() {
+        return CONTENT_URI;
+    }
 
     public static final String _ID = "_ID";
     public static final String COMMENT = "COMMENT";
@@ -41,11 +45,11 @@ public class LocalDB extends android.content.ContentProvider {
     static final int RECORD_ID = 2;
 
     static final UriMatcher uriMatcher;
-    static
-    {
+
+    static {
         uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        uriMatcher.addURI(PROVIDER_NAME,"storage",RECORDS);
-        uriMatcher.addURI(PROVIDER_NAME,"storage/#",RECORD_ID);
+        uriMatcher.addURI(PROVIDER_NAME, "storage", RECORDS);
+        uriMatcher.addURI(PROVIDER_NAME, "storage/#", RECORD_ID);
     }
 
     private SQLiteDatabase db;
@@ -64,19 +68,18 @@ public class LocalDB extends android.content.ContentProvider {
                     "RESPONSE INTEGER);";
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
-        DatabaseHelper(Context context){
+        DatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db)
-        {
+        public void onCreate(SQLiteDatabase db) {
             db.execSQL(CREATE_TABLE);
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            db.execSQL("DROP TABLE IF EXISTS " +  TABLE_NAME);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
             onCreate(db);
         }
     }
@@ -87,7 +90,7 @@ public class LocalDB extends android.content.ContentProvider {
         DatabaseHelper dbHelper = new DatabaseHelper(context);
 
         db = dbHelper.getWritableDatabase();
-        return (db == null)? false:true;
+        return (db == null) ? false : true;
     }
 
     @Override
@@ -95,11 +98,10 @@ public class LocalDB extends android.content.ContentProvider {
 
         long rowID = db.insert(TABLE_NAME, "", contentValues);
 
-        if (rowID > 0)
-        {
+        if (rowID > 0) {
             Uri _uri = ContentUris.withAppendedId(CONTENT_URI, rowID);
             getContext().getContentResolver().notifyChange(_uri, null);
-            Log.d("LocalDB","insert done");
+            Timber.d("LocalDB", "insert done");
             return _uri;
         }
         throw new SQLException("Failed to add a record into " + uri);
@@ -110,8 +112,7 @@ public class LocalDB extends android.content.ContentProvider {
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(TABLE_NAME);
 
-        switch (uriMatcher.match(uri))
-        {
+        switch (uriMatcher.match(uri)) {
             case RECORDS:
                 qb.setProjectionMap(STORAGE_PROJECTION_MAP);
                 break;
@@ -119,18 +120,19 @@ public class LocalDB extends android.content.ContentProvider {
                 qb.appendWhere(_ID + "=" + uri.getPathSegments().get(1));
                 break;
             default:
-                throw new IllegalArgumentException("Unknown URI "+ uri);
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        Cursor cursor = qb.query(db,projection,selection,selectionArgs,null,null,null);
-        cursor.setNotificationUri(getContext().getContentResolver(),uri);
-        Log.d("LocalDB", "query done");
+
+        Cursor cursor = qb.query(db, projectiion, selection, selectionArgs, null, null, null);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        Timber.d("LocalDB", "query done");
         return cursor;
     }
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         //TODO @szugyi do we need this?
-        Log.d("LocalDB","delete done");
+        Timber.d("LocalDB", "delete done");
         return 0;
     }
 
@@ -138,28 +140,28 @@ public class LocalDB extends android.content.ContentProvider {
     public int update(Uri uri, ContentValues contentValues, String selection, String[] selectionArgs) {
         int count = 0;
 
-        switch (uriMatcher.match(uri)){
+        switch (uriMatcher.match(uri)) {
             case RECORDS:
                 count = db.update(TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
 
             case RECORD_ID:
                 count = db.update(TABLE_NAME, contentValues, _ID + " = " + uri.getPathSegments().get(1) +
-                        (!TextUtils.isEmpty(selection) ? " AND (" +selection + ')' : ""), selectionArgs);
+                        (!TextUtils.isEmpty(selection) ? " AND (" + selection + ')' : ""), selectionArgs);
                 break;
 
             default:
-                throw new IllegalArgumentException("Unknown URI " + uri );
+                throw new IllegalArgumentException("Unknown URI " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        Log.d("LocalDB", "update done");
+        Timber.d("LocalDB", "update done");
         return count;
     }
 
     @Override
     public String getType(Uri uri) {
         //TODO @szugyi do we need this?
-        Log.d("LocalDB","getType done");
+        Timber.d("LocalDB", "getType done");
         return "";
     }
 
