@@ -1,19 +1,18 @@
 package hu.ektf.iot.openbiomapsapp.object;
 
 import android.content.ContentValues;
-import android.content.Context;
-import android.database.Cursor;
 import android.location.Location;
-import android.net.Uri;
+
+import org.parceler.Parcel;
 
 import java.util.ArrayList;
-import java.util.Collections;
 
 import hu.ektf.iot.openbiomapsapp.LocalDB;
 
 /**
  * Created by Pádi on 2015. 11. 10..
  */
+@Parcel
 public class NoteRecord {
     private String note;
     private Location location;
@@ -22,6 +21,10 @@ public class NoteRecord {
     private ArrayList<String> soundsList;
     private Integer status;
     Location l;
+
+    public NoteRecord() {
+        /* Required empty bean constructor form Parceler */
+    }
 
     public NoteRecord(String note, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, Integer status) {
         setNote(note);

@@ -36,6 +36,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.parceler.Parcels;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
     private static final String IMAGES_LIST = "imagesList";
     private static final String AUDIOS_LIST = "audiosList";
+    private static final String NOTE = "note";
 
     //Gps stuffs
     GpsHandler gpsHandler;
@@ -104,6 +107,10 @@ public class MainActivity extends AppCompatActivity {
             }
             if (siAudiosList != null) {
                 audiosList.addAll(siAudiosList);
+            }
+
+            if(savedInstanceState.containsKey(NOTE)){
+                noteRecord = Parcels.unwrap(savedInstanceState.getParcelable(NOTE));
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
@@ -318,6 +325,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
         outState.putStringArrayList(IMAGES_LIST, imagesList);
         outState.putStringArrayList(AUDIOS_LIST, audiosList);
+        outState.putParcelable(NOTE, Parcels.wrap(noteRecord));
     }
 
     @Override
