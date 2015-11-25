@@ -2,19 +2,19 @@ package hu.ektf.iot.openbiomapsapp.object;
 
 import android.content.ContentValues;
 import android.location.Location;
-import android.text.TextUtils;
 
 import org.parceler.Parcel;
 
 import java.util.ArrayList;
 
-import hu.ektf.iot.openbiomapsapp.LocalDB;
+import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
 
 /**
  * Created by Pádi on 2015. 11. 10..
  */
 @Parcel
-public class NoteRecord {
+public class Note {
+    private Integer id;
     private String comment;
     private Location location;
     private String date;
@@ -22,7 +22,12 @@ public class NoteRecord {
     private ArrayList<String> soundsList;
     private Integer response;
 
-    public NoteRecord(String comment, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, Integer response) {
+    public Note() {
+        /* Required empty bean constructor form Parceler */
+    }
+
+    public Note(Integer id, String comment, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, Integer response) {
+        setId(id);
         setComment(comment);
         setLocation(location);
         setDate(date);
@@ -31,31 +36,20 @@ public class NoteRecord {
         setResponse(response);
     }
 
-    public ContentValues getContentValues() {
-
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(LocalDB.COMMENT, comment);
-        contentValues.put(LocalDB.LATITUDE, location.getLatitude());
-        contentValues.put(LocalDB.LONGITUDE, location.getLongitude());
-        contentValues.put(LocalDB.SOUND_FILE, TextUtils.join(",", soundsList));
-        contentValues.put(LocalDB.IMAGE_FILE, TextUtils.join(",", imagesList));
-        contentValues.put(LocalDB.DATE, date);
-        contentValues.put(LocalDB.RESPONSE, response);
-
-        return contentValues;
+    public ContentValues getContentValues(){
+        return NoteCreator.getCVfromNote(this);
     }
 
     public String getLocationString() {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
     }
 
-    public Integer getResponse() {
-        return response;
+    public Integer getId() {
+        return id;
     }
 
-    public void setResponse(Integer response) {
-        this.response = response;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getComment() {
@@ -96,5 +90,13 @@ public class NoteRecord {
 
     public void setSoundsList(ArrayList<String> soundsList) {
         this.soundsList = soundsList;
+    }
+
+    public Integer getResponse() {
+        return response;
+    }
+
+    public void setResponse(Integer response) {
+        this.response = response;
     }
 }

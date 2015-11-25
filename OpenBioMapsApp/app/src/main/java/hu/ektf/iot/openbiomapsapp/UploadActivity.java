@@ -8,16 +8,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
+import hu.ektf.iot.openbiomapsapp.database.NoteTable;
+import hu.ektf.iot.openbiomapsapp.object.Note;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -38,8 +37,9 @@ public class UploadActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
 
-        ArrayList<NoteRecord> listObjects = new ArrayList<NoteRecord>();
+        ArrayList<Note> listObjects = new ArrayList<Note>();
 
+        // TODO Use BioMapsResolver
         String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
 
         Uri storage = Uri.parse(URL);
@@ -47,14 +47,14 @@ public class UploadActivity extends AppCompatActivity {
         if (c.moveToFirst()) {
             do{
 
-                String id = c.getString(c.getColumnIndex(LocalDB._ID));
-                String latitude = c.getString(c.getColumnIndex(LocalDB.LATITUDE));
-                String longitude = c.getString(c.getColumnIndex(LocalDB.LONGITUDE));
-                String comment = c.getString(c.getColumnIndex(LocalDB.COMMENT));
-                String sound_file = c.getString(c.getColumnIndex(LocalDB.SOUND_FILE));
-                String image_file = c.getString(c.getColumnIndex(LocalDB.IMAGE_FILE));
-                String response = c.getString(c.getColumnIndex(LocalDB.RESPONSE));
-                String date = c.getString(c.getColumnIndex(LocalDB.DATE));
+                String id = c.getString(c.getColumnIndex(NoteTable._ID));
+                String latitude = c.getString(c.getColumnIndex(NoteTable.LATITUDE));
+                String longitude = c.getString(c.getColumnIndex(NoteTable.LONGITUDE));
+                String comment = c.getString(c.getColumnIndex(NoteTable.COMMENT));
+                String sound_file = c.getString(c.getColumnIndex(NoteTable.SOUND_FILES));
+                String image_file = c.getString(c.getColumnIndex(NoteTable.IMAGE_FILES));
+                String response = c.getString(c.getColumnIndex(NoteTable.RESPONSE));
+                String date = c.getString(c.getColumnIndex(NoteTable.DATE));
 
                         Log.d("In storage, ID: ", id
                                         + ", COMMENT: " + comment
@@ -71,7 +71,7 @@ public class UploadActivity extends AppCompatActivity {
 
                 ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
                 ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
-                NoteRecord nr = new NoteRecord(comment, locfromdb, date, soundsfromdb, imagesfromdb, Integer.valueOf(response));
+                Note nr = new Note(null, comment, locfromdb, date, soundsfromdb, imagesfromdb, Integer.valueOf(response));
                 listObjects.add(nr);
 
             } while (c.moveToNext());

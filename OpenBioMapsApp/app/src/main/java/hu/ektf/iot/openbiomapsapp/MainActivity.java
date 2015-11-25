@@ -23,7 +23,6 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -50,9 +49,11 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
+import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import hu.ektf.iot.openbiomapsapp.object.NoteRecord;
+import hu.ektf.iot.openbiomapsapp.object.Note;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private Integer currentRecordId = -1;
 
     // File
-    private NoteRecord noteRecord;
+    private Note noteRecord;
     private String selectedImagePath;
     private String soundPath = "";
     private File imageFile;
@@ -110,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                 audiosList.addAll(siAudiosList);
             }
 
-            if(savedInstanceState.containsKey(NOTE)){
+            if (savedInstanceState.containsKey(NOTE)) {
                 noteRecord = Parcels.unwrap(savedInstanceState.getParcelable(NOTE));
             }
         }
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
         gpsHandler.setExternalListener(new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
-                if(location != null) {
+                if (location != null) {
                     progressGps.setVisibility(View.GONE);
                     currentLocation = location;
                     String strLocation = getResources().getString(R.string.location_text);
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String formattedDate = df.format(c.getTime());
-                    noteRecord = new NoteRecord(etNote.getText().toString(), currentLocation,formattedDate,imagesList, audiosList, 0);
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, formattedDate, imagesList, audiosList, 0);
                     SaveLocal(noteRecord.getContentValues());
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -277,6 +278,7 @@ public class MainActivity extends AppCompatActivity {
         //((BioMapsApplication) getApplication()).testService();
     }
 
+    // TODO Why do we need this?
     private int getCurrentRecordId() {
         String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
         Uri storage = Uri.parse(URL);
@@ -286,7 +288,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (c.moveToFirst()) {
             do {
-                ids.add(Integer.valueOf(c.getString(c.getColumnIndex(LocalDB._ID))));
+                ids.add(Integer.valueOf(c.getString(c.getColumnIndex(NoteTable._ID))));
             } while (c.moveToNext());
 
             Collections.sort(ids);
@@ -299,10 +301,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean SaveLocal(ContentValues contentValues) {
         Uri uri;
         if (currentRecordId > 0) {
-            uri = ContentUris.withAppendedId(LocalDB.CONTENT_URI, currentRecordId);
+            uri = ContentUris.withAppendedId(BioMapsContentProvider.CONTENT_URI, currentRecordId);
             getContentResolver().update(uri, contentValues, null, null);
         } else {
-            uri = getContentResolver().insert(LocalDB.CONTENT_URI, contentValues);
+            uri = getContentResolver().insert(BioMapsContentProvider.CONTENT_URI, contentValues);
             currentRecordId = getCurrentRecordId();
         }
         Timber.d("currentRecordId", currentRecordId.toString());
