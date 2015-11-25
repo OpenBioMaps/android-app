@@ -38,7 +38,7 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
     @Override
     public boolean onCreate() {
         database = new DatabaseHelper(getContext());
-        return false;
+        return true;
     }
 
 
