@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.rest;
+package hu.ektf.iot.openbiomapsapp.upload;
 
 import android.webkit.MimeTypeMap;
 
@@ -21,7 +21,7 @@ public class FileMapCreator {
             String mimeType = getMimeType(filePath);
             File file = new File(filePath);
             TypedFile typedImage = new TypedFile(mimeType, file);
-            fileMap.put(String.format(BioMapsService.PARAM_FILE_ARRAY_FORMAT, i), typedImage);
+            fileMap.put(String.format(BioMapsServiceInterface.PARAM_FILE_ARRAY_FORMAT, i), typedImage);
         }
 
         return fileMap;

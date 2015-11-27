@@ -36,6 +36,16 @@
         <provider
             android:name=".database.BioMapsContentProvider"
             android:authorities="hu.ektf.iot.openbiomapsapp"
-            android:exported="false"/>
+            android:exported="false"
+            android:syncable="true"/>
+
+        <service android:name=".upload.AuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
     </application>
 </manifest>

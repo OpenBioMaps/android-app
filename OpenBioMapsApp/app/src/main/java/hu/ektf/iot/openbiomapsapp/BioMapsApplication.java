@@ -5,8 +5,8 @@ import android.app.Application;
 import java.util.ArrayList;
 import java.util.Map;
 
-import hu.ektf.iot.openbiomapsapp.rest.BioMapsService;
-import hu.ektf.iot.openbiomapsapp.rest.FileMapCreator;
+import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
+import hu.ektf.iot.openbiomapsapp.upload.FileMapCreator;
 import retrofit.Callback;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -19,14 +19,14 @@ import timber.log.Timber;
  */
 public class BioMapsApplication extends Application {
     public final static String END_POINT = "http://openbiomaps.org/pds";
-    private BioMapsService mapsService;
+    private BioMapsServiceInterface mapsService;
 
     private void setupRetrofit(){
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(END_POINT)
                 .setLogLevel(getRetrofitLogLevel())
                 .build();
-        mapsService = restAdapter.create(BioMapsService.class);
+        mapsService = restAdapter.create(BioMapsServiceInterface.class);
     }
 
     protected RestAdapter.LogLevel getRetrofitLogLevel() {
@@ -44,7 +44,7 @@ public class BioMapsApplication extends Application {
         setupLogging();
     }
 
-    public BioMapsService getMapsService(){
+    public BioMapsServiceInterface getMapsService(){
         return mapsService;
     }
 
