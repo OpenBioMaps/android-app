@@ -8,6 +8,7 @@ import android.content.SyncResult;
 import android.os.Bundle;
 
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
+import timber.log.Timber;
 
 /**
  * Created by szugyi on 27/11/15.
@@ -39,6 +40,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle bundle, String s, ContentProviderClient contentProviderClient, SyncResult syncResult) {
-
+        Timber.v("Wow! Such sync, so upload!");
     }
 }
