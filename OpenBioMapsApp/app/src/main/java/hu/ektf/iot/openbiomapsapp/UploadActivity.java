@@ -1,27 +1,36 @@
 package hu.ektf.iot.openbiomapsapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 
 import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
+import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
+import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 
 public class UploadActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
-    private RecyclerView.Adapter mAdapter;
+    private UploadListAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
 
     @Override
@@ -37,13 +46,10 @@ public class UploadActivity extends AppCompatActivity {
         mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
 
-        ArrayList<Note> listObjects = new ArrayList<Note>();
+        final ArrayList<Note> listObjects = new ArrayList<Note>();
 
         // TODO Use BioMapsResolver
-        String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-
-        Uri storage = Uri.parse(URL);
-        Cursor c = managedQuery(storage,null,null,null,"_ID");
+        Cursor c = managedQuery(BioMapsContentProvider.CONTENT_URI,null,null,null,"_ID");
         if (c.moveToFirst()) {
             do{
 
@@ -78,6 +84,38 @@ public class UploadActivity extends AppCompatActivity {
         }
 
         mAdapter = new UploadListAdapter(listObjects);
+        final StorageHelper sh = new StorageHelper(UploadActivity.this);
+
+        mAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
+
+                alertDialogBuilder.setTitle("Exportálás");
+                alertDialogBuilder.setMessage("Az exportálás helye:\n" + sh.getExportPath());
+
+                alertDialogBuilder.setPositiveButton("Exportálás", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        Note n = listObjects.get(position);
+                        try {
+                            ExportHelper.exportNote(n);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+
+                alertDialogBuilder.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+            }
+        });
         mRecyclerView.setAdapter(mAdapter);
     }
 }
