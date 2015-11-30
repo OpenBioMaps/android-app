@@ -47,9 +47,10 @@ public class BioMapsApplication extends Application {
         // Placeholder for debug application
     }
 
-    protected void registerContentObserver(){
+    protected void registerContentObserver() {
         BioMapsContentObserver observer = new BioMapsContentObserver(account, null);
         getContentResolver().registerContentObserver(BioMapsContentProvider.CONTENT_URI, true, observer);
+        getContentResolver().setSyncAutomatically(account, BioMapsContentProvider.AUTHORITY, true);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class BioMapsApplication extends Application {
         super.onCreate();
         setupRetrofit();
         setupLogging();
-        account = createSyncAccount(this);
+        createSyncAccount(this);
         registerContentObserver();
     }
 
@@ -65,7 +66,7 @@ public class BioMapsApplication extends Application {
         return mapsService;
     }
 
-    public Account getAccount(){
+    public Account getAccount() {
         return account;
     }
 
@@ -74,16 +75,16 @@ public class BioMapsApplication extends Application {
      *
      * @param context The application context
      */
-    private Account createSyncAccount(Context context) {
+    private void createSyncAccount(Context context) {
         // Create the account type and default account
-        Account newAccount = new Account(ACCOUNT_NAME, ACCOUNT_TYPE);
+        account = new Account(ACCOUNT_NAME, ACCOUNT_TYPE);
         // Get an instance of the Android account manager
         AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
         /*
          * Add the account and account type, no password or user data
          * If successful, return the Account object, otherwise report an error.
          */
-        if (accountManager.addAccountExplicitly(newAccount, null, null)) {
+        if (accountManager.addAccountExplicitly(account, null, null)) {
             /*
              * If you don't set android:syncable="true" in
              * in your <provider> element in the manifest,
@@ -98,7 +99,6 @@ public class BioMapsApplication extends Application {
              */
             Timber.i("Account was not created!");
         }
-        return newAccount;
     }
 
     // TODO remove after implementing upload
