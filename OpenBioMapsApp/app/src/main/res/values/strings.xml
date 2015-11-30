@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenBioMapsApp</string>
+    <string name="app_name">OpenBioMaps</string>
     <string name="title_activity_upload">UploadActivity</string>
     <string name="title_activity_main">MainActivity</string>
     <!-- ActionBar strings -->

@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.rest;
+package hu.ektf.iot.openbiomapsapp.upload;
 
 import java.util.Map;
 
@@ -14,7 +14,7 @@ import retrofit.mime.TypedFile;
 /**
  * Created by gerybravo on 2015.11.04..
  */
-public interface BioMapsService {
+public interface BioMapsServiceInterface {
     String PARAM_FILE_ARRAY_FORMAT = "m_file0[%d]";
 
     @GET("/service.php?service=PFS&upload_test")
