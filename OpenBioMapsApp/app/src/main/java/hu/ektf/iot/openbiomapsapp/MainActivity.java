@@ -117,6 +117,15 @@ public class MainActivity extends AppCompatActivity {
         }
         gpsHandler = new GpsHandler(MainActivity.this);
 
+        ArrayList<String> testImages = new ArrayList<>();
+        ArrayList<String> testSounds = new ArrayList<>();
+        testSounds.add(Environment.getExternalStorageDirectory() + "/Sounds/" + "Voice 018.m4a");
+        testImages.add(Environment.getExternalStorageDirectory() + "/Pictues/" + "JPEG_20151120_161815_529683428");
+        Note testNote = new Note();
+        testNote.setSoundsList(testSounds);
+        testNote.setImagesList(testImages);
+        testNote.setId(234423324);
+
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
@@ -280,9 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
     // TODO Why do we need this?
     private int getCurrentRecordId() {
-        String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-        Uri storage = Uri.parse(URL);
-        Cursor c = getContentResolver().query(storage, null, null, null, "_ID");
+        Cursor c = getContentResolver().query(BioMapsContentProvider.CONTENT_URI, null, null, null, "_ID");
 
         ArrayList<Integer> ids = new ArrayList<Integer>();
 

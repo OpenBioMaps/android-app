@@ -8,6 +8,8 @@ import org.parceler.Parcel;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
+import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
+import hu.ektf.iot.openbiomapsapp.helper.GeometryConverter;
 
 /**
  * Created by Pádi on 2015. 11. 10..
@@ -42,6 +44,10 @@ public class Note {
 
     public String getLocationString() {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
+    }
+
+    public String getGeometryString(Location loc) throws Exception {
+        return GeometryConverter.LocationToString(loc);
     }
 
     public Integer getId() {
