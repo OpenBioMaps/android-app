@@ -8,6 +8,8 @@ import android.content.Context;
 import java.util.ArrayList;
 import java.util.Map;
 
+import hu.ektf.iot.openbiomapsapp.database.BioMapsContentObserver;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
 import hu.ektf.iot.openbiomapsapp.upload.FileMapCreator;
 import retrofit.Callback;
@@ -22,7 +24,7 @@ import timber.log.Timber;
  */
 public class BioMapsApplication extends Application {
     public static final String ACCOUNT_TYPE = "openbiomaps.org";
-    public static final String ACCOUNT = "default";
+    public static final String ACCOUNT_NAME = "default";
     private Account account;
 
     // TODO Make it dynamic
@@ -45,16 +47,26 @@ public class BioMapsApplication extends Application {
         // Placeholder for debug application
     }
 
+    protected void registerContentObserver(){
+        BioMapsContentObserver observer = new BioMapsContentObserver(account, null);
+        getContentResolver().registerContentObserver(BioMapsContentProvider.CONTENT_URI, true, observer);
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         setupRetrofit();
         setupLogging();
         account = createSyncAccount(this);
+        registerContentObserver();
     }
 
     public BioMapsServiceInterface getMapsService() {
         return mapsService;
+    }
+
+    public Account getAccount(){
+        return account;
     }
 
     /**
@@ -64,7 +76,7 @@ public class BioMapsApplication extends Application {
      */
     private Account createSyncAccount(Context context) {
         // Create the account type and default account
-        Account newAccount = new Account(ACCOUNT, ACCOUNT_TYPE);
+        Account newAccount = new Account(ACCOUNT_NAME, ACCOUNT_TYPE);
         // Get an instance of the Android account manager
         AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
         /*
