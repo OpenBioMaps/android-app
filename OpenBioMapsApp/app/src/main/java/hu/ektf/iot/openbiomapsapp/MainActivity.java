@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> audiosList = new ArrayList<>();
 
     //LocalDB management
+    // TODO Should not be needed
     private String formattedPosition;
     private Integer currentRecordId = -1;
 
@@ -157,6 +158,8 @@ public class MainActivity extends AppCompatActivity {
         gpsHandler.setExternalListener(new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                // TODO Set the location only after the button was pressed
+                // TODO If the button is pressed again, refresh the location of the note (and the UI)
                 if (location != null) {
                     progressGps.setVisibility(View.GONE);
                     currentLocation = location;
@@ -615,6 +618,7 @@ public class MainActivity extends AppCompatActivity {
                 android.os.Environment.MEDIA_MOUNTED);
     }
 
+    // TODO Should not be needed
     private void resetFields() {
         etNote.setText("");
         imagesList.clear();
@@ -626,5 +630,9 @@ public class MainActivity extends AppCompatActivity {
         currentLocation = null;
         currentRecordId = -1;
         noteRecord = null;
+    }
+
+    private void updateUI(){
+        // TODO Set the UI elements based on the Note object
     }
 }
