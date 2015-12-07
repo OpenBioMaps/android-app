@@ -16,6 +16,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.State;
 
 /**
  * A wrapper class around the default ContentResolver from the Android system, which makes it possible
@@ -87,6 +88,19 @@ public class BioMapsResolver {
         String[] selectionArgs = {String.valueOf(id)};
         ArrayList<Note> results = queryNotes(null,
                 NoteTable._ID + "= ?", selectionArgs, null);
+
+        if (results.size() > 0) {
+            return results.get(0);
+        } else {
+            return null;
+        }
+    }
+
+    public Note getNoteByStatus(final State state)
+            throws RemoteException {
+        String[] selectionArgs = {String.valueOf(state)};
+        ArrayList<Note> results = queryNotes(null,
+                NoteTable.STATE + "= ?", selectionArgs, null);
 
         if (results.size() > 0) {
             return results.get(0);

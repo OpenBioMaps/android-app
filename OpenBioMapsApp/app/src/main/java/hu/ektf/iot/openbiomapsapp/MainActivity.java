@@ -46,6 +46,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
@@ -101,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bioMapsResolver = new BioMapsResolver(this);
-
         createNoteRecord();
 
         if (savedInstanceState != null) {
@@ -213,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     Calendar calendar = Calendar.getInstance();
                     Date date = calendar.getTime();
                     noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, 0);
-                    SaveLocal(noteRecord.getContentValues());
+                    SaveLocal(noteRecord);
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
                     tvPosition.setText(R.string.waiting_for_gps);
@@ -224,7 +224,6 @@ public class MainActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveLocal(noteRecord.getContentValues());
                 SaveLocal(noteRecord);
                 Timber.d("buttonReset", "saved record to local");
                 resetFields();
@@ -293,20 +292,15 @@ public class MainActivity extends AppCompatActivity {
         //((BioMapsApplication) getApplication()).testService();
     }
 
-    // TODO Why do we need this?
-    private int getCurrentRecordId() {
-        Cursor c = getContentResolver().query(BioMapsContentProvider.CONTENT_URI, null, null, null, "_ID");
+    private void createNoteRecord()
+    {
+        if(noteRecord!=null)
+        {
 
-            try {
-                uri = bioMapsResolver.insert(noteRecord);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-
-            if(uri!=null) {
-                List<String> segments = uri.getPathSegments();
-                currentRecordId = Integer.valueOf(segments.get(0));
-            }
+        }
+        else
+        {
+            noteRecord = new Note();
         }
     }
 
@@ -378,37 +372,6 @@ public class MainActivity extends AppCompatActivity {
             adapterImage.notifyDataSetChanged();
             imageRecycler.setVisibility(View.VISIBLE);
             noteRecord.setImagesList(imagesList);
-            SaveLocal(noteRecord.getContentValues());
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQ_IMAGE_CHOOSER) {
-            if (resultCode == RESULT_OK) {
-                Uri selectedImageUri = intent.getData();
-                selectedImagePath = selectedImageUri.getPath();
-                String galleryPath = getPath(selectedImageUri);
-                if (galleryPath != null) {
-                    selectedImagePath = galleryPath;
-                }
-                imageFile = new File(selectedImagePath);
-            }
-        }
-
-        if (requestCode == REQ_CAMERA) {
-            if (resultCode == RESULT_OK) {
-                imageFile = new File(selectedImagePath);
-            } else {
-                imageFile = null;
-            }
-        }
-
-        if (imageFile != null) {
-            String local = "file://" + imageFile.getPath();
-            imagesList.add(local);
-            adapterImage.notifyDataSetChanged();
-            imageRecycler.setVisibility(View.VISIBLE);
-            noteRecord.setImagesList(imagesList);
             SaveLocal(noteRecord);
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
@@ -434,7 +397,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_upload) {
