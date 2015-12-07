@@ -2,14 +2,11 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
 import android.location.Location;
 import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,9 +15,10 @@ import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
-import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
@@ -77,7 +75,7 @@ public class UploadActivity extends AppCompatActivity {
 
                 ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
                 ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
-                Note nr = new Note(null, comment, locfromdb, date, soundsfromdb, imagesfromdb, Integer.valueOf(response));
+                Note nr = new Note(null, comment, locfromdb, new Date(), soundsfromdb, imagesfromdb, Integer.valueOf(response));
                 listObjects.add(nr);
 
             } while (c.moveToNext());

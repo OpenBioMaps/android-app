@@ -7,6 +7,7 @@ import android.text.TextUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 import hu.ektf.iot.openbiomapsapp.object.Note;
 
@@ -24,7 +25,7 @@ public class NoteCreator {
 
         contentValues.put(NoteTable._ID, note.getId());
         contentValues.put(NoteTable.COMMENT, note.getComment());
-        contentValues.put(NoteTable.DATE, note.getDate());
+        contentValues.put(NoteTable.DATE, note.getDate().getTime());
         contentValues.put(NoteTable.LATITUDE, note.getLocation().getLatitude());
         contentValues.put(NoteTable.LONGITUDE, note.getLocation().getLongitude());
         contentValues.put(NoteTable.SOUND_FILES, TextUtils.join(SEPARATOR, note.getSoundsList()));
@@ -60,7 +61,7 @@ public class NoteCreator {
         Note note = new Note();
         note.setId(cursor.getInt(cursor.getColumnIndex(NoteTable._ID)));
         note.setComment(cursor.getString(cursor.getColumnIndex(NoteTable.COMMENT)));
-        note.setDate(cursor.getString(cursor.getColumnIndex(NoteTable.DATE)));
+        note.setDate(new Date(cursor.getLong(cursor.getColumnIndex(NoteTable.DATE))));
         note.setLocation(loc);
         note.setImagesList(new ArrayList(Arrays.asList(images)));
         note.setSoundsList(new ArrayList(Arrays.asList(sounds)));

@@ -36,8 +36,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.parceler.Parcels;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -113,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (savedInstanceState.containsKey(NOTE)) {
-                noteRecord = Parcels.unwrap(savedInstanceState.getParcelable(NOTE));
+                noteRecord = (Note) savedInstanceState.getParcelable(NOTE);
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
@@ -207,10 +205,9 @@ public class MainActivity extends AppCompatActivity {
                     tvPosition.setText(formattedLocation);
                     buttonShowMap.setEnabled(true);
 
-                    Calendar c = Calendar.getInstance();
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String formattedDate = df.format(c.getTime());
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, formattedDate, imagesList, audiosList, 0);
+                    Calendar calendar = Calendar.getInstance();
+                    Date date = calendar.getTime();
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, 0);
                     SaveLocal(noteRecord.getContentValues());
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -345,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
         outState.putStringArrayList(IMAGES_LIST, imagesList);
         outState.putStringArrayList(AUDIOS_LIST, audiosList);
-        outState.putParcelable(NOTE, Parcels.wrap(noteRecord));
+        outState.putParcelable(NOTE, noteRecord);
     }
 
     @Override

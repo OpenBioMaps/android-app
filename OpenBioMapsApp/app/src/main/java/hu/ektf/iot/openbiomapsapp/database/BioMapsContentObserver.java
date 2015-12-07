@@ -4,6 +4,7 @@ import android.accounts.Account;
 import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 
 import timber.log.Timber;
@@ -28,6 +29,10 @@ public class BioMapsContentObserver extends ContentObserver {
     @Override
     public void onChange(boolean selfChange, Uri uri) {
         Timber.i("BioMapsContentObserver's onChange method was called. Sync will be requested");
-        ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, null);
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_FORCE, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, bundle);
     }
 }
