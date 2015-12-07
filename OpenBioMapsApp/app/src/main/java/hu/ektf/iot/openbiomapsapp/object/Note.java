@@ -3,39 +3,53 @@ package hu.ektf.iot.openbiomapsapp.object;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.location.Location;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-import org.parceler.Parcel;
-
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
-import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.GeometryConverter;
 
 /**
  * Created by Pádi on 2015. 11. 10..
  */
-@Parcel
-public class Note {
+public class Note implements Parcelable {
+    private static final String ID = "id";
+    private static final String COMMENT = "comment";
+    private static final String LOCATION = "location";
+    private static final String DATE = "date";
+    private static final String IMAGES = "images";
+    private static final String SOUNDS = "sounds";
+    private static final String STATE = "state";
+    private static final String RESPONSE = "response";
+
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     private Integer id;
     private String comment;
     private Location location;
-    private String date;
+    private Date date;
     private ArrayList<String> imagesList;
     private ArrayList<String> soundsList;
+    private State state;
     private Integer response;
 
     public Note() {
         /* Required empty bean constructor form Parceler */
     }
 
-    public Note(Integer id, String comment, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, Integer response) {
+    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList,State state, Integer response) {
         setId(id);
         setComment(comment);
         setLocation(location);
         setDate(date);
         setImagesList(imagesList);
         setSoundsList(soundsList);
+        setState(state);
         setResponse(response);
     }
 
@@ -47,9 +61,17 @@ public class Note {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
     }
 
-    public String getGeometryString(Location loc) throws Exception {
-        return GeometryConverter.LocationToString(loc);
+    public String getGeometryString() throws Exception {
+        return GeometryConverter.LocationToString(location);
     }
+
+    public String getDateString(){
+        return DATE_FORMAT.format(date);
+    }
+
+    public State getState(){return state;}
+
+    public void setState(State state){ this.state = state;}
 
     public Integer getId() {
         return id;
@@ -75,11 +97,11 @@ public class Note {
         this.location = location;
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 
@@ -106,4 +128,49 @@ public class Note {
     public void setResponse(Integer response) {
         this.response = response;
     }
+
+    // Parcelable implementation
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        Bundle bundle = new Bundle();
+        bundle.putLong(DATE, getDate() == null ? -1 : getDate().getTime());
+        if (getId() != null) bundle.putInt(ID, getId());
+        if (getLocation() != null) bundle.putParcelable(LOCATION, location);
+        if (getComment() != null) bundle.putString(COMMENT, getComment());
+        if (getImagesList() != null) bundle.putStringArrayList(IMAGES, getImagesList());
+        if (getSoundsList() != null) bundle.putStringArrayList(SOUNDS, getSoundsList());
+        if(getState()!=null) bundle.putSerializable(STATE,state);
+        if (getResponse() != null) bundle.putInt(RESPONSE, getResponse());
+
+        dest.writeBundle(bundle);
+    }
+
+    private Note(Parcel in) {
+        Bundle bundle = in.readBundle();
+
+        long dateTime = bundle.getLong(DATE);
+        setDate(dateTime == -1 ? null : new Date(dateTime));
+        if (bundle.containsKey(ID)) setId(bundle.getInt(ID));
+        if (bundle.containsKey(LOCATION)) setLocation((Location) bundle.getParcelable(LOCATION));
+        if (bundle.containsKey(COMMENT)) setComment(bundle.getString(COMMENT));
+        if (bundle.containsKey(IMAGES)) setImagesList(bundle.getStringArrayList(IMAGES));
+        if (bundle.containsKey(SOUNDS)) setSoundsList(bundle.getStringArrayList(SOUNDS));
+        if(bundle.containsKey(STATE)) setState((State)bundle.getSerializable(STATE));
+        if (bundle.containsKey(RESPONSE)) setResponse(bundle.getInt(RESPONSE));
+    }
+
+    public static final Creator<Note> CREATOR = new Creator<Note>() {
+        public Note createFromParcel(Parcel in) {
+            return new Note(in);
+        }
+
+        public Note[] newArray(int size) {
+            return new Note[size];
+        }
+    };
 }

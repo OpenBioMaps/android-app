@@ -105,7 +105,7 @@ public class ExportHelper {
         ExportHelper.createFileToFolder("geometry.wkt", GeometryConverter.LocationToString(note.getLocation()), folder);
         ExportHelper.copyAttachmentsToFolder(note, folder);
         ExportHelper.zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
-        deleteFolder(note.getDate());
+        deleteFolder(note.getDate().toString());
     }
 
     public static void deleteFolder(String folderName) throws IOException {

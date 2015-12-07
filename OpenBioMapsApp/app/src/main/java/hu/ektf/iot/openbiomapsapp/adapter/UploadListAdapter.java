@@ -67,7 +67,7 @@ public class UploadListAdapter extends RecyclerView.Adapter<UploadListAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         Note listObject = mDataset.get(position);
-        if(!listObject.getDate().isEmpty()) holder.tvDate.setText(listObject.getDate());
+        if(listObject.getDate() != null) holder.tvDate.setText(listObject.getDateString());
         if(!listObject.getComment().isEmpty()) holder.tvComment.setText(listObject.getComment());
         if(!listObject.getLocationString().isEmpty()) holder.tvCoord.setText(listObject.getLocationString());
         if(listObject.getResponse() == 0) {
