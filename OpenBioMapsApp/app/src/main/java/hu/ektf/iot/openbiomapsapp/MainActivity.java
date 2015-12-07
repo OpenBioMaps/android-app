@@ -68,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String AUDIOS_LIST = "audiosList";
     private static final String NOTE = "note";
 
+    //SharedPrefrences
+    private static StorageHelper sh;
+
     //Gps stuffs
     GpsHandler gpsHandler;
     Location currentLocation;
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bioMapsResolver = new BioMapsResolver(this);
+        sh = new StorageHelper(MainActivity.this);
         createNoteRecord();
 
         if (savedInstanceState != null) {
@@ -211,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Calendar calendar = Calendar.getInstance();
                     Date date = calendar.getTime();
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, State.CREATED, 0);
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList,  State.CREATED,sh.getServerUrl(), 0);
                     SaveLocal(noteRecord);
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -417,7 +421,6 @@ public class MainActivity extends AppCompatActivity {
             final EditText etServerUrl = (EditText) dialogView
                     .findViewById(R.id.etServerUrl);
 
-            final StorageHelper sh = new StorageHelper(MainActivity.this);
             etServerUrl.setText(sh.getServerUrl());
             etServerUrl.setSelection(etServerUrl.getText().length());
 

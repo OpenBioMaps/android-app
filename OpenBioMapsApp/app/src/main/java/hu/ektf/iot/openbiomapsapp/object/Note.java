@@ -25,6 +25,7 @@ public class Note implements Parcelable {
     private static final String SOUNDS = "sounds";
     private static final String STATE = "state";
     private static final String RESPONSE = "response";
+    private static final String URL = "url";
 
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -36,12 +37,13 @@ public class Note implements Parcelable {
     private ArrayList<String> soundsList;
     private State state;
     private Integer response;
+    private String url;
 
     public Note() {
         /* Required empty bean constructor form Parceler */
     }
 
-    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList,State state, Integer response) {
+    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList,State state, String url, Integer response) {
         setId(id);
         setComment(comment);
         setLocation(location);
@@ -49,6 +51,7 @@ public class Note implements Parcelable {
         setImagesList(imagesList);
         setSoundsList(soundsList);
         setState(state);
+        setUrl(url);
         setResponse(response);
     }
 
@@ -67,6 +70,10 @@ public class Note implements Parcelable {
     public String getDateString(){
         return DATE_FORMAT.format(date);
     }
+
+    public String getUrl(){return url;}
+
+    public void setUrl(String url){this.url = url;}
 
     public State getState(){return state;}
 
@@ -145,6 +152,7 @@ public class Note implements Parcelable {
         if (getSoundsList() != null) bundle.putStringArrayList(SOUNDS, getSoundsList());
         if(getState()!=null) bundle.putSerializable(STATE,state);
         if (getResponse() != null) bundle.putInt(RESPONSE, getResponse());
+        if(getUrl()!=null) bundle.putString(URL,getUrl());
 
         dest.writeBundle(bundle);
     }
@@ -161,6 +169,7 @@ public class Note implements Parcelable {
         if (bundle.containsKey(SOUNDS)) setSoundsList(bundle.getStringArrayList(SOUNDS));
         if(bundle.containsKey(STATE)) setState((State)bundle.getSerializable(STATE));
         if (bundle.containsKey(RESPONSE)) setResponse(bundle.getInt(RESPONSE));
+        if(bundle.containsKey(URL)) setUrl(bundle.getString(URL));
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {

@@ -20,6 +20,7 @@ public class NoteTable {
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
     public static final String STATE = "STATE";
+    public static final String URL = "URL";
 
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
@@ -31,6 +32,7 @@ public class NoteTable {
                     IMAGE_FILES + " TEXT, " +
                     DATE + " TEXT NOT NULL, " +
                     STATE + " INTEGER NOT NULL, " +
+                    URL + " TEXT, " +
                     RESPONSE + " INTEGER);";
 
     public static void onCreate(SQLiteDatabase database) {

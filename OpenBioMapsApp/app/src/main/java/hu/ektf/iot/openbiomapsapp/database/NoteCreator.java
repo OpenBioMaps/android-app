@@ -31,6 +31,7 @@ public class NoteCreator {
         contentValues.put(NoteTable.SOUND_FILES, TextUtils.join(SEPARATOR, note.getSoundsList()));
         contentValues.put(NoteTable.IMAGE_FILES, TextUtils.join(SEPARATOR, note.getImagesList()));
         contentValues.put(NoteTable.STATE, note.getState().getValue());
+        contentValues.put(NoteTable.URL, note.getUrl());
         contentValues.put(NoteTable.RESPONSE, note.getResponse());
 
         return contentValues;
