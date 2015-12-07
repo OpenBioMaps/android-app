@@ -25,6 +25,7 @@ import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 import hu.ektf.iot.openbiomapsapp.object.State;
+import timber.log.Timber;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -48,9 +49,9 @@ public class UploadActivity extends AppCompatActivity {
         final ArrayList<Note> listObjects = new ArrayList<Note>();
 
         // TODO Use BioMapsResolver
-        Cursor c = managedQuery(BioMapsContentProvider.CONTENT_URI,null,null,null,"_ID");
+        Cursor c = managedQuery(BioMapsContentProvider.CONTENT_URI, null, null, null, "_ID");
         if (c.moveToFirst()) {
-            do{
+            do {
 
                 String id = c.getString(c.getColumnIndex(NoteTable._ID));
                 String latitude = c.getString(c.getColumnIndex(NoteTable.LATITUDE));
@@ -62,23 +63,23 @@ public class UploadActivity extends AppCompatActivity {
                 String date = c.getString(c.getColumnIndex(NoteTable.DATE));
                 State state = State.getByValue(c.getInt(c.getColumnIndex(NoteTable.STATE)));
 
-                        Log.d("In storage, ID: ", id
-                                        + ", COMMENT: " + comment
-                                        + ", LATITUDE: " + latitude
-                                        + ", LONGITUDE: " + longitude
-                                        + ", SOUND_FILE" + sound_file
-                                        + ", IMAGE_FILE" + image_file
-                                        + ", RESPONSE" + response
-                                        + ", STATE" + state
-                                        + ", DATE" + date
-                        );
+                Timber.d("In storage, ID: ", id
+                        + ", COMMENT: " + comment
+                        + ", LATITUDE: " + latitude
+                        + ", LONGITUDE: " + longitude
+                        + ", SOUND_FILE" + sound_file
+                        + ", IMAGE_FILE" + image_file
+                        + ", RESPONSE" + response
+                        + ", STATE" + state
+                        + ", DATE" + date);
                 Location locfromdb = new Location(LocationManager.PASSIVE_PROVIDER);
                 locfromdb.setLatitude(Double.valueOf(latitude));
                 locfromdb.setLongitude(Double.valueOf(longitude));
 
                 ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
                 ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
-                Note nr = new Note(null, comment, locfromdb, new Date(), soundsfromdb, imagesfromdb, state, Integer.valueOf(response));
+                //TODO add url and add storagehelper to biomapsapplication
+                Note nr = new Note(null, comment, locfromdb, new Date(), soundsfromdb, imagesfromdb, state, "url",Integer.valueOf(response));
                 listObjects.add(nr);
 
             } while (c.moveToNext());
