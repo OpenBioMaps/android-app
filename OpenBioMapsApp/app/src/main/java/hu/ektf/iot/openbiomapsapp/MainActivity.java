@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -85,8 +86,6 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> audiosList = new ArrayList<>();
 
     //LocalDB management
-    // TODO Should not be needed
-    private String formattedPosition;
     private Integer currentRecordId = -1;
     private BioMapsResolver bioMapsResolver;
 
@@ -212,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Calendar calendar = Calendar.getInstance();
                     Date date = calendar.getTime();
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, 0);
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, State.CREATED, 0);
                     SaveLocal(noteRecord);
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -296,7 +295,11 @@ public class MainActivity extends AppCompatActivity {
     {
         if(noteRecord!=null)
         {
-
+            try {
+                noteRecord = bioMapsResolver.getNoteByStatus(State.CREATED);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
         else
         {

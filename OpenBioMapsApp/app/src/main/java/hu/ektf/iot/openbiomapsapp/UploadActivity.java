@@ -24,6 +24,7 @@ import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.State;
 
 public class UploadActivity extends AppCompatActivity {
 
@@ -59,6 +60,7 @@ public class UploadActivity extends AppCompatActivity {
                 String image_file = c.getString(c.getColumnIndex(NoteTable.IMAGE_FILES));
                 String response = c.getString(c.getColumnIndex(NoteTable.RESPONSE));
                 String date = c.getString(c.getColumnIndex(NoteTable.DATE));
+                State state = State.getByValue(c.getInt(c.getColumnIndex(NoteTable.STATE)));
 
                         Log.d("In storage, ID: ", id
                                         + ", COMMENT: " + comment
@@ -67,6 +69,7 @@ public class UploadActivity extends AppCompatActivity {
                                         + ", SOUND_FILE" + sound_file
                                         + ", IMAGE_FILE" + image_file
                                         + ", RESPONSE" + response
+                                        + ", STATE" + state
                                         + ", DATE" + date
                         );
                 Location locfromdb = new Location(LocationManager.PASSIVE_PROVIDER);
@@ -75,7 +78,7 @@ public class UploadActivity extends AppCompatActivity {
 
                 ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
                 ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
-                Note nr = new Note(null, comment, locfromdb, new Date(), soundsfromdb, imagesfromdb, Integer.valueOf(response));
+                Note nr = new Note(null, comment, locfromdb, new Date(), soundsfromdb, imagesfromdb, state, Integer.valueOf(response));
                 listObjects.add(nr);
 
             } while (c.moveToNext());
