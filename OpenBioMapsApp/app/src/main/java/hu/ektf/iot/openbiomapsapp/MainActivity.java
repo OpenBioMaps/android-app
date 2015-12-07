@@ -2,8 +2,6 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
@@ -49,11 +48,12 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
-import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.State;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
     //LocalDB management
     private String formattedPosition;
     private Integer currentRecordId = -1;
+    private BioMapsResolver bioMapsResolver;
 
     // File
     private Note noteRecord;
@@ -99,6 +100,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        bioMapsResolver = new BioMapsResolver(this);
+
+        createNoteRecord();
 
         if (savedInstanceState != null) {
             selectedImagePath = savedInstanceState.getString(SELECTED_IMAGE_PATH);
@@ -198,8 +203,8 @@ public class MainActivity extends AppCompatActivity {
                     Calendar c = Calendar.getInstance();
                     SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                     String formattedDate = df.format(c.getTime());
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, formattedDate, imagesList, audiosList, 0);
-                    SaveLocal(noteRecord.getContentValues());
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, formattedDate, imagesList, audiosList, null, 0);
+                    SaveLocal(noteRecord);
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
                     tvPosition.setText(R.string.waiting_for_gps);
@@ -210,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveLocal(noteRecord.getContentValues());
+                SaveLocal(noteRecord);
                 Timber.d("buttonReset", "saved record to local");
                 resetFields();
             }
@@ -278,34 +283,49 @@ public class MainActivity extends AppCompatActivity {
         //((BioMapsApplication) getApplication()).testService();
     }
 
-    // TODO Why do we need this?
-    private int getCurrentRecordId() {
-        String URL = "content://hu.ektf.iot.openbiomapsapp/storage";
-        Uri storage = Uri.parse(URL);
-        Cursor c = getContentResolver().query(storage, null, null, null, "_ID");
+    private void createNoteRecord() {
+        ArrayList<Note> note = null;
+        try {
+            note = bioMapsResolver.queryNotes(null,"WHERE STATE = 0",null,"_ID");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        if(note!=null)
+        {
+            noteRecord = note.get(0);
+            currentRecordId = noteRecord.getId();
+        }
+        else
+        {
+            noteRecord = new Note(State.CREATED);
+            Uri uri = null;
 
-        ArrayList<Integer> ids = new ArrayList<Integer>();
+            try {
+                uri = bioMapsResolver.insert(noteRecord);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
 
-        if (c.moveToFirst()) {
-            do {
-                ids.add(Integer.valueOf(c.getString(c.getColumnIndex(NoteTable._ID))));
-            } while (c.moveToNext());
-
-            Collections.sort(ids);
-            return ids.get(ids.size() - 1);
-        } else {
-            return -1;
+            if(uri!=null) {
+                List<String> segments = uri.getPathSegments();
+                currentRecordId = Integer.valueOf(segments.get(0));
+            }
         }
     }
 
-    private boolean SaveLocal(ContentValues contentValues) {
-        Uri uri;
+    private boolean SaveLocal(Note note) {
         if (currentRecordId > 0) {
-            uri = ContentUris.withAppendedId(BioMapsContentProvider.CONTENT_URI, currentRecordId);
-            getContentResolver().update(uri, contentValues, null, null);
+            try {
+                bioMapsResolver.updateNote(note);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         } else {
-            uri = getContentResolver().insert(BioMapsContentProvider.CONTENT_URI, contentValues);
-            currentRecordId = getCurrentRecordId();
+            try {
+                bioMapsResolver.insert(note);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
         }
         Timber.d("currentRecordId", currentRecordId.toString());
         return true;
@@ -366,7 +386,7 @@ public class MainActivity extends AppCompatActivity {
             adapterImage.notifyDataSetChanged();
             imageRecycler.setVisibility(View.VISIBLE);
             noteRecord.setImagesList(imagesList);
-            SaveLocal(noteRecord.getContentValues());
+            SaveLocal(noteRecord);
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
         if (requestCode == REQ_RECORDING) {
@@ -381,7 +401,7 @@ public class MainActivity extends AppCompatActivity {
                 audioRecycler.setVisibility(View.VISIBLE);
 
                 noteRecord.setSoundsList(audiosList);
-                SaveLocal(noteRecord.getContentValues());
+                SaveLocal(noteRecord);
             } else {
                 Toast.makeText(getApplicationContext(), R.string.error_audio_capture_text, Toast.LENGTH_LONG).show();
             }

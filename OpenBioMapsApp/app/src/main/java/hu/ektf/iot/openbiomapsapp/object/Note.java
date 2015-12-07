@@ -21,12 +21,13 @@ public class Note {
     private ArrayList<String> imagesList;
     private ArrayList<String> soundsList;
     private Integer response;
+    private State state;
 
     public Note() {
         /* Required empty bean constructor form Parceler */
     }
 
-    public Note(Integer id, String comment, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, Integer response) {
+    public Note(Integer id, String comment, Location location, String date, ArrayList<String> imagesList, ArrayList<String> soundsList, State state, Integer response) {
         setId(id);
         setComment(comment);
         setLocation(location);
@@ -34,6 +35,12 @@ public class Note {
         setImagesList(imagesList);
         setSoundsList(soundsList);
         setResponse(response);
+        setState(state);
+    }
+
+    public Note(State state)
+    {
+        setState(state);
     }
 
     public ContentValues getContentValues(){
@@ -43,6 +50,10 @@ public class Note {
     public String getLocationString() {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
     }
+
+    public State getState(){return state;}
+
+    public void setState(State value){state = value;}
 
     public Integer getId() {
         return id;

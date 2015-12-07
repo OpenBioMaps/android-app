@@ -19,6 +19,7 @@ public class NoteTable {
     public static final String RESPONSE = "RESPONSE";
     public static final String LATITUDE = "LATITUDE";
     public static final String LONGITUDE = "LONGITUDE";
+    public static final String STATE = "STATE";
 
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
@@ -28,7 +29,8 @@ public class NoteTable {
                     LONGITUDE + " TEXT NOT NULL," +
                     SOUND_FILES + " TEXT, " +
                     IMAGE_FILES + " TEXT, " +
-                    DATE + " TEXT, " +
+                    DATE + " TEXT NOT NULL, " +
+                    STATE + " INTEGER NOT NULL, " +
                     RESPONSE + " INTEGER);";
 
     public static void onCreate(SQLiteDatabase database) {
