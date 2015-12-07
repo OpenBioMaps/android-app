@@ -54,14 +54,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle bundle, String s, ContentProviderClient contentProviderClient, SyncResult syncResult) {
         Timber.v("Wow! Such sync, so upload!");
-        doSync();
+
+        // TODO Should it be handled thread safe?
+        if(!isSyncing) {
+            isSyncing = true;
+            doSync();
+        }
     }
 
+    private boolean isSyncing = false;
     private void doSync() {
         try {
             Note noteToSync = bioMapsResolver.getSyncableNote();
             if (noteToSync == null) {
                 Timber.v("There was nothing to sync");
+                isSyncing = false;
                 return;
             }
 
@@ -78,6 +85,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
+            isSyncing = false;
         }
     }
 }
