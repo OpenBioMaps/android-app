@@ -96,6 +96,22 @@ public class BioMapsResolver {
         }
     }
 
+    public Note getSyncableNote() throws RemoteException {
+        // TODO select by Note.STATE
+        String selection = NoteTable.RESPONSE + "= ?";
+        String[] selectionArgs = {String.valueOf("")};
+        String orderBy = NoteTable.DATE + " ASC";
+
+        ArrayList<Note> results = queryNotes(null,
+                selection, selectionArgs, orderBy);
+
+        if (results.size() > 0) {
+            return results.get(0);
+        } else {
+            return null;
+        }
+    }
+
     public Note getNoteByStatus(final State state)
             throws RemoteException {
         String[] selectionArgs = {String.valueOf(state)};
