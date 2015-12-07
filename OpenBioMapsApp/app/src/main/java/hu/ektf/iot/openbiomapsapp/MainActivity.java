@@ -1,6 +1,5 @@
 package hu.ektf.iot.openbiomapsapp;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -35,16 +33,15 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import org.parceler.Parcels;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-
+import timber.log.Timber;
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
@@ -93,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private BioMapsResolver bioMapsResolver;
 
     // File
+    private FileHelper fileHelper;
     private Note noteRecord;
     private String selectedImagePath;
     private String soundPath = "";
@@ -123,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
+        fileHelper = new FileHelper(getApplicationContext());
 
         ArrayList<String> testImages = new ArrayList<>();
         ArrayList<String> testSounds = new ArrayList<>();
@@ -148,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (isSDPresent()) {
+                if (fileHelper.isSDPresent()) {
                     showImageSourceDialog();
                 }
             }
@@ -357,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = intent.getData();
                 selectedImagePath = selectedImageUri.getPath();
-                String galleryPath = getPath(selectedImageUri);
+                String galleryPath = fileHelper.getPath(selectedImageUri);
                 if (galleryPath != null) {
                     selectedImagePath = galleryPath;
                 }
@@ -532,7 +531,8 @@ public class MainActivity extends AppCompatActivity {
             // Create the File where the photo should go
             File photoFile = null;
             try {
-                photoFile = createImageFile();
+                photoFile = fileHelper.createImageFile();
+                selectedImagePath = photoFile.getAbsolutePath();
             } catch (IOException ex) {
                 // Error occurred while creating the File
                 ex.printStackTrace();
@@ -547,76 +547,6 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(this, R.string.no_file, Toast.LENGTH_LONG).show();
             }
         }
-    }
-
-    // TODO Could be separated in a FileHelper file
-    @SuppressLint("NewApi")
-    private String getPath(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
-
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor;
-        if (Build.VERSION.SDK_INT > 19) {
-            // Will return "image:x*"
-            String wholeID = DocumentsContract.getDocumentId(uri);
-            // Split at colon, use second item in the array
-            String id = wholeID.contains(":") ? wholeID.split(":")[1] : wholeID;
-            // where id is equal to
-            String sel = MediaStore.Images.Media._ID + "=?";
-
-            cursor = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    projection, sel, new String[]{id}, null);
-        } else {
-            cursor = getContentResolver().query(uri, projection, null, null, null);
-        }
-        String path = null;
-
-        try {
-            int column_index = cursor
-                    .getColumnIndex(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            path = cursor.getString(column_index).toString();
-            cursor.close();
-        } catch (NullPointerException e) {
-            // Nothing to do, will return null
-        }
-
-        return path;
-    }
-
-    // TODO Could be separated in a FileHelper file
-
-    /**
-     * This method creates an File object helping the image uploading process.
-     *
-     * @return The File object of the image.
-     * @throws IOException
-     */
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                .format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-
-        File image = File.createTempFile(imageFileName, /* prefix */
-                ".jpg", /* suffix */
-                storageDir /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        selectedImagePath = image.getAbsolutePath();
-        return image;
-    }
-
-    // TODO Could be separated in a FileHelper file
-    private static boolean isSDPresent() {
-        return android.os.Environment.getExternalStorageState().equals(
-                android.os.Environment.MEDIA_MOUNTED);
     }
 
     // TODO Should not be needed
