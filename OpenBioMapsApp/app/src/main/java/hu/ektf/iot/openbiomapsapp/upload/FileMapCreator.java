@@ -13,15 +13,18 @@ import retrofit.mime.TypedFile;
  * Created by szugyi on 20/11/15.
  */
 public class FileMapCreator {
-    public static Map<String, TypedFile> createFileMap(List<String> files){
+    public static Map<String, TypedFile> createFileMap(List<String>... fileLists){
         Map<String, TypedFile> fileMap = new HashMap<String, TypedFile>();
 
-        for(int i = 0; i < files.size(); i++){
-            String filePath = files.get(i);
-            String mimeType = getMimeType(filePath);
-            File file = new File(filePath);
-            TypedFile typedImage = new TypedFile(mimeType, file);
-            fileMap.put(String.format(BioMapsServiceInterface.PARAM_FILE_ARRAY_FORMAT, i), typedImage);
+        for(int i = 0; i < fileLists.length; i++) {
+            List<String> files = fileLists[i];
+            for (int j = 0; j < files.size(); j++) {
+                String filePath = files.get(j);
+                String mimeType = getMimeType(filePath);
+                File file = new File(filePath);
+                TypedFile typedImage = new TypedFile(mimeType, file);
+                fileMap.put(String.format(BioMapsServiceInterface.PARAM_FILE_ARRAY_FORMAT, i), typedImage);
+            }
         }
 
         return fileMap;
