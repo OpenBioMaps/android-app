@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">OpenBioMapsApp</string>
+    <string name="app_name">OpenBioMaps</string>
     <string name="title_activity_upload">UploadActivity</string>
     <string name="title_activity_main">MainActivity</string>
     <!-- ActionBar strings -->
@@ -35,7 +35,7 @@
 
     <!-- TextView strings -->
     <string name="tv_note_text">Jegyzet</string>
-    <string name="tv_current_time_text">2015.11.01 - 11:55:23</string>
+    <string name="tv_current_time_text">YYYY.MM.DD - HH:mm:ss</string>
     <string name="tv_position_text">Rögzítse pozícióját!</string>
     <string name="tv_no_gps_data">Nincs GPS érték! Próbálja újra!</string>
     <string name="error_audio_capture_text">Hiba a hangfelvételnél!</string>

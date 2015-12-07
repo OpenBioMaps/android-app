@@ -35,8 +35,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.parceler.Parcels;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -86,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private ArrayList<String> audiosList = new ArrayList<>();
 
     //LocalDB management
+    // TODO Should not be needed
     private String formattedPosition;
     private Integer currentRecordId = -1;
     private BioMapsResolver bioMapsResolver;
@@ -117,10 +116,19 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (savedInstanceState.containsKey(NOTE)) {
-                noteRecord = Parcels.unwrap(savedInstanceState.getParcelable(NOTE));
+                noteRecord = (Note) savedInstanceState.getParcelable(NOTE);
             }
         }
         gpsHandler = new GpsHandler(MainActivity.this);
+
+        ArrayList<String> testImages = new ArrayList<>();
+        ArrayList<String> testSounds = new ArrayList<>();
+        testSounds.add(Environment.getExternalStorageDirectory() + "/Sounds/" + "Voice 018.m4a");
+        testImages.add(Environment.getExternalStorageDirectory() + "/Pictues/" + "JPEG_20151120_161815_529683428");
+        Note testNote = new Note();
+        testNote.setSoundsList(testSounds);
+        testNote.setImagesList(testImages);
+        testNote.setId(234423324);
 
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
@@ -153,6 +161,8 @@ public class MainActivity extends AppCompatActivity {
         gpsHandler.setExternalListener(new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
+                // TODO Set the location only after the button was pressed
+                // TODO If the button is pressed again, refresh the location of the note (and the UI)
                 if (location != null) {
                     progressGps.setVisibility(View.GONE);
                     currentLocation = location;
@@ -200,11 +210,10 @@ public class MainActivity extends AppCompatActivity {
                     tvPosition.setText(formattedLocation);
                     buttonShowMap.setEnabled(true);
 
-                    Calendar c = Calendar.getInstance();
-                    SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    String formattedDate = df.format(c.getTime());
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, formattedDate, imagesList, audiosList, null, 0);
-                    SaveLocal(noteRecord);
+                    Calendar calendar = Calendar.getInstance();
+                    Date date = calendar.getTime();
+                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList, 0);
+                    SaveLocal(noteRecord.getContentValues());
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
                     tvPosition.setText(R.string.waiting_for_gps);
@@ -215,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                SaveLocal(noteRecord.getContentValues());
                 SaveLocal(noteRecord);
                 Timber.d("buttonReset", "saved record to local");
                 resetFields();
@@ -283,22 +293,9 @@ public class MainActivity extends AppCompatActivity {
         //((BioMapsApplication) getApplication()).testService();
     }
 
-    private void createNoteRecord() {
-        ArrayList<Note> note = null;
-        try {
-            note = bioMapsResolver.queryNotes(null,"WHERE STATE = 0",null,"_ID");
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-        if(note!=null)
-        {
-            noteRecord = note.get(0);
-            currentRecordId = noteRecord.getId();
-        }
-        else
-        {
-            noteRecord = new Note(State.CREATED);
-            Uri uri = null;
+    // TODO Why do we need this?
+    private int getCurrentRecordId() {
+        Cursor c = getContentResolver().query(BioMapsContentProvider.CONTENT_URI, null, null, null, "_ID");
 
             try {
                 uri = bioMapsResolver.insert(noteRecord);
@@ -321,11 +318,6 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         } else {
-            try {
-                bioMapsResolver.insert(note);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
         }
         Timber.d("currentRecordId", currentRecordId.toString());
         return true;
@@ -355,7 +347,38 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
         outState.putStringArrayList(IMAGES_LIST, imagesList);
         outState.putStringArrayList(AUDIOS_LIST, audiosList);
-        outState.putParcelable(NOTE, Parcels.wrap(noteRecord));
+        outState.putParcelable(NOTE, noteRecord);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == REQ_IMAGE_CHOOSER) {
+            if (resultCode == RESULT_OK) {
+                Uri selectedImageUri = intent.getData();
+                selectedImagePath = selectedImageUri.getPath();
+                String galleryPath = getPath(selectedImageUri);
+                if (galleryPath != null) {
+                    selectedImagePath = galleryPath;
+                }
+                imageFile = new File(selectedImagePath);
+            }
+        }
+
+        if (requestCode == REQ_CAMERA) {
+            if (resultCode == RESULT_OK) {
+                imageFile = new File(selectedImagePath);
+            } else {
+                imageFile = null;
+            }
+        }
+
+        if (imageFile != null) {
+            String local = "file://" + imageFile.getPath();
+            imagesList.add(local);
+            adapterImage.notifyDataSetChanged();
+            imageRecycler.setVisibility(View.VISIBLE);
+            noteRecord.setImagesList(imagesList);
+            SaveLocal(noteRecord.getContentValues());
     }
 
     @Override
@@ -628,6 +651,7 @@ public class MainActivity extends AppCompatActivity {
                 android.os.Environment.MEDIA_MOUNTED);
     }
 
+    // TODO Should not be needed
     private void resetFields() {
         etNote.setText("");
         imagesList.clear();
@@ -639,5 +663,9 @@ public class MainActivity extends AppCompatActivity {
         currentLocation = null;
         currentRecordId = -1;
         noteRecord = null;
+    }
+
+    private void updateUI(){
+        // TODO Set the UI elements based on the Note object
     }
 }
