@@ -1,37 +1,24 @@
 package hu.ektf.iot.openbiomapsapp;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.database.Cursor;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Environment;
+import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-
-import hu.ektf.iot.openbiomapsapp.adapter.UploadListAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.MyUploadListCursorAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
-import hu.ektf.iot.openbiomapsapp.database.NoteTable;
-import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 
-public class UploadActivity extends AppCompatActivity {
+public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private RecyclerView mRecyclerView;
-    private UploadListAdapter mAdapter;
+    private MyUploadListCursorAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private static final int URL_LOADER = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,44 +35,12 @@ public class UploadActivity extends AppCompatActivity {
 
         final ArrayList<Note> listObjects = new ArrayList<Note>();
 
-        // TODO Use BioMapsResolver
-        Cursor c = managedQuery(BioMapsContentProvider.CONTENT_URI,null,null,null,"_ID");
-        if (c.moveToFirst()) {
-            do{
+        getSupportLoaderManager().initLoader(URL_LOADER, null, this);
 
-                String id = c.getString(c.getColumnIndex(NoteTable._ID));
-                String latitude = c.getString(c.getColumnIndex(NoteTable.LATITUDE));
-                String longitude = c.getString(c.getColumnIndex(NoteTable.LONGITUDE));
-                String comment = c.getString(c.getColumnIndex(NoteTable.COMMENT));
-                String sound_file = c.getString(c.getColumnIndex(NoteTable.SOUND_FILES));
-                String image_file = c.getString(c.getColumnIndex(NoteTable.IMAGE_FILES));
-                String response = c.getString(c.getColumnIndex(NoteTable.RESPONSE));
-                String date = c.getString(c.getColumnIndex(NoteTable.DATE));
-
-                        Log.d("In storage, ID: ", id
-                                        + ", COMMENT: " + comment
-                                        + ", LATITUDE: " + latitude
-                                        + ", LONGITUDE: " + longitude
-                                        + ", SOUND_FILE" + sound_file
-                                        + ", IMAGE_FILE" + image_file
-                                        + ", RESPONSE" + response
-                                        + ", DATE" + date
-                        );
-                Location locfromdb = new Location(LocationManager.PASSIVE_PROVIDER);
-                locfromdb.setLatitude(Double.valueOf(latitude));
-                locfromdb.setLongitude(Double.valueOf(longitude));
-
-                ArrayList<String> soundsfromdb = new ArrayList<String>(Arrays.asList(sound_file.split(",")));
-                ArrayList<String> imagesfromdb = new ArrayList<String>(Arrays.asList(image_file.split(",")));
-                Note nr = new Note(null, comment, locfromdb, date, soundsfromdb, imagesfromdb, Integer.valueOf(response));
-                listObjects.add(nr);
-
-            } while (c.moveToNext());
-        }
-
-        mAdapter = new UploadListAdapter(listObjects);
         final StorageHelper sh = new StorageHelper(UploadActivity.this);
 
+        mAdapter = new MyUploadListCursorAdapter(this, null);
+/*
         mAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
@@ -116,6 +71,30 @@ public class UploadActivity extends AppCompatActivity {
                 alertDialog.show();
             }
         });
+        */
         mRecyclerView.setAdapter(mAdapter);
+    }
+
+
+    @Override
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
+        return new android.support.v4.content.CursorLoader(
+                this,   // Parent activity context
+                BioMapsContentProvider.CONTENT_URI,        // Table to query
+                null,     // Projection to return
+                null,            // No selection clause
+                null,            // No selection arguments
+                null             // Default sort order
+        );
+    }
+
+    @Override
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor data) {
+        mAdapter.changeCursor(data);
+    }
+
+    @Override
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+        mAdapter.changeCursor(null);
     }
 }

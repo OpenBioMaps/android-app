@@ -1,6 +1,7 @@
 package hu.ektf.iot.openbiomapsapp.object;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.location.Location;
 
 import org.parceler.Parcel;
