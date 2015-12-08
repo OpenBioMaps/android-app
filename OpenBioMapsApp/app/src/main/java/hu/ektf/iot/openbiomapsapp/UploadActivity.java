@@ -1,15 +1,22 @@
 package hu.ektf.iot.openbiomapsapp;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.v4.app.LoaderManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.View;
+import android.widget.AdapterView;
+
 import java.util.ArrayList;
 import hu.ektf.iot.openbiomapsapp.adapter.MyUploadListCursorAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
+import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
+import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 import timber.log.Timber;
@@ -34,14 +41,12 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         mRecyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
 
-        final ArrayList<Note> listObjects = new ArrayList<Note>();
-
         getSupportLoaderManager().initLoader(URL_LOADER, null, this);
 
         final StorageHelper sh = new StorageHelper(UploadActivity.this);
 
         mAdapter = new MyUploadListCursorAdapter(this, null);
-/*
+
         mAdapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
@@ -53,7 +58,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 alertDialogBuilder.setPositiveButton("Exportálás", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        Note n = listObjects.get(position);
+                        Note n = NoteCreator.getNoteFromCursor(mAdapter.getCursor());
                         try {
                             ExportHelper.exportNote(n);
                         } catch (Exception e) {
@@ -72,7 +77,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 alertDialog.show();
             }
         });
-        */
+
         mRecyclerView.setAdapter(mAdapter);
     }
 
