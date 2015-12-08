@@ -53,7 +53,7 @@ public class MyUploadListCursorAdapter extends CursorRecyclerViewAdapter<MyUploa
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
        Note myListItem = NoteCreator.getNoteFromCursor(cursor);
-        if(!myListItem.getDate().isEmpty()) viewHolder.tvDate.setText(myListItem.getDate());
+        if(myListItem.getDate() != null) viewHolder.tvDate.setText(myListItem.getDate().toString());
         if(!myListItem.getComment().isEmpty()) viewHolder.tvComment.setText(myListItem.getComment());
         if(!myListItem.getLocationString().isEmpty()) viewHolder.tvCoord.setText(myListItem.getLocationString());
         if(myListItem.getResponse() == 0) {
