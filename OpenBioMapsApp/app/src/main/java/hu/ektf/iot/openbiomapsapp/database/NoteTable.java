@@ -1,6 +1,7 @@
 package hu.ektf.iot.openbiomapsapp.database;
 
 import android.database.sqlite.SQLiteDatabase;
+import android.provider.BaseColumns;
 
 import timber.log.Timber;
 
@@ -11,7 +12,7 @@ import timber.log.Timber;
 public class NoteTable {
     public static final String TABLE_NAME = "note";
 
-    public static final String _ID = "_ID";
+    public static final String _ID = BaseColumns._ID;
     public static final String COMMENT = "COMMENT";
     public static final String SOUND_FILES = "SOUND_FILES";
     public static final String IMAGE_FILES = "IMAGE_FILES";

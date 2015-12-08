@@ -3,11 +3,10 @@ package hu.ektf.iot.openbiomapsapp.adapter;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.provider.BaseColumns;
 import android.support.v7.widget.RecyclerView;
 
-import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
-import hu.ektf.iot.openbiomapsapp.object.Note;
 
 /**
  * Created by Pádi on 2015. 12. 04..
@@ -25,7 +24,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
         mContext = context;
         mCursor = cursor;
         mDataValid = cursor != null;
-        mRowIdColumn = mDataValid ? mCursor.getColumnIndex("_ID") : -1;
+        mRowIdColumn = mDataValid ? mCursor.getColumnIndex(BaseColumns._ID) : -1;
         mDataSetObserver = new NotifyingDataSetObserver();
         if (mCursor != null) {
             mCursor.registerDataSetObserver(mDataSetObserver);

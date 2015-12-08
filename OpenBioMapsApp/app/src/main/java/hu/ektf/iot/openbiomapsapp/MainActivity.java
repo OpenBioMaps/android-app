@@ -11,13 +11,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
 import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -30,20 +29,21 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import timber.log.Timber;
+
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
-import hu.ektf.iot.openbiomapsapp.object.State;
+import hu.ektf.iot.openbiomapsapp.object.Note.State;
+import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
     //REQ CODES
@@ -57,33 +57,29 @@ public class MainActivity extends AppCompatActivity {
     private static final String AUDIOS_LIST = "audiosList";
     private static final String NOTE = "note";
 
-    //SharedPrefrences
-    private static StorageHelper sh;
-
-    //Gps stuffs
-    GpsHandler gpsHandler;
-    Location currentLocation;
-
     //Views
-    EditText etNote;
-    TextView tvPosition;
-    Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonReset;
-    ProgressBar progressGps;
-    private Handler mHandler = new Handler();
-
+    private EditText etNote;
+    private TextView tvPosition;
+    private TextView tvDate;
+    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonReset;
+    private ProgressBar progressGps;
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
     private AudioListAdapter adapterAudio;
     private ArrayList<String> imagesList = new ArrayList<>();
     private ArrayList<String> audiosList = new ArrayList<>();
 
-    //LocalDB management
-    private Integer currentRecordId = -1;
+    //Gps stuffs
+    private GpsHandler gpsHandler;
+    private Location currentLocation;
+
+    // Persistence
     private BioMapsResolver bioMapsResolver;
+    private StorageHelper sharedPrefStorage;
 
     // File
     private FileHelper fileHelper;
-    private Note noteRecord;
+    private Note note;
     private String selectedImagePath;
     private String soundPath = "";
     private File imageFile;
@@ -94,8 +90,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bioMapsResolver = new BioMapsResolver(this);
-        sh = new StorageHelper(MainActivity.this);
-        createNoteRecord();
+        sharedPrefStorage = new StorageHelper(MainActivity.this);
+        gpsHandler = new GpsHandler(MainActivity.this);
+        fileHelper = new FileHelper(getApplicationContext());
 
         if (savedInstanceState != null) {
             selectedImagePath = savedInstanceState.getString(SELECTED_IMAGE_PATH);
@@ -109,24 +106,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (savedInstanceState.containsKey(NOTE)) {
-                noteRecord = (Note) savedInstanceState.getParcelable(NOTE);
+                note = savedInstanceState.getParcelable(NOTE);
             }
+        } else {
+            createNote();
         }
-        gpsHandler = new GpsHandler(MainActivity.this);
-        fileHelper = new FileHelper(getApplicationContext());
-
-        ArrayList<String> testImages = new ArrayList<>();
-        ArrayList<String> testSounds = new ArrayList<>();
-        testSounds.add(Environment.getExternalStorageDirectory() + "/Sounds/" + "Voice 018.m4a");
-        testImages.add(Environment.getExternalStorageDirectory() + "/Pictues/" + "JPEG_20151120_161815_529683428");
-        Note testNote = new Note();
-        testNote.setSoundsList(testSounds);
-        testNote.setImagesList(testImages);
-        testNote.setId(234423324);
 
         //Getting the views
         etNote = (EditText) findViewById(R.id.etNote);
         tvPosition = (TextView) findViewById(R.id.textViewPosition);
+        tvDate = (TextView) findViewById(R.id.textViewDate);
         buttonPosition = (Button) findViewById(R.id.buttonPosition);
         buttonShowMap = (Button) findViewById(R.id.buttonShowMap);
         buttonAudioRecord = (Button) findViewById(R.id.buttonAudioRecord);
@@ -135,6 +124,72 @@ public class MainActivity extends AppCompatActivity {
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
         buttonReset = (Button) findViewById(R.id.buttonReset);
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
+
+        int unitWidth = getListUnitWidth();
+        adapterImage = new ImageListAdapter(imagesList);
+        adapterAudio = new AudioListAdapter(audiosList);
+        adapterImage.setImageSize(unitWidth);
+        adapterAudio.setImageSize(unitWidth - 5);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        imageRecycler.setLayoutManager(layoutManager);
+        RecyclerView.LayoutManager layoutAudio = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        audioRecycler.setLayoutManager(layoutAudio);
+        setListHeight(unitWidth);
+        imageRecycler.setHasFixedSize(true);
+        audioRecycler.setHasFixedSize(true);
+        imageRecycler.setAdapter(adapterImage);
+        audioRecycler.setAdapter(adapterAudio);
+
+        buttonPosition.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+                // If GPS is off, show a dialog
+                if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    buildDialogNoGps();
+                    return;
+                }
+                // If GPS is on
+                // TODO Validate that the Location is good enough
+                currentLocation = gpsHandler.getLocation();
+                if (currentLocation != null) {
+                    note.setLocation(currentLocation);
+                    note.setDate(new Date());
+                    saveNote();
+                    updateUI();
+                } else {
+                    progressGps.setVisibility(View.VISIBLE);
+                    tvPosition.setText(R.string.waiting_for_gps);
+
+                    gpsHandler.setExternalListener(new ExternalLocationListener());
+                }
+            }
+        });
+
+        buttonShowMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
+                startActivity(intent);
+            }
+        });
+
+        buttonAudioRecord.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent =
+                        new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+                if (isAvailable(MainActivity.this, intent)) {
+                    startActivityForResult(intent,
+                            REQ_RECORDING);
+                } else {
+                    //TODO Handle situation
+                }
+            }
+        });
 
         buttonCamera.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -145,99 +200,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        if (imagesList.size() == 0) {
-            imageRecycler.setVisibility(View.GONE);
-        }
-        if (audiosList.size() == 0) {
-            audioRecycler.setVisibility(View.GONE);
-        }
-
-        gpsHandler.setExternalListener(new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                // TODO Set the location only after the button was pressed
-                // TODO If the button is pressed again, refresh the location of the note (and the UI)
-                if (location != null) {
-                    progressGps.setVisibility(View.GONE);
-                    currentLocation = location;
-                    String strLocation = getResources().getString(R.string.location_text);
-                    String formattedLocation = String.format(strLocation, currentLocation.getLatitude(), currentLocation.getLongitude());
-                    tvPosition.setText(formattedLocation);
-                    buttonShowMap.setEnabled(true);
-                }
-            }
-
-            @Override
-            public void onStatusChanged(String s, int i, Bundle bundle) {
-
-            }
-
-            @Override
-            public void onProviderEnabled(String s) {
-
-            }
-
-            @Override
-            public void onProviderDisabled(String s) {
-
-            }
-        });
-
-        buttonPosition.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                buttonShowMap.setEnabled(false);
-                final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-                //IF GPS IS OFF, WE JUST SHOW UP AN DIALOG:
-                if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    buildAlertMessageNoGps();
-                    return;
-                }
-                //IF GPS IS ON:
-                currentLocation = gpsHandler.getLocation();
-                if (currentLocation != null) {
-
-                    String strLocation = getResources().getString(R.string.location_text);
-                    String formattedLocation = String.format(strLocation, currentLocation.getLatitude(), currentLocation.getLongitude());
-
-                    tvPosition.setText(formattedLocation);
-                    buttonShowMap.setEnabled(true);
-
-                    Calendar calendar = Calendar.getInstance();
-                    Date date = calendar.getTime();
-                    noteRecord = new Note(null, etNote.getText().toString(), currentLocation, date, imagesList, audiosList,  State.CREATED,sh.getServerUrl(), 0);
-                    SaveLocal(noteRecord);
-                } else {
-                    progressGps.setVisibility(View.VISIBLE);
-                    tvPosition.setText(R.string.waiting_for_gps);
-                }
-            }
-        });
-
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SaveLocal(noteRecord);
+                note.setState(State.CLOSED);
+                saveNote();
                 Timber.d("buttonReset", "saved record to local");
-                resetFields();
+                note = new Note();
+                updateUI();
             }
         });
-
-        buttonShowMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String uriString = "geo:" + currentLocation.getLatitude() + "," + currentLocation.getLongitude();
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
-                startActivity(intent);
-            }
-        });
-
-        int unitWidth = getListUnitWidth();
-        adapterImage = new ImageListAdapter(imagesList);
-        adapterAudio = new AudioListAdapter(audiosList);
-        adapterImage.setImageSize(unitWidth);
-        adapterAudio.setImageSize(unitWidth - 5);
 
         adapterImage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -261,70 +233,23 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        imageRecycler.setLayoutManager(layoutManager);
-        RecyclerView.LayoutManager layoutAudio = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
-        audioRecycler.setLayoutManager(layoutAudio);
-        setListHeight(unitWidth);
-        imageRecycler.setHasFixedSize(true);
-        audioRecycler.setHasFixedSize(true);
-        imageRecycler.setAdapter(adapterImage);
-        audioRecycler.setAdapter(adapterAudio);
-
-        buttonAudioRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent =
-                        new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                if (isAvailable(MainActivity.this, intent)) {
-                    startActivityForResult(intent,
-                            REQ_RECORDING);
-                }
-            }
-        });
-
-        //((BioMapsApplication) getApplication()).testService();
-    }
-
-    private void createNoteRecord()
-    {
-        if(noteRecord!=null)
-        {
-            try {
-                noteRecord = bioMapsResolver.getNoteByStatus(State.CREATED);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        }
-        else
-        {
-            noteRecord = new Note();
-        }
-    }
-
-    private boolean SaveLocal(Note note) {
-        if (currentRecordId > 0) {
-            try {
-                bioMapsResolver.updateNote(note);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
-        } else {
-        }
-        Timber.d("currentRecordId", currentRecordId.toString());
-        return true;
+        updateUI();
     }
 
     @Override
     protected void onResume() {
-        gpsHandler.onResume();
         super.onResume();
+        gpsHandler.onResume();
     }
 
     @Override
     protected void onPause() {
-        gpsHandler.onPause();
         super.onPause();
+        gpsHandler.onPause();
+
+        // TODO When should we save the comment?
+        note.setComment(etNote.getText().toString());
+        saveNote();
     }
 
     @Override
@@ -339,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
         outState.putStringArrayList(IMAGES_LIST, imagesList);
         outState.putStringArrayList(AUDIOS_LIST, audiosList);
-        outState.putParcelable(NOTE, noteRecord);
+        outState.putParcelable(NOTE, note);
     }
 
     @Override
@@ -368,24 +293,22 @@ public class MainActivity extends AppCompatActivity {
             String local = "file://" + imageFile.getPath();
             imagesList.add(local);
             adapterImage.notifyDataSetChanged();
-            imageRecycler.setVisibility(View.VISIBLE);
-            noteRecord.setImagesList(imagesList);
-            SaveLocal(noteRecord);
+
+            note.setImagesList(imagesList);
+            saveNote();
+            updateUI();
         }
         //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
         if (requestCode == REQ_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
-                soundPath = audioUri.getPath();
-                Timber.d("soundPath", soundPath);
-                Toast.makeText(getApplicationContext(), fileName + " hangfelvétel hozzáadva.", Toast.LENGTH_LONG).show();
                 audiosList.add(fileName);
                 adapterAudio.notifyDataSetChanged();
-                audioRecycler.setVisibility(View.VISIBLE);
 
-                noteRecord.setSoundsList(audiosList);
-                SaveLocal(noteRecord);
+                note.setSoundsList(audiosList);
+                saveNote();
+                updateUI();
             } else {
                 Toast.makeText(getApplicationContext(), R.string.error_audio_capture_text, Toast.LENGTH_LONG).show();
             }
@@ -395,6 +318,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_upload) {
@@ -412,7 +336,7 @@ public class MainActivity extends AppCompatActivity {
             final EditText etServerUrl = (EditText) dialogView
                     .findViewById(R.id.etServerUrl);
 
-            etServerUrl.setText(sh.getServerUrl());
+            etServerUrl.setText(sharedPrefStorage.getServerUrl());
             etServerUrl.setSelection(etServerUrl.getText().length());
 
             alertDialogBuilder
@@ -421,7 +345,7 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton(R.string.settings_save,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
-                                    sh.setServerUrl(etServerUrl.getText().toString());
+                                    sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
                                 }
                             })
                     .setNegativeButton(R.string.settings_cancel,
@@ -436,7 +360,64 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void buildAlertMessageNoGps() {
+    private void createNote() {
+        try {
+            note = bioMapsResolver.getNoteByStatus(State.CREATED);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
+        if (note == null) {
+            note = new Note();
+        }
+    }
+
+    private void saveNote() {
+        try {
+            Object o = bioMapsResolver.insertOrUpdateNote(note);
+            Timber.i("InsertOrUpdate result: " + o.toString());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateUI() {
+        if (!TextUtils.equals(etNote.getText(), note.getComment())) {
+            etNote.setText(note.getComment());
+        }
+
+        tvDate.setText(note.getDateString());
+
+        if(note.getLocation() != null){
+            tvPosition.setText(note.getLocationString(this));
+            buttonShowMap.setEnabled(true);
+        }
+
+        imageRecycler.setVisibility(imagesList.size() == 0 ? View.GONE : View.VISIBLE);
+        audioRecycler.setVisibility(audiosList.size() == 0 ? View.GONE : View.VISIBLE);
+
+    }
+
+    private int getListUnitWidth() {
+        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
+        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
+        float unitDpWidth = (((dpWidth - 16) / 3) + 5);
+        // TODO Do it more robust (using getDimension)
+        int unitPixelWidth = (int) (unitDpWidth * displayMetrics.density);
+        return unitPixelWidth;
+    }
+
+    private void setListHeight(int height) {
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageRecycler.getLayoutParams();
+        params.height = height;
+        imageRecycler.setLayoutParams(params);
+        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) audioRecycler.getLayoutParams();
+        params2.height = height;
+        audioRecycler.setLayoutParams(params2);
+    }
+
+    // TODO Separating dialogs in a DialogHelper?
+    private void buildDialogNoGps() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_text_gps)
                 .setCancelable(false)
@@ -461,24 +442,6 @@ public class MainActivity extends AppCompatActivity {
                 mgr.queryIntentActivities(intent,
                         PackageManager.MATCH_DEFAULT_ONLY);
         return list.size() > 0;
-    }
-
-    private int getListUnitWidth() {
-        DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
-        float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        float unitDpWidth = (((dpWidth - 16) / 3) + 5);
-        // TODO Do it more robust (using getDimension)
-        int unitPixelWidth = (int) (unitDpWidth * displayMetrics.density);
-        return unitPixelWidth;
-    }
-
-    private void setListHeight(int height) {
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) imageRecycler.getLayoutParams();
-        params.height = height;
-        imageRecycler.setLayoutParams(params);
-        RelativeLayout.LayoutParams params2 = (RelativeLayout.LayoutParams) audioRecycler.getLayoutParams();
-        params2.height = height;
-        audioRecycler.setLayoutParams(params2);
     }
 
     /**
@@ -541,21 +504,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // TODO Should not be needed
-    private void resetFields() {
-        etNote.setText("");
-        imagesList.clear();
-        audiosList.clear();
-        adapterAudio.notifyDataSetChanged();
-        adapterImage.notifyDataSetChanged();
-        audioRecycler.setVisibility(View.GONE);
-        imageRecycler.setVisibility(View.GONE);
-        currentLocation = null;
-        currentRecordId = -1;
-        noteRecord = null;
-    }
+    private class ExternalLocationListener implements LocationListener{
+        @Override
+        public void onLocationChanged(Location location) {
+            if (location != null) {
+                gpsHandler.setExternalListener(null);
+                progressGps.setVisibility(View.GONE);
+                currentLocation = location;
 
-    private void updateUI(){
-        // TODO Set the UI elements based on the Note object
+                note.setLocation(currentLocation);
+                note.setDate(new Date());
+                saveNote();
+                updateUI();
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
     }
 }

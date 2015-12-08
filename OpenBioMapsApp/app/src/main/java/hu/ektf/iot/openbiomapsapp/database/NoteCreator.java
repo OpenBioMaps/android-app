@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.Note.State;
 
 /**
  * This is a helper class which is responsible for creating ContentValues from a Note type object,
@@ -23,7 +24,7 @@ public class NoteCreator {
     public static ContentValues getCVfromNote(final Note note) {
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(NoteTable._ID, note.getId());
+        if (note.getId() != null) contentValues.put(NoteTable._ID, note.getId());
         contentValues.put(NoteTable.COMMENT, note.getComment());
         contentValues.put(NoteTable.DATE, note.getDate().getTime());
         contentValues.put(NoteTable.LATITUDE, note.getLocation().getLatitude());
@@ -57,17 +58,21 @@ public class NoteCreator {
         loc.setLatitude(latitude);
         loc.setLongitude(longitude);
 
-        String[] images = cursor.getString(cursor.getColumnIndex(NoteTable.IMAGE_FILES)).split(SEPARATOR);
-        String[] sounds = cursor.getString(cursor.getColumnIndex(NoteTable.SOUND_FILES)).split(SEPARATOR);
+        String images = cursor.getString(cursor.getColumnIndex(NoteTable.IMAGE_FILES));
+        String sounds = cursor.getString(cursor.getColumnIndex(NoteTable.SOUND_FILES));
 
         Note note = new Note();
         note.setId(cursor.getInt(cursor.getColumnIndex(NoteTable._ID)));
         note.setComment(cursor.getString(cursor.getColumnIndex(NoteTable.COMMENT)));
         note.setDate(new Date(cursor.getLong(cursor.getColumnIndex(NoteTable.DATE))));
-        note.setLocation(loc);
-        note.setImagesList(new ArrayList(Arrays.asList(images)));
-        note.setSoundsList(new ArrayList(Arrays.asList(sounds)));
+        note.setState(State.getByValue(cursor.getInt(cursor.getColumnIndex(NoteTable.STATE))));
+        note.setUrl(cursor.getString(cursor.getColumnIndex(NoteTable.URL)));
         note.setResponse(cursor.getInt(cursor.getColumnIndex(NoteTable.RESPONSE)));
+        note.setLocation(loc);
+        if (!TextUtils.isEmpty(images))
+            note.setImagesList(new ArrayList(Arrays.asList(images.split(SEPARATOR))));
+        if (!TextUtils.isEmpty(sounds))
+            note.setSoundsList(new ArrayList(Arrays.asList(sounds.split(SEPARATOR))));
         return note;
     }
 }

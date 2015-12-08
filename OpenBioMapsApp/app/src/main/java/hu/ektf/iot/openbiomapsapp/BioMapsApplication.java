@@ -6,20 +6,13 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentObserver;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
 import hu.ektf.iot.openbiomapsapp.upload.DynamicEndpoint;
-import hu.ektf.iot.openbiomapsapp.upload.FileMapCreator;
-import retrofit.Callback;
 import retrofit.RestAdapter;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
-import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
 /**
@@ -130,27 +123,5 @@ public class BioMapsApplication extends Application {
             }
         }
         return false;
-    }
-
-    // TODO remove after implementing upload
-    public void testService() {
-        ArrayList<String> files = new ArrayList<String>();
-        files.add("/storage/external_SD/sample.jpg");
-        files.add("/storage/external_SD/sample2.jpg");
-        Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(files);
-
-        getMapsService().uploadNote("abc123", "PFS", "mapp", "Android test", "2015.11.20 15:11:00", "POINT(3.14 4.13)", fileMap, new Callback<String>() {
-            @Override
-            public void success(String s, Response response) {
-                Timber.i("Upload test", "SUCCESS");
-                Timber.i("Upload test", s);
-            }
-
-            @Override
-            public void failure(RetrofitError error) {
-                Timber.e("Upload test", "ERROR");
-                error.printStackTrace();
-            }
-        });
     }
 }

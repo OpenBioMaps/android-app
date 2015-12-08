@@ -16,7 +16,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.object.Note;
-import hu.ektf.iot.openbiomapsapp.object.State;
+import hu.ektf.iot.openbiomapsapp.object.Note.State;
 
 /**
  * A wrapper class around the default ContentResolver from the Android system, which makes it possible
@@ -96,25 +96,12 @@ public class BioMapsResolver {
         }
     }
 
-    public Note getSyncableNote() throws RemoteException {
-        // TODO select by Note.STATE
-        String selection = NoteTable.RESPONSE + "= ?";
-        String[] selectionArgs = {String.valueOf("")};
-        String orderBy = NoteTable.DATE + " ASC";
-
-        ArrayList<Note> results = queryNotes(null,
-                selection, selectionArgs, orderBy);
-
-        if (results.size() > 0) {
-            return results.get(0);
-        } else {
-            return null;
-        }
-    }
-
     public Note getNoteByStatus(final State state)
             throws RemoteException {
-        String[] selectionArgs = {String.valueOf(state)};
+        String selection = NoteTable.STATE + "= ?";
+        String[] selectionArgs = {String.valueOf(state.getValue())};
+        String orderBy = NoteTable.DATE + " ASC";
+
         ArrayList<Note> results = queryNotes(null,
                 NoteTable.STATE + "= ?", selectionArgs, null);
 
@@ -149,15 +136,14 @@ public class BioMapsResolver {
         return cr.delete(noteURI, selection, selectionArgs);
     }
 
-    public int deleteNotesById(long id) throws RemoteException {
+    public int deleteNoteById(long id) throws RemoteException {
         String[] args = {String.valueOf(id)};
         return deleteNote(NoteTable._ID + " = ? ", args);
     }
 
-    public int deleteNoteByIds(ArrayList<String> id_array) throws RemoteException {
+    public int deleteNotesByIds(ArrayList<String> id_array) throws RemoteException {
         return deleteNote(NoteTable._ID + " IN " + "(" + TextUtils.join(", ", id_array) + ")", null);
     }
-
 
     public int updateNote(final Note note, final String selection,
                           final String[] selectionArgs) throws RemoteException {
@@ -165,8 +151,22 @@ public class BioMapsResolver {
     }
 
     public int updateNote(Note note) throws RemoteException {
-        String selection = "_id = ?";
+        String selection = NoteTable._ID + " = ?";
         String[] selectionArgs = {String.valueOf(note.getId())};
         return updateNote(note, selection, selectionArgs);
+    }
+
+    public Object insertOrUpdateNote(Note note) throws RemoteException {
+        Object returnValue = null;
+
+        if (note.getId() == null) {
+            Uri uri = insert(note);
+            int id = Integer.parseInt(uri.getLastPathSegment());
+            note.setId(id);
+            returnValue = uri;
+        } else {
+            returnValue = updateNote(note);
+        }
+        return returnValue;
     }
 }

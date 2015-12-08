@@ -65,7 +65,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private boolean isSyncing = false;
     private void doSync() {
         try {
-            Note noteToSync = bioMapsResolver.getSyncableNote();
+            Note noteToSync = bioMapsResolver.getNoteByStatus(Note.State.CLOSED);
             if (noteToSync == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;

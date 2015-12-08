@@ -1,7 +1,7 @@
 package hu.ektf.iot.openbiomapsapp.object;
 
 import android.content.ContentValues;
-import android.database.Cursor;
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Parcel;
@@ -10,7 +10,11 @@ import android.os.Parcelable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 
+import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
 import hu.ektf.iot.openbiomapsapp.helper.GeometryConverter;
 
@@ -18,6 +22,33 @@ import hu.ektf.iot.openbiomapsapp.helper.GeometryConverter;
  * Created by Pádi on 2015. 11. 10..
  */
 public class Note implements Parcelable {
+
+    public enum State {
+        CREATED(0), CLOSED(1), UPLOADING(2), UPLOADED(3), UPLOAD_ERROR(4);
+
+        private static final Map<Integer, State> lookup
+                = new HashMap<Integer, State>();
+
+        static {
+            for (State s : EnumSet.allOf(State.class))
+                lookup.put(s.getValue(), s);
+        }
+
+        private final int value;
+
+        private State(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        public static State getByValue(int value) {
+            return lookup.get(value);
+        }
+    }
+
     private static final String ID = "id";
     private static final String COMMENT = "comment";
     private static final String LOCATION = "location";
@@ -41,10 +72,13 @@ public class Note implements Parcelable {
     private String url;
 
     public Note() {
-        /* Required empty bean constructor form Parceler */
+        imagesList = new ArrayList<>();
+        soundsList = new ArrayList<>();
+        state = State.CREATED;
     }
 
-    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList,State state, String url, Integer response) {
+    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList, State state, String url, Integer response) {
+        this();
         setId(id);
         setComment(comment);
         setLocation(location);
@@ -56,7 +90,7 @@ public class Note implements Parcelable {
         setResponse(response);
     }
 
-    public ContentValues getContentValues(){
+    public ContentValues getContentValues() {
         return NoteCreator.getCVfromNote(this);
     }
 
@@ -64,21 +98,33 @@ public class Note implements Parcelable {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
     }
 
+    public String getLocationString(Context ctx){
+        return ctx.getString(R.string.location_text, location.getLatitude(), location.getLongitude());
+    }
+
     public String getGeometryString() throws Exception {
         return GeometryConverter.LocationToString(location);
     }
 
-    public String getDateString(){
-        return DATE_FORMAT.format(date);
+    public String getDateString() {
+        return date == null ? DATE_FORMAT.toPattern() : DATE_FORMAT.format(date);
     }
 
-    public String getUrl(){return url;}
+    public String getUrl() {
+        return url;
+    }
 
-    public void setUrl(String url){this.url = url;}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-    public State getState(){return state;}
+    public State getState() {
+        return state;
+    }
 
-    public void setState(State state){ this.state = state;}
+    public void setState(State state) {
+        this.state = state;
+    }
 
     public Integer getId() {
         return id;
@@ -151,9 +197,9 @@ public class Note implements Parcelable {
         if (getComment() != null) bundle.putString(COMMENT, getComment());
         if (getImagesList() != null) bundle.putStringArrayList(IMAGES, getImagesList());
         if (getSoundsList() != null) bundle.putStringArrayList(SOUNDS, getSoundsList());
-        if(getState()!=null) bundle.putSerializable(STATE,state);
+        if (getState() != null) bundle.putSerializable(STATE, state);
         if (getResponse() != null) bundle.putInt(RESPONSE, getResponse());
-        if(getUrl()!=null) bundle.putString(URL,getUrl());
+        if (getUrl() != null) bundle.putString(URL, getUrl());
 
         dest.writeBundle(bundle);
     }
@@ -168,9 +214,9 @@ public class Note implements Parcelable {
         if (bundle.containsKey(COMMENT)) setComment(bundle.getString(COMMENT));
         if (bundle.containsKey(IMAGES)) setImagesList(bundle.getStringArrayList(IMAGES));
         if (bundle.containsKey(SOUNDS)) setSoundsList(bundle.getStringArrayList(SOUNDS));
-        if(bundle.containsKey(STATE)) setState((State)bundle.getSerializable(STATE));
+        if (bundle.containsKey(STATE)) setState((State) bundle.getSerializable(STATE));
         if (bundle.containsKey(RESPONSE)) setResponse(bundle.getInt(RESPONSE));
-        if(bundle.containsKey(URL)) setUrl(bundle.getString(URL));
+        if (bundle.containsKey(URL)) setUrl(bundle.getString(URL));
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {

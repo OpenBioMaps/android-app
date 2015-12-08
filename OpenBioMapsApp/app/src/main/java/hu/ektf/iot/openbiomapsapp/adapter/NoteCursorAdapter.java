@@ -17,12 +17,12 @@ import hu.ektf.iot.openbiomapsapp.object.Note;
 /**
  * Created by Pádi on 2015. 12. 04..
  */
-public class MyUploadListCursorAdapter extends CursorRecyclerViewAdapter<MyUploadListCursorAdapter.ViewHolder>{
+public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapter.ViewHolder> {
 
     private AdapterView.OnItemClickListener itemClickListener;
 
-    public MyUploadListCursorAdapter(Context context,Cursor cursor){
-        super(context,cursor);
+    public NoteCursorAdapter(Context context, Cursor cursor) {
+        super(context, cursor);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -68,18 +68,18 @@ public class MyUploadListCursorAdapter extends CursorRecyclerViewAdapter<MyUploa
         return vh;
     }
 
-
-
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-       Note myListItem = NoteCreator.getNoteFromCursor(cursor);
-        if(myListItem.getDate() != null) viewHolder.tvDate.setText(myListItem.getDate().toString());
-        if(!myListItem.getComment().isEmpty()) viewHolder.tvComment.setText(myListItem.getComment());
-        if(!myListItem.getLocationString().isEmpty()) viewHolder.tvCoord.setText(myListItem.getLocationString());
-        if(myListItem.getResponse() == 0) {
+        Note myListItem = NoteCreator.getNoteFromCursor(cursor);
+        viewHolder.tvDate.setText(myListItem.getDateString());
+        viewHolder.tvComment.setText(myListItem.getComment());
+        viewHolder.tvCoord.setText(myListItem.getLocationString());
+        viewHolder.tvNumOfImages.setText(String.valueOf(myListItem.getImagesList().size()));
+        viewHolder.tvNumOfSounds.setText(String.valueOf(myListItem.getSoundsList().size()));
+
+        // TODO Handle states
+        if (myListItem.getResponse() == 0) {
             viewHolder.ivStatus.setImageResource(R.drawable.fail);
         }
-        if(myListItem.getImagesList() != null) viewHolder.tvNumOfImages.setText(String.valueOf(myListItem.getImagesList().size()));
-        if(myListItem.getSoundsList() != null) viewHolder.tvNumOfSounds.setText(String.valueOf(myListItem.getSoundsList().size()));
     }
 }

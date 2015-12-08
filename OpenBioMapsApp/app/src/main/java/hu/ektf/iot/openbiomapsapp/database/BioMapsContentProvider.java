@@ -23,8 +23,8 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
 
     public static final String AUTHORITY = "hu.ektf.iot.openbiomapsapp";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
-    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/measuredvalues";
-    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/measuredvalue";
+    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/notes";
+    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/note";
     public static final String QUERY_PARAMETER_LIMIT = "limit";
 
     static {
@@ -109,8 +109,28 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
 
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
-        // TODO Implement update
-        return 0;
+        int uriType = sURIMatcher.match(uri);
+        SQLiteDatabase sqlDB = database.getWritableDatabase();
+
+        int rowsUpdated = 0;
+        switch (uriType) {
+            case NOTES:
+                rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case NOTE_ID:
+                String id = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, NoteTable._ID + "=" + id, null);
+                } else {
+                    rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, NoteTable._ID + "=" + id + " and " + selection, selectionArgs);
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+        return rowsUpdated;
     }
 
     @Override
@@ -122,7 +142,7 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
         String[] available = {NoteTable._ID, NoteTable.COMMENT,
                 NoteTable.SOUND_FILES, NoteTable.IMAGE_FILES,
                 NoteTable.DATE, NoteTable.RESPONSE, NoteTable.LATITUDE,
-                NoteTable.LONGITUDE};
+                NoteTable.LONGITUDE, NoteTable.STATE, NoteTable.URL};
 
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));
