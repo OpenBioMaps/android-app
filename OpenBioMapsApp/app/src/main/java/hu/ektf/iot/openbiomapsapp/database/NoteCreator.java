@@ -25,10 +25,12 @@ public class NoteCreator {
         ContentValues contentValues = new ContentValues();
 
         if (note.getId() != null) contentValues.put(NoteTable._ID, note.getId());
+        if (note.getLocation() != null) {
+            contentValues.put(NoteTable.LATITUDE, note.getLocation().getLatitude());
+            contentValues.put(NoteTable.LONGITUDE, note.getLocation().getLongitude());
+        }
         contentValues.put(NoteTable.COMMENT, note.getComment());
-        contentValues.put(NoteTable.DATE, note.getDate().getTime());
-        contentValues.put(NoteTable.LATITUDE, note.getLocation().getLatitude());
-        contentValues.put(NoteTable.LONGITUDE, note.getLocation().getLongitude());
+        contentValues.put(NoteTable.DATE, note.getDate() != null ? note.getDate().getTime() : -1);
         contentValues.put(NoteTable.SOUND_FILES, TextUtils.join(SEPARATOR, note.getSoundsList()));
         contentValues.put(NoteTable.IMAGE_FILES, TextUtils.join(SEPARATOR, note.getImagesList()));
         contentValues.put(NoteTable.STATE, note.getState().getValue());
@@ -52,19 +54,24 @@ public class NoteCreator {
     }
 
     public static Note getNoteFromCursor(Cursor cursor) {
-        double latitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LATITUDE));
-        double longitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LONGITUDE));
-        Location loc = new Location(BioMapsContentProvider.AUTHORITY);
-        loc.setLatitude(latitude);
-        loc.setLongitude(longitude);
+        Location loc = null;
+        if (cursor.getColumnIndex(NoteTable.LATITUDE) >= 0 && cursor.getColumnIndex(NoteTable.LONGITUDE) >= 0) {
+            double latitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LATITUDE));
+            double longitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LONGITUDE));
+            loc = new Location(BioMapsContentProvider.AUTHORITY);
+            loc.setLatitude(latitude);
+            loc.setLongitude(longitude);
+        }
 
         String images = cursor.getString(cursor.getColumnIndex(NoteTable.IMAGE_FILES));
         String sounds = cursor.getString(cursor.getColumnIndex(NoteTable.SOUND_FILES));
 
+        Long timestamp = cursor.getLong(cursor.getColumnIndex(NoteTable.DATE));
+
         Note note = new Note();
         note.setId(cursor.getInt(cursor.getColumnIndex(NoteTable._ID)));
         note.setComment(cursor.getString(cursor.getColumnIndex(NoteTable.COMMENT)));
-        note.setDate(new Date(cursor.getLong(cursor.getColumnIndex(NoteTable.DATE))));
+        note.setDate(timestamp > -1 ? new Date(timestamp) : null);
         note.setState(State.getByValue(cursor.getInt(cursor.getColumnIndex(NoteTable.STATE))));
         note.setUrl(cursor.getString(cursor.getColumnIndex(NoteTable.URL)));
         note.setResponse(cursor.getInt(cursor.getColumnIndex(NoteTable.RESPONSE)));

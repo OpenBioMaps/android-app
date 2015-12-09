@@ -7,8 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.List;
+
 import hu.ektf.iot.openbiomapsapp.R;
 
 /**
@@ -60,12 +64,14 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        String image = dataset.get(position);
+        String imagePath = dataset.get(position);
+        File imageFile = new File(imagePath);
+
         Context ctx = holder.imageView.getContext();
         Picasso.with(ctx)
                 .setLoggingEnabled(true);
         Picasso.with(ctx)
-                .load(image)
+                .load(imageFile)
                 .placeholder(R.drawable.transparent_black)
                 .resize(imageSize, imageSize)
                 .centerCrop()

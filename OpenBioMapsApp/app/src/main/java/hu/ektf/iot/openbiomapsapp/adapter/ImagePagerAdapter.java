@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.ArrayList;
 import hu.ektf.iot.openbiomapsapp.R;
 
@@ -37,12 +39,13 @@ public class ImagePagerAdapter extends PagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        String image = imagesList.get(position);
+        String imagePath = imagesList.get(position);
+        File imageFile = new File(imagePath);
 
         View itemView = mLayoutInflater.inflate(R.layout.pager_item_image, container, false);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
         Picasso.with(mContext)
-                .load(image)
+                .load(imageFile)
                 .placeholder(R.drawable.transparent_black)
                 .fit()
                 .centerInside()

@@ -7,11 +7,14 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 
+import com.google.gson.JsonElement;
+
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.Note.State;
 import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
@@ -75,13 +78,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             // TODO set endpoint
             //endpoint.setUrl(note.getUrl());
 
-            // TODO set note STATUS to uploading
+            noteToSync.setState(State.UPLOADING);
             bioMapsResolver.updateNote(noteToSync);
             Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
-            String response = mapsService.uploadNote("abc123", "PFS", "mapp", noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
+            JsonElement response = mapsService.uploadNote("abc123", "PFS", "mapp", noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
 
-            // TODO set note STATUS by response
+            noteToSync.setState(State.UPLOADED);
             bioMapsResolver.updateNote(noteToSync);
+
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();

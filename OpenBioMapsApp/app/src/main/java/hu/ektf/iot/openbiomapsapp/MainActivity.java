@@ -32,7 +32,6 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -66,8 +65,6 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
     private AudioListAdapter adapterAudio;
-    private ArrayList<String> imagesList = new ArrayList<>();
-    private ArrayList<String> audiosList = new ArrayList<>();
 
     //Gps stuffs
     private GpsHandler gpsHandler;
@@ -96,14 +93,6 @@ public class MainActivity extends AppCompatActivity {
 
         if (savedInstanceState != null) {
             selectedImagePath = savedInstanceState.getString(SELECTED_IMAGE_PATH);
-            ArrayList<String> siImagesList = savedInstanceState.getStringArrayList(IMAGES_LIST);
-            ArrayList<String> siAudiosList = savedInstanceState.getStringArrayList(AUDIOS_LIST);
-            if (siImagesList != null) {
-                imagesList.addAll(siImagesList);
-            }
-            if (siAudiosList != null) {
-                audiosList.addAll(siAudiosList);
-            }
 
             if (savedInstanceState.containsKey(NOTE)) {
                 note = savedInstanceState.getParcelable(NOTE);
@@ -126,20 +115,13 @@ public class MainActivity extends AppCompatActivity {
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
 
         int unitWidth = getListUnitWidth();
-        adapterImage = new ImageListAdapter(imagesList);
-        adapterAudio = new AudioListAdapter(audiosList);
-        adapterImage.setImageSize(unitWidth);
-        adapterAudio.setImageSize(unitWidth - 5);
-
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         imageRecycler.setLayoutManager(layoutManager);
         RecyclerView.LayoutManager layoutAudio = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         audioRecycler.setLayoutManager(layoutAudio);
         setListHeight(unitWidth);
-        imageRecycler.setHasFixedSize(true);
-        audioRecycler.setHasFixedSize(true);
-        imageRecycler.setAdapter(adapterImage);
-        audioRecycler.setAdapter(adapterAudio);
+
+        createAdapters();
 
         buttonPosition.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,6 +139,7 @@ public class MainActivity extends AppCompatActivity {
                 if (currentLocation != null) {
                     note.setLocation(currentLocation);
                     note.setDate(new Date());
+                    note.setComment(etNote.getText().toString());
                     saveNote();
                     updateUI();
                 } else {
@@ -203,10 +186,13 @@ public class MainActivity extends AppCompatActivity {
         buttonReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Timber.d("buttonReset", "saved record to local");
+                note.setComment(etNote.getText().toString());
                 note.setState(State.CLOSED);
                 saveNote();
-                Timber.d("buttonReset", "saved record to local");
+
                 note = new Note();
+                createAdapters();
                 updateUI();
             }
         });
@@ -215,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), ImagePagerActivity.class);
-                intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, imagesList);
+                intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, note.getImagesList());
                 intent.putExtra(ImagePagerActivity.ARG_POS, position);
                 startActivity(intent);
             }
@@ -226,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
-                String audiourl = "content://media/external/audio/media/" + audiosList.get(position);
+                String audiourl = "content://media/external/audio/media/" + note.getSoundsList().get(position);
                 Uri myUri = Uri.parse(audiourl);
                 intent.setDataAndType(myUri, "audio/*");
                 startActivity(intent);
@@ -262,8 +248,6 @@ public class MainActivity extends AppCompatActivity {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(SELECTED_IMAGE_PATH, selectedImagePath);
-        outState.putStringArrayList(IMAGES_LIST, imagesList);
-        outState.putStringArrayList(AUDIOS_LIST, audiosList);
         outState.putParcelable(NOTE, note);
     }
 
@@ -290,11 +274,11 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (imageFile != null) {
-            String local = "file://" + imageFile.getPath();
-            imagesList.add(local);
+            String local = imageFile.getPath();
+            note.getImagesList().add(local);
             adapterImage.notifyDataSetChanged();
 
-            note.setImagesList(imagesList);
+            note.setComment(etNote.getText().toString());
             saveNote();
             updateUI();
         }
@@ -303,10 +287,10 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
                 String fileName = audioUri.getLastPathSegment();
-                audiosList.add(fileName);
+                note.getSoundsList().add(fileName);
                 adapterAudio.notifyDataSetChanged();
 
-                note.setSoundsList(audiosList);
+                note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
             } else {
@@ -388,13 +372,16 @@ public class MainActivity extends AppCompatActivity {
 
         tvDate.setText(note.getDateString());
 
-        if(note.getLocation() != null){
+        if (note.getLocation() != null) {
             tvPosition.setText(note.getLocationString(this));
             buttonShowMap.setEnabled(true);
+        } else {
+            tvPosition.setText(R.string.tv_position_text);
+            buttonShowMap.setEnabled(false);
         }
 
-        imageRecycler.setVisibility(imagesList.size() == 0 ? View.GONE : View.VISIBLE);
-        audioRecycler.setVisibility(audiosList.size() == 0 ? View.GONE : View.VISIBLE);
+        imageRecycler.setVisibility(note.getImagesList().size() == 0 ? View.GONE : View.VISIBLE);
+        audioRecycler.setVisibility(note.getSoundsList().size() == 0 ? View.GONE : View.VISIBLE);
 
     }
 
@@ -405,6 +392,18 @@ public class MainActivity extends AppCompatActivity {
         // TODO Do it more robust (using getDimension)
         int unitPixelWidth = (int) (unitDpWidth * displayMetrics.density);
         return unitPixelWidth;
+    }
+
+    private void createAdapters() {
+        int unitWidth = getListUnitWidth();
+        adapterImage = new ImageListAdapter(note.getImagesList());
+        adapterAudio = new AudioListAdapter(note.getSoundsList());
+        adapterImage.setImageSize(unitWidth);
+        adapterAudio.setImageSize(unitWidth - 5);
+        imageRecycler.setHasFixedSize(true);
+        audioRecycler.setHasFixedSize(true);
+        imageRecycler.setAdapter(adapterImage);
+        audioRecycler.setAdapter(adapterAudio);
     }
 
     private void setListHeight(int height) {
@@ -504,7 +503,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private class ExternalLocationListener implements LocationListener{
+    private class ExternalLocationListener implements LocationListener {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
@@ -514,6 +513,7 @@ public class MainActivity extends AppCompatActivity {
 
                 note.setLocation(currentLocation);
                 note.setDate(new Date());
+                note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
             }
@@ -523,10 +523,12 @@ public class MainActivity extends AppCompatActivity {
         public void onStatusChanged(String s, int i, Bundle bundle) {
 
         }
+
         @Override
         public void onProviderEnabled(String s) {
 
         }
+
         @Override
         public void onProviderDisabled(String s) {
 
