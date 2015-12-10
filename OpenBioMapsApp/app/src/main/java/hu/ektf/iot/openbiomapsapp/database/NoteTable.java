@@ -34,7 +34,7 @@ public class NoteTable {
                     DATE + " TEXT NOT NULL, " +
                     STATE + " INTEGER NOT NULL, " +
                     URL + " TEXT, " +
-                    RESPONSE + " INTEGER);";
+                    RESPONSE + " TEXT);";
 
     public static void onCreate(SQLiteDatabase database) {
         database.execSQL(CREATE_TABLE);

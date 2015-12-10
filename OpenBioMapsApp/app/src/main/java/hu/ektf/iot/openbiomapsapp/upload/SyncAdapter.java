@@ -6,9 +6,11 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
+import android.text.TextUtils;
 
 import com.google.gson.JsonElement;
 
+import java.io.File;
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
@@ -78,6 +80,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             // TODO set endpoint
             //endpoint.setUrl(note.getUrl());
 
+            Timber.d("Upload started");
             noteToSync.setState(State.UPLOADING);
             bioMapsResolver.updateNote(noteToSync);
             Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
