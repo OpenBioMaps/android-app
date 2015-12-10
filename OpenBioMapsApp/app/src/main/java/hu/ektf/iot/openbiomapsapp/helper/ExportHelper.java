@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -29,9 +28,9 @@ public class ExportHelper {
             success = folder.mkdirs();
         }
         if (success) {
-            Timber.d("Folder successfully created.");
+            Timber.d("Folder successfully created." + folder.getName());
         } else {
-            throw new Exception("FolderNotCreated");
+            throw new Exception("FolderNotCreated" + folder.getName());
         }
         return folder;
     }
@@ -49,16 +48,13 @@ public class ExportHelper {
             writer.close();
         } catch (IOException e) {
             e.printStackTrace();
+            Timber.d("createFileToFolder failed: " + filename);
         }
     }
 
     public static void copyAttachmentsToFolder(Note note, File folder) {
 
-        ArrayList<String> attachments = new ArrayList<>();
-        attachments.addAll(note.getImagesList());
-        attachments.addAll(note.getSoundsList());
-
-        for (String file:attachments) {
+        for (String file:note.getImagesList()) {
             String sourcePath = file;
             File source = new File(sourcePath);
             String destinationPath = folder.getPath() +  File.separator + source.getName();
@@ -66,10 +62,28 @@ public class ExportHelper {
             try
             {
                 FileUtils.copyFile(source, destination);
+                Timber.d("copyattachments file copy succes: " + destinationPath);
             }
             catch (IOException e)
             {
                 e.printStackTrace();
+                Timber.d("copyattachments failed: " + sourcePath);
+            }
+        }
+        for (String file:note.getSoundsList()) {
+            String sourcePath = file;
+            File source = new File(sourcePath);
+            String destinationPath = folder.getPath() +  File.separator + source.getName();
+            File destination = new File(destinationPath);
+            try
+            {
+                FileUtils.copyFile(source, destination);
+                Timber.d("copyattachments file copy succes: " + destinationPath);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+                Timber.d("copyattachments failed: " + sourcePath);
             }
         }
     }
@@ -95,7 +109,7 @@ public class ExportHelper {
             }
             zos.close();
         } catch (IOException ioe) {
-            Log.e("", ioe.getMessage());
+            Timber.d("zipping folder failed:" + inputFolderPath + " to: " + outZipPath);
         }
     }
 
@@ -106,10 +120,12 @@ public class ExportHelper {
         ExportHelper.copyAttachmentsToFolder(note, folder);
         ExportHelper.zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
         deleteFolder(note.getDate().toString());
+        Timber.d("exportnote finished" + note.getDate().toString());
     }
 
     public static void deleteFolder(String folderName) throws IOException {
         File dir = new File(Environment.getExternalStorageDirectory()+"/openbiomaps/" + folderName);
         FileUtils.deleteDirectory(dir);
+        Timber.d("deleteFolder finished" + folderName);
     }
 }

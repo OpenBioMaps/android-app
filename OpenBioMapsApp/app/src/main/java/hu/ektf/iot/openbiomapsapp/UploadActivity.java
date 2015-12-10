@@ -1,9 +1,14 @@
 package hu.ektf.iot.openbiomapsapp;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.RemoteException;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -12,10 +17,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ProgressBar;
+
+import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.NoteCursorAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
@@ -24,9 +34,12 @@ import hu.ektf.iot.openbiomapsapp.object.Note;
 
 public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NOTE_LOADER = 0;
-
+    private static final int PROGRESS = 0x1;
+    ProgressDialog barProgressDialog;
+    private AsyncExport ae;
     private RecyclerView recyclerView;
     private NoteCursorAdapter adapter;
+    private Button buttonExportAll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +55,17 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
+        buttonExportAll = (Button) findViewById(R.id.buttonExport);
 
         adapter = new NoteCursorAdapter(this, null);
+        buttonExportAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncExport ae = new AsyncExport();
+                ae.execute();
+            }
+        });
+
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
@@ -55,7 +77,9 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 alertDialogBuilder.setPositiveButton(getString(R.string.dialog_export_text_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        Note n = NoteCreator.getNoteFromCursor(adapter.getCursor());
+                        Cursor c = adapter.getCursor();
+                        c.moveToPosition(position);
+                        Note n = NoteCreator.getNoteFromCursor(c);
                         try {
                             ExportHelper.exportNote(n);
                         } catch (Exception e) {
@@ -102,5 +126,54 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         adapter.changeCursor(null);
+    }
+
+    class AsyncExport extends AsyncTask<Void ,Integer, String> {
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                ArrayList<Note> allNote = new BioMapsResolver(UploadActivity.this).getAllNote();
+                int count = allNote.size();
+                for (int i = 0; i < count; i++) {
+                    ExportHelper.exportNote(allNote.get(i));
+                    publishProgress((int) ((i / (float) count) * 100));
+                    if (isCancelled()) break;
+                }
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return "Task Completed.";
+        }
+        @Override
+        protected void onPostExecute(String result) {
+            barProgressDialog.hide();
+        }
+        @Override
+        protected void onPreExecute() {
+            barProgressDialog = new ProgressDialog(UploadActivity.this);
+            barProgressDialog.setTitle(getString(R.string.export_progressbar_title));
+            barProgressDialog.setMessage(getString(R.string.export_progressbar_progress));
+            barProgressDialog.setProgressStyle(barProgressDialog.STYLE_HORIZONTAL);
+            barProgressDialog.setProgress(0);
+            barProgressDialog.setMax(100);
+            barProgressDialog.setCancelable(false);
+            barProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.export_progressbar_cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    if(ae!=null) {
+                        ae.cancel(false);
+                        ae = null;
+                    }
+                }
+            });
+            barProgressDialog.show();
+        }
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            barProgressDialog.setProgress(values[0]);
+        }
     }
 }

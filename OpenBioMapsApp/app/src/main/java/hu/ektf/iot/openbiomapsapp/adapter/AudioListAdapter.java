@@ -10,6 +10,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+
+import java.io.File;
 import java.util.List;
 import hu.ektf.iot.openbiomapsapp.R;
 
@@ -65,7 +67,8 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         String audio = dataset.get(position);
-        holder.tvAudio.setText(audio);
+        String[] bits = audio.split("/");
+        holder.tvAudio.setText(bits[bits.length-1]);
         Context ctx = holder.imageView.getContext();
         Picasso.with(ctx)
                 .setLoggingEnabled(true);

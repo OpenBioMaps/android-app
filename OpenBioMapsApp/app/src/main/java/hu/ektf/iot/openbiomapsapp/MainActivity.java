@@ -212,8 +212,8 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
-                String audiourl = "content://media/external/audio/media/" + note.getSoundsList().get(position);
-                Uri myUri = Uri.parse(audiourl);
+                String audiourl = note.getSoundsList().get(position);
+                Uri myUri = Uri.fromFile(new File(audiourl));
                 intent.setDataAndType(myUri, "audio/*");
                 startActivity(intent);
             }
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = intent.getData();
                 selectedImagePath = selectedImageUri.getPath();
-                String galleryPath = fileHelper.getPath(selectedImageUri);
+                String galleryPath = fileHelper.getImagePath(selectedImageUri);
                 if (galleryPath != null) {
                     selectedImagePath = galleryPath;
                 }
@@ -286,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQ_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
-                String fileName = audioUri.getLastPathSegment();
+                String fileName = FileHelper.getPath(MainActivity.this, intent.getData());
                 note.getSoundsList().add(fileName);
                 adapterAudio.notifyDataSetChanged();
 
@@ -473,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
     private void dispatchChooseImageIntent() {
         Intent intent = new Intent();
         intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
+        intent.setAction(Intent.ACTION_PICK);
         startActivityForResult(Intent.createChooser(intent, getString(R.string.title_image_chooser)),
                 REQ_IMAGE_CHOOSER);
     }
