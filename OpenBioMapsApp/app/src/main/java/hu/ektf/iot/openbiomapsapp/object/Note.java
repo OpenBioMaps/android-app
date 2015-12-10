@@ -68,7 +68,7 @@ public class Note implements Parcelable {
     private ArrayList<String> imagesList;
     private ArrayList<String> soundsList;
     private State state;
-    private Integer response;
+    private String response;
     private String url;
 
     public Note() {
@@ -77,7 +77,7 @@ public class Note implements Parcelable {
         state = State.CREATED;
     }
 
-    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList, State state, String url, Integer response) {
+    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList, State state, String url, String response) {
         this();
         setId(id);
         setComment(comment);
@@ -174,11 +174,11 @@ public class Note implements Parcelable {
         this.soundsList = soundsList;
     }
 
-    public Integer getResponse() {
+    public String getResponse() {
         return response;
     }
 
-    public void setResponse(Integer response) {
+    public void setResponse(String response) {
         this.response = response;
     }
 
@@ -198,7 +198,7 @@ public class Note implements Parcelable {
         if (getImagesList() != null) bundle.putStringArrayList(IMAGES, getImagesList());
         if (getSoundsList() != null) bundle.putStringArrayList(SOUNDS, getSoundsList());
         if (getState() != null) bundle.putSerializable(STATE, state);
-        if (getResponse() != null) bundle.putInt(RESPONSE, getResponse());
+        if (getResponse() != null) bundle.putString(RESPONSE, getResponse());
         if (getUrl() != null) bundle.putString(URL, getUrl());
 
         dest.writeBundle(bundle);
@@ -215,7 +215,7 @@ public class Note implements Parcelable {
         if (bundle.containsKey(IMAGES)) setImagesList(bundle.getStringArrayList(IMAGES));
         if (bundle.containsKey(SOUNDS)) setSoundsList(bundle.getStringArrayList(SOUNDS));
         if (bundle.containsKey(STATE)) setState((State) bundle.getSerializable(STATE));
-        if (bundle.containsKey(RESPONSE)) setResponse(bundle.getInt(RESPONSE));
+        if (bundle.containsKey(RESPONSE)) setResponse(bundle.getString(RESPONSE));
         if (bundle.containsKey(URL)) setUrl(bundle.getString(URL));
     }
 

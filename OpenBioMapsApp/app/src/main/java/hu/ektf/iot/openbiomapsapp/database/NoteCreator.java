@@ -74,7 +74,7 @@ public class NoteCreator {
         note.setDate(timestamp > -1 ? new Date(timestamp) : null);
         note.setState(State.getByValue(cursor.getInt(cursor.getColumnIndex(NoteTable.STATE))));
         note.setUrl(cursor.getString(cursor.getColumnIndex(NoteTable.URL)));
-        note.setResponse(cursor.getInt(cursor.getColumnIndex(NoteTable.RESPONSE)));
+        note.setResponse(cursor.getString(cursor.getColumnIndex(NoteTable.RESPONSE)));
         note.setLocation(loc);
         if (!TextUtils.isEmpty(images))
             note.setImagesList(new ArrayList(Arrays.asList(images.split(SEPARATOR))));

@@ -17,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
     //Gps stuffs
     private GpsHandler gpsHandler;
     private Location currentLocation;
+    private long gpsRefreshRate = 10000;
+    private long timeStamp;
 
     // Persistence
     private BioMapsResolver bioMapsResolver;
@@ -134,14 +137,14 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 // If GPS is on
-                // TODO Validate that the Location is good enough
                 currentLocation = gpsHandler.getLocation();
-                if (currentLocation != null) {
+                if (currentLocation != null && System.currentTimeMillis()-currentLocation.getTime()<=gpsRefreshRate) {
                     note.setLocation(currentLocation);
                     note.setDate(new Date());
                     note.setComment(etNote.getText().toString());
                     saveNote();
                     updateUI();
+
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
                     tvPosition.setText(R.string.waiting_for_gps);
@@ -516,6 +519,36 @@ public class MainActivity extends AppCompatActivity {
                 note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
+            }
+        }
+
+        @Override
+        public void onStatusChanged(String s, int i, Bundle bundle) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String s) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String s) {
+
+        }
+    }
+
+    private class TimeExpireListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {
+            if (location != null) {
+                if(location.getTime()-timeStamp>=gpsRefreshRate)
+                {
+                    progressGps.setVisibility(View.VISIBLE);
+                    tvPosition.setText(R.string.waiting_for_gps);
+
+                    gpsHandler.setExternalListener(new ExternalLocationListener());
+                }
             }
         }
 
