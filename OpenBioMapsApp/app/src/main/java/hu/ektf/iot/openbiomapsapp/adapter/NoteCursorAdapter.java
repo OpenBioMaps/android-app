@@ -13,6 +13,7 @@ import android.widget.TextView;
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.object.Note.State;
 
 /**
  * Created by Pádi on 2015. 12. 04..
@@ -78,8 +79,18 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
         viewHolder.tvNumOfSounds.setText(String.valueOf(myListItem.getSoundsList().size()));
 
         // TODO Handle states
-        if (myListItem.getResponse() == 0) {
-            viewHolder.ivStatus.setImageResource(R.drawable.fail);
+        switch(myListItem.getState()) {
+            case UPLOADED:
+                viewHolder.ivStatus.setImageResource(R.drawable.succes);
+                break;
+            case UPLOADING:
+                viewHolder.ivStatus.setImageResource(R.drawable.uploading);
+                break;
+            case UPLOAD_ERROR:
+                viewHolder.ivStatus.setImageResource(R.drawable.fail);
+                break;
+            default: break;
         }
+
     }
 }
