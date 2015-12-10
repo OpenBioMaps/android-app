@@ -49,11 +49,10 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
 
-                // TODO Strings!
-                alertDialogBuilder.setTitle("Exportálás");
-                alertDialogBuilder.setMessage("Az exportálás helye:\n" + sh.getExportPath());
+                alertDialogBuilder.setTitle(getString(R.string.dialog_export_title));
+                alertDialogBuilder.setMessage(getString(R.string.dialog_export_path) + "\n" + sh.getExportPath());
 
-                alertDialogBuilder.setPositiveButton("Exportálás", new DialogInterface.OnClickListener() {
+                alertDialogBuilder.setPositiveButton(getString(R.string.dialog_export_text_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
                         Note n = NoteCreator.getNoteFromCursor(adapter.getCursor());
@@ -65,7 +64,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                     }
                 });
 
-                alertDialogBuilder.setNegativeButton("Mégse", new DialogInterface.OnClickListener() {
+                alertDialogBuilder.setNegativeButton(getString(R.string.settings_cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

@@ -23,6 +23,10 @@
     <string name="settings_cancel">Mégse</string>
     <string name="settings_server_title">Szerver elérhetősége</string>
 
+    <string name="dialog_export_title">Exportálás</string>
+    <string name="dialog_export_path">Az exportálás helye:</string>
+    <string name="dialog_export_text_yes">Exportálás</string>
+
     <string name="title_image_chooser">Válassz képet</string>
     <string name="no_file">Fájl létrehozása nem sikerült</string>
     <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
