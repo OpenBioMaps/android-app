@@ -29,4 +29,13 @@
         android:layout_height="fill_parent"
         android:layout_above="@+id/buttonUpload" />
 
+    <TextView
+        android:id="@+id/textViewEmpty"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/emptylist"
+        android:visibility="gone"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        />
+
 </RelativeLayout>

@@ -52,5 +52,6 @@
     <string name="waiting_for_gps">Lekérdezés folyamatban...</string>
     <string name="location_text">szélesség: %1$f \nhosszúság: %2$f</string>
     <string name="text_no_note">Nincs jegyzet</string>
+    <string name="emptylist">Nem található jegyzet az adatbázisban!</string>
 
 </resources>

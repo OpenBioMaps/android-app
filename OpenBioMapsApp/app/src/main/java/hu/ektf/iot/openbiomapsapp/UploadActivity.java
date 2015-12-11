@@ -6,8 +6,6 @@ import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.os.RemoteException;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -18,7 +16,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -40,7 +38,8 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     private RecyclerView recyclerView;
     private NoteCursorAdapter adapter;
     private Button buttonExportAll;
-
+    private TextView tvEmpty;
+    private Button buttonUpload;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,6 +55,9 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
         buttonExportAll = (Button) findViewById(R.id.buttonExport);
+
+        tvEmpty = (TextView) findViewById(R.id.textViewEmpty);
+        buttonUpload = (Button) findViewById(R.id.buttonUpload);
 
         adapter = new NoteCursorAdapter(this, null);
         buttonExportAll.setOnClickListener(new View.OnClickListener() {
@@ -102,6 +104,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         recyclerView.setAdapter(adapter);
 
         getSupportLoaderManager().initLoader(NOTE_LOADER, null, this);
+
     }
 
 
@@ -121,6 +124,12 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.changeCursor(data);
+        if(adapter.getItemCount() == 0) {
+            tvEmpty.setVisibility(View.VISIBLE);
+            buttonExportAll.setVisibility(View.GONE);
+            buttonUpload.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
+        }
     }
 
     @Override
