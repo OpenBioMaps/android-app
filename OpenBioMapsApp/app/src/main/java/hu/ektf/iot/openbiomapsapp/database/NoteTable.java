@@ -27,12 +27,12 @@ public class NoteTable {
             "CREATE TABLE " + TABLE_NAME +
                     "(" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     COMMENT + " TEXT, " +
-                    LATITUDE + " TEXT NOT NULL, " +
-                    LONGITUDE + " TEXT NOT NULL," +
+                    LATITUDE + " TEXT, " +
+                    LONGITUDE + " TEXT," +
                     SOUND_FILES + " TEXT, " +
                     IMAGE_FILES + " TEXT, " +
-                    DATE + " TEXT NOT NULL, " +
                     STATE + " INTEGER NOT NULL, " +
+                    DATE + " TEXT, " +
                     URL + " TEXT, " +
                     RESPONSE + " TEXT);";
 

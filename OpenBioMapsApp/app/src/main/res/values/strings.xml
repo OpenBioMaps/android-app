@@ -27,7 +27,6 @@
     <string name="export_progressbar_cancel">Megszakítás</string>
     <string name="export_progressbar_progress">Exportálás foylamatban...</string>
 
-
     <string name="dialog_export_title">Exportálás</string>
     <string name="dialog_export_path">Az exportálás helye:</string>
     <string name="dialog_export_text_yes">Exportálás</string>
@@ -36,6 +35,7 @@
     <string name="no_file">Fájl létrehozása nem sikerült</string>
     <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
     <string name="image_source_cancel">Mégse</string>
+    <string name="no_location">Pozíció rögzítése kötelező</string>
 
     <string-array name="image_source">
         <item>SD kártya</item>

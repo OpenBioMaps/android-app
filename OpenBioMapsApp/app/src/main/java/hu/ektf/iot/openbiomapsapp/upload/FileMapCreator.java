@@ -23,7 +23,7 @@ public class FileMapCreator {
             for (int j = 0; j < files.size(); j++) {
                 String filePath = files.get(j);
                 String mimeType = getMimeType(filePath);
-                Timber.v("" + mimeType);
+                Timber.v(mimeType);
                 File file = new File(filePath);
                 TypedFile typedImage = new TypedFile(mimeType, file);
                 fileMap.put(String.format(BioMapsServiceInterface.PARAM_FILE_ARRAY_FORMAT, count), typedImage);

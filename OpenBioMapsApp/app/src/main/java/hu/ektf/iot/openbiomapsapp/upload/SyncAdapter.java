@@ -6,11 +6,9 @@ import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
-import android.text.TextUtils;
 
 import com.google.gson.JsonElement;
 
-import java.io.File;
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
@@ -69,8 +67,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private boolean isSyncing = false;
     private void doSync() {
+        Note noteToSync = null;
         try {
-            Note noteToSync = bioMapsResolver.getNoteByStatus(Note.State.CLOSED);
+            noteToSync = bioMapsResolver.getNoteByStatus(Note.State.CLOSED);
             if (noteToSync == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;
@@ -92,6 +91,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
+
+            if(noteToSync != null) {
+                try {
+                    noteToSync.setState(State.UPLOAD_ERROR);
+                    bioMapsResolver.updateNote(noteToSync);
+                }catch (Exception e){
+                    ex.printStackTrace();
+                }
+            }
+
             isSyncing = false;
         }
     }

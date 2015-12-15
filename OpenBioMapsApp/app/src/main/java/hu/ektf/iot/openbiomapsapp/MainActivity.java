@@ -17,7 +17,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
-import android.text.format.Time;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -61,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText etNote;
     private TextView tvPosition;
     private TextView tvDate;
-    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonReset;
+    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave;
     private ProgressBar progressGps;
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
         audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
-        buttonReset = (Button) findViewById(R.id.buttonReset);
+        buttonSave = (Button) findViewById(R.id.buttonReset);
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
 
         int unitWidth = getListUnitWidth();
@@ -186,10 +185,15 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        buttonReset.setOnClickListener(new View.OnClickListener() {
+        buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Timber.d("buttonReset", "saved record to local");
+                if (note.getLocation() == null) {
+                    // TODO Dialog might be better
+                    Toast.makeText(MainActivity.this, R.string.no_location, Toast.LENGTH_LONG).show();
+                    return;
+                }
+
                 note.setComment(etNote.getText().toString());
                 note.setState(State.CLOSED);
                 saveNote();
@@ -261,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = intent.getData();
                 selectedImagePath = selectedImageUri.getPath();
-                String galleryPath = fileHelper.getImagePath(selectedImageUri);
+                String galleryPath = fileHelper.getPath(this, selectedImageUri);
                 if (galleryPath != null) {
                     selectedImagePath = galleryPath;
                 }
@@ -520,36 +524,6 @@ public class MainActivity extends AppCompatActivity {
                 note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
-            }
-        }
-
-        @Override
-        public void onStatusChanged(String s, int i, Bundle bundle) {
-
-        }
-
-        @Override
-        public void onProviderEnabled(String s) {
-
-        }
-
-        @Override
-        public void onProviderDisabled(String s) {
-
-        }
-    }
-
-    private class TimeExpireListener implements LocationListener {
-        @Override
-        public void onLocationChanged(Location location) {
-            if (location != null) {
-                if(location.getTime()-timeStamp>=gpsRefreshRate)
-                {
-                    progressGps.setVisibility(View.VISIBLE);
-                    tvPosition.setText(R.string.waiting_for_gps);
-
-                    gpsHandler.setExternalListener(new ExternalLocationListener());
-                }
             }
         }
 

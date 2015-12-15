@@ -19,16 +19,23 @@ import hu.ektf.iot.openbiomapsapp.object.Note.State;
  * and deserialised.
  */
 public class NoteCreator {
+    private static final double NULL_LOC_VALUE = 1000;
     private static final String SEPARATOR = ",";
 
     public static ContentValues getCVfromNote(final Note note) {
         ContentValues contentValues = new ContentValues();
 
         if (note.getId() != null) contentValues.put(NoteTable._ID, note.getId());
+
+        double lat = NULL_LOC_VALUE;
+        double lon = NULL_LOC_VALUE;
         if (note.getLocation() != null) {
-            contentValues.put(NoteTable.LATITUDE, note.getLocation().getLatitude());
-            contentValues.put(NoteTable.LONGITUDE, note.getLocation().getLongitude());
+            lat = note.getLocation().getLatitude();
+            lon = note.getLocation().getLongitude();
         }
+
+        contentValues.put(NoteTable.LATITUDE, lat);
+        contentValues.put(NoteTable.LONGITUDE, lon);
         contentValues.put(NoteTable.COMMENT, note.getComment());
         contentValues.put(NoteTable.DATE, note.getDate() != null ? note.getDate().getTime() : -1);
         contentValues.put(NoteTable.SOUND_FILES, TextUtils.join(SEPARATOR, note.getSoundsList()));
@@ -55,9 +62,9 @@ public class NoteCreator {
 
     public static Note getNoteFromCursor(Cursor cursor) {
         Location loc = null;
-        if (cursor.getColumnIndex(NoteTable.LATITUDE) >= 0 && cursor.getColumnIndex(NoteTable.LONGITUDE) >= 0) {
-            double latitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LATITUDE));
-            double longitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LONGITUDE));
+        double latitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LATITUDE));
+        double longitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LONGITUDE));
+        if(latitude != NULL_LOC_VALUE && longitude != NULL_LOC_VALUE) {
             loc = new Location(BioMapsContentProvider.AUTHORITY);
             loc.setLatitude(latitude);
             loc.setLongitude(longitude);

@@ -40,6 +40,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     private Button buttonExportAll;
     private TextView tvEmpty;
     private Button buttonUpload;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,13 +111,15 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
+        String selection = NoteTable.STATE + " != ?";
+        String[] selectionArgs = new String[]{String.valueOf(Note.State.CREATED.getValue())};
         String order = NoteTable.DATE + " DESC";
         return new CursorLoader(
                 this,                                      // Activity context
                 BioMapsContentProvider.CONTENT_URI,        // Table to query
                 null,                                      // Projection to return
-                null,                                      // No selection clause
-                null,                                      // No selection arguments
+                selection,                                 // No selection clause
+                selectionArgs,                             // No selection arguments
                 order                                      // Sort order
         );
     }
@@ -124,7 +127,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         adapter.changeCursor(data);
-        if(adapter.getItemCount() == 0) {
+        if (adapter.getItemCount() == 0) {
             tvEmpty.setVisibility(View.VISIBLE);
             buttonExportAll.setVisibility(View.GONE);
             buttonUpload.setVisibility(View.GONE);
@@ -137,16 +140,18 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(null);
     }
 
-    class AsyncExport extends AsyncTask<Void ,Integer, String> {
+    class AsyncExport extends AsyncTask<Void, Integer, String> {
         @Override
         protected String doInBackground(Void... params) {
             try {
                 ArrayList<Note> allNote = new BioMapsResolver(UploadActivity.this).getAllNote();
                 int count = allNote.size();
                 for (int i = 0; i < count; i++) {
+                    if (isCancelled()) break;
+                    if (allNote.get(i).getState() == Note.State.CREATED) break;
+
                     ExportHelper.exportNote(allNote.get(i));
                     publishProgress((int) ((i / (float) count) * 100));
-                    if (isCancelled()) break;
                 }
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -155,10 +160,13 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             }
             return "Task Completed.";
         }
+
         @Override
         protected void onPostExecute(String result) {
             barProgressDialog.hide();
+
         }
+
         @Override
         protected void onPreExecute() {
             barProgressDialog = new ProgressDialog(UploadActivity.this);
@@ -172,7 +180,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    if(ae!=null) {
+                    if (ae != null) {
                         ae.cancel(false);
                         ae = null;
                     }
@@ -180,6 +188,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             });
             barProgressDialog.show();
         }
+
         @Override
         protected void onProgressUpdate(Integer... values) {
             barProgressDialog.setProgress(values[0]);
