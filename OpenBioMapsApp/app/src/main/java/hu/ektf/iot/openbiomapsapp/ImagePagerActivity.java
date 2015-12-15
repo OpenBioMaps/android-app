@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.WindowManager;
+
 import com.viewpagerindicator.CirclePageIndicator;
+
 import java.util.ArrayList;
+
 import hu.ektf.iot.openbiomapsapp.adapter.ImagePagerAdapter;
 
 /**
@@ -23,8 +26,8 @@ public class ImagePagerActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_image_pager);
 
         ArrayList<String> measurementImages = getIntent().getStringArrayListExtra(ARG_IMAGES);

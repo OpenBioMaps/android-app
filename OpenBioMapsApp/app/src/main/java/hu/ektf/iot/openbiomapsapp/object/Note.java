@@ -98,7 +98,7 @@ public class Note implements Parcelable {
         return String.valueOf("(" + location.getLatitude()) + "," + String.valueOf(location.getLongitude() + ")");
     }
 
-    public String getLocationString(Context ctx){
+    public String getLocationString(Context ctx) {
         return ctx.getString(R.string.location_text, location.getLatitude(), location.getLongitude());
     }
 

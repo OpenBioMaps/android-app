@@ -58,14 +58,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle bundle, String s, ContentProviderClient contentProviderClient, SyncResult syncResult) {
         Timber.v("Wow! Such sync, so upload!");
 
+        Timber.v("isSyncing is " + String.valueOf(isSyncing));
         // TODO Should it be handled thread safe?
-        if(!isSyncing) {
+        if (!isSyncing) {
             isSyncing = true;
             doSync();
         }
     }
 
     private boolean isSyncing = false;
+
     private void doSync() {
         Note noteToSync = null;
         try {
@@ -76,8 +78,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
 
-            // TODO set endpoint
-            //endpoint.setUrl(note.getUrl());
+            endpoint.setUrl(noteToSync.getUrl());
 
             Timber.d("Upload started");
             noteToSync.setState(State.UPLOADING);
@@ -92,11 +93,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         } catch (Exception ex) {
             ex.printStackTrace();
 
-            if(noteToSync != null) {
+            if (noteToSync != null) {
                 try {
                     noteToSync.setState(State.UPLOAD_ERROR);
                     bioMapsResolver.updateNote(noteToSync);
-                }catch (Exception e){
+                } catch (Exception e) {
                     ex.printStackTrace();
                 }
             }

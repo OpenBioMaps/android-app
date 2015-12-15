@@ -78,7 +78,7 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
         viewHolder.tvNumOfSounds.setText(String.valueOf(myListItem.getSoundsList().size()));
 
         // TODO Handle states
-        switch(myListItem.getState()) {
+        switch (myListItem.getState()) {
             case UPLOADED:
                 viewHolder.ivStatus.setImageResource(R.drawable.succes);
                 break;
@@ -88,7 +88,8 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
             case UPLOAD_ERROR:
                 viewHolder.ivStatus.setImageResource(R.drawable.fail);
                 break;
-            default: break;
+            default:
+                break;
         }
 
     }

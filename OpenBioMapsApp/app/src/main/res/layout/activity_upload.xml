@@ -9,33 +9,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hu.ektf.iot.openbiomapsapp.UploadActivity">
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerUploadList"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_above="@+id/buttonExport" />
+
+    <TextView
+        android:id="@+id/textViewEmpty"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:text="@string/emptylist"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="gone" />
+
     <Button
         android:id="@+id/buttonExport"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:text="@string/button_export_text" />
-
-    <Button
-        android:id="@+id/buttonUpload"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/buttonExport"
-        android:text="@string/button_upload_text" />
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recyclerUploadList"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_above="@+id/buttonUpload" />
-
-    <TextView
-        android:id="@+id/textViewEmpty"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/emptylist"
-        android:visibility="gone"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        />
 
 </RelativeLayout>

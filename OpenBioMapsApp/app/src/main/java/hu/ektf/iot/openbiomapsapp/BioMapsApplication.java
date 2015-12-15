@@ -2,13 +2,11 @@ package hu.ektf.iot.openbiomapsapp;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.ActivityManager;
 import android.app.Application;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.os.Bundle;
 
-import java.util.List;
-
-import hu.ektf.iot.openbiomapsapp.database.BioMapsContentObserver;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
 import hu.ektf.iot.openbiomapsapp.upload.DynamicEndpoint;
@@ -45,34 +43,33 @@ public class BioMapsApplication extends Application {
         // Placeholder for debug application
     }
 
-    protected void registerContentObserver() {
-        BioMapsContentObserver observer = new BioMapsContentObserver(account, null);
-        getContentResolver().registerContentObserver(BioMapsContentProvider.CONTENT_URI, true, observer);
-        getContentResolver().setSyncAutomatically(account, BioMapsContentProvider.AUTHORITY, true);
-    }
-
     @Override
     public void onCreate() {
         super.onCreate();
         setupRetrofit();
         setupLogging();
-        if(!isSyncProcess(this))
-        {
-            createSyncAccount(this);
-            registerContentObserver();
-        }
+        createSyncAccount(this);
     }
 
     public BioMapsServiceInterface getMapsService() {
         return mapsService;
     }
 
-    public DynamicEndpoint getDynamicEndpoint(){
+    public DynamicEndpoint getDynamicEndpoint() {
         return dynamicEndpoint;
     }
 
     public Account getAccount() {
         return account;
+    }
+
+    public void requestSync() {
+        Timber.i("requestSync method was called. Sync will be requested");
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_FORCE, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, bundle);
     }
 
     /**
@@ -104,24 +101,5 @@ public class BioMapsApplication extends Application {
              */
             Timber.i("Account was not created!");
         }
-    }
-
-    // TODO Is it a good idea?
-    private boolean isSyncProcess(Context context)
-    {
-        Context applicationContext = context.getApplicationContext();
-        long myPid = (long) android.os.Process.myPid();
-        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = ((ActivityManager) applicationContext.getSystemService(ACTIVITY_SERVICE)).getRunningAppProcesses();
-        if (runningAppProcesses != null && runningAppProcesses.size() != 0)
-        {
-            for (ActivityManager.RunningAppProcessInfo runningAppProcessInfo : runningAppProcesses)
-            {
-                if (((long) runningAppProcessInfo.pid) == myPid && "hu.ektf.iot.openbiomapsapp:sync".equals(runningAppProcessInfo.processName))
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

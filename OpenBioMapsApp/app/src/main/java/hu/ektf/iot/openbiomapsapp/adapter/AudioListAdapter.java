@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.util.List;
+
 import hu.ektf.iot.openbiomapsapp.R;
 
 /**
@@ -68,13 +68,13 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
     public void onBindViewHolder(ViewHolder holder, int position) {
         String audio = dataset.get(position);
         String[] bits = audio.split("/");
-        holder.tvAudio.setText(bits[bits.length-1]);
+        holder.tvAudio.setText(bits[bits.length - 1]);
         Context ctx = holder.imageView.getContext();
         Picasso.with(ctx)
                 .setLoggingEnabled(true);
         Picasso.with(ctx)
                 .load(android.R.drawable.ic_btn_speak_now)
-                        .placeholder(R.drawable.transparent_black)
+                .placeholder(R.drawable.transparent_black)
                 .resize(imageSize, imageSize)
                 .centerCrop()
                 .into(holder.imageView);

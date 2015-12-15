@@ -8,10 +8,10 @@ import android.os.IBinder;
  * Define a Service that returns an IBinder for the
  * sync adapter class, allowing the sync adapter framework to call
  * onPerformSync().
- *
+ * <p/>
  * Created by szugyi on 27/11/15.
  */
-public class SyncService extends Service{
+public class SyncService extends Service {
     // Storage for an instance of the sync adapter
     private static SyncAdapter sSyncAdapter = null;
     // Object to use as a thread-safe lock

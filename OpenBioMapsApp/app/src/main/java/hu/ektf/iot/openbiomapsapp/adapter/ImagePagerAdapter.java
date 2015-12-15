@@ -7,10 +7,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
 import java.util.ArrayList;
+
 import hu.ektf.iot.openbiomapsapp.R;
 
 /**

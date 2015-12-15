@@ -128,9 +128,8 @@ public class FileHelper {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public static String getPath(final Context context, final Uri uri)
-    {
-        final boolean isKitKatOrAbove = Build.VERSION.SDK_INT >=  Build.VERSION_CODES.KITKAT;
+    public static String getPath(final Context context, final Uri uri) {
+        final boolean isKitKatOrAbove = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
         if (isKitKatOrAbove && DocumentsContract.isDocumentUri(context, uri)) {
@@ -150,7 +149,7 @@ public class FileHelper {
             else if (isDownloadsDocument(uri)) {
 
                 final String id;
-                    id = DocumentsContract.getDocumentId(uri);
+                id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
@@ -172,7 +171,7 @@ public class FileHelper {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -195,9 +194,9 @@ public class FileHelper {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */

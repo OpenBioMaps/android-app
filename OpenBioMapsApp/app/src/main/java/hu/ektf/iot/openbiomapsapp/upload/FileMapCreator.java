@@ -14,11 +14,11 @@ import timber.log.Timber;
  * Created by szugyi on 20/11/15.
  */
 public class FileMapCreator {
-    public static Map<String, TypedFile> createFileMap(List<String>... fileLists){
+    public static Map<String, TypedFile> createFileMap(List<String>... fileLists) {
         Map<String, TypedFile> fileMap = new HashMap<String, TypedFile>();
 
         int count = 0;
-        for(int i = 0; i < fileLists.length; i++) {
+        for (int i = 0; i < fileLists.length; i++) {
             List<String> files = fileLists[i];
             for (int j = 0; j < files.size(); j++) {
                 String filePath = files.get(j);

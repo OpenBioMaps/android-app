@@ -7,7 +7,7 @@ import android.os.IBinder;
 /**
  * A bound Service that instantiates the authenticator
  * when started.
- *
+ * <p/>
  * Created by szugyi on 27/11/15.
  */
 public class AuthenticatorService extends Service {

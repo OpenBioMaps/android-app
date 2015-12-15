@@ -54,34 +54,28 @@ public class ExportHelper {
 
     public static void copyAttachmentsToFolder(Note note, File folder) {
 
-        for (String file:note.getImagesList()) {
+        for (String file : note.getImagesList()) {
             String sourcePath = file;
             File source = new File(sourcePath);
-            String destinationPath = folder.getPath() +  File.separator + source.getName();
+            String destinationPath = folder.getPath() + File.separator + source.getName();
             File destination = new File(destinationPath);
-            try
-            {
+            try {
                 FileUtils.copyFile(source, destination);
                 Timber.d("copyattachments file copy succes: " + destinationPath);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Timber.d("copyattachments failed: " + sourcePath);
             }
         }
-        for (String file:note.getSoundsList()) {
+        for (String file : note.getSoundsList()) {
             String sourcePath = file;
             File source = new File(sourcePath);
-            String destinationPath = folder.getPath() +  File.separator + source.getName();
+            String destinationPath = folder.getPath() + File.separator + source.getName();
             File destination = new File(destinationPath);
-            try
-            {
+            try {
                 FileUtils.copyFile(source, destination);
                 Timber.d("copyattachments file copy succes: " + destinationPath);
-            }
-            catch (IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
                 Timber.d("copyattachments failed: " + sourcePath);
             }
@@ -115,7 +109,8 @@ public class ExportHelper {
 
     public static void exportNote(Note note) throws Exception {
         File folder = ExportHelper.createFolderToNote(String.valueOf(note.getDate()));
-        if(note.getComment() !=null) ExportHelper.createFileToFolder("note.txt", note.getComment(), folder);
+        if (note.getComment() != null)
+            ExportHelper.createFileToFolder("note.txt", note.getComment(), folder);
         ExportHelper.createFileToFolder("geometry.wkt", GeometryConverter.LocationToString(note.getLocation()), folder);
         ExportHelper.copyAttachmentsToFolder(note, folder);
         ExportHelper.zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
@@ -124,7 +119,7 @@ public class ExportHelper {
     }
 
     public static void deleteFolder(String folderName) throws IOException {
-        File dir = new File(Environment.getExternalStorageDirectory()+"/openbiomaps/" + folderName);
+        File dir = new File(Environment.getExternalStorageDirectory() + "/openbiomaps/" + folderName);
         FileUtils.deleteDirectory(dir);
         Timber.d("deleteFolder finished" + folderName);
     }

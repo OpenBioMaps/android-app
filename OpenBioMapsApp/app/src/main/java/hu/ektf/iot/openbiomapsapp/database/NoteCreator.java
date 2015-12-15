@@ -64,7 +64,7 @@ public class NoteCreator {
         Location loc = null;
         double latitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LATITUDE));
         double longitude = cursor.getDouble(cursor.getColumnIndex(NoteTable.LONGITUDE));
-        if(latitude != NULL_LOC_VALUE && longitude != NULL_LOC_VALUE) {
+        if (latitude != NULL_LOC_VALUE && longitude != NULL_LOC_VALUE) {
             loc = new Location(BioMapsContentProvider.AUTHORITY);
             loc.setLatitude(latitude);
             loc.setLongitude(longitude);

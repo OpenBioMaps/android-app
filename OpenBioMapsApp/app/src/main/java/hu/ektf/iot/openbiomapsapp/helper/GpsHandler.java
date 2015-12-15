@@ -30,7 +30,7 @@ public class GpsHandler {
     private LocationListener locationListener = new LocationListener() {
         public void onLocationChanged(Location location) {
             Location currentLocation = getLocation();
-            if(externalListener != null) {
+            if (externalListener != null) {
                 externalListener.onLocationChanged(currentLocation);
             }
             if (isBetterLocation(location, currentLocation)) {
@@ -41,6 +41,7 @@ public class GpsHandler {
         public void onStatusChanged(String provider, int status, Bundle extras) {
 
         }
+
         public void onProviderEnabled(String provider) {
         }
 
@@ -54,6 +55,7 @@ public class GpsHandler {
 
     /**
      * Get the location which is currently the best one we know.
+     *
      * @return The current location.
      */
     public static Location getLocation() {
@@ -65,6 +67,7 @@ public class GpsHandler {
     /**
      * Create an instance which is listening for location updates and saves them in a static variable,
      * so it can be accessed from anywhere.
+     *
      * @param context The context to be used to access the LOCATION_SERVICE.
      */
     public GpsHandler(Context context) {

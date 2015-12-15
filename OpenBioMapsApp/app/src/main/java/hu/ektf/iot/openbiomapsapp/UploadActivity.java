@@ -32,14 +32,14 @@ import hu.ektf.iot.openbiomapsapp.object.Note;
 
 public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NOTE_LOADER = 0;
-    private static final int PROGRESS = 0x1;
-    ProgressDialog barProgressDialog;
-    private AsyncExport ae;
+
+    private ProgressDialog barProgressDialog;
     private RecyclerView recyclerView;
     private NoteCursorAdapter adapter;
     private Button buttonExportAll;
     private TextView tvEmpty;
-    private Button buttonUpload;
+
+    private ExportAsyncTask exportTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +48,6 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
         final StorageHelper sh = new StorageHelper(UploadActivity.this);
 
-        // TODO Add emptyView for when the list is empty
         recyclerView = (RecyclerView) findViewById(R.id.recyclerUploadList);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -58,13 +57,12 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         buttonExportAll = (Button) findViewById(R.id.buttonExport);
 
         tvEmpty = (TextView) findViewById(R.id.textViewEmpty);
-        buttonUpload = (Button) findViewById(R.id.buttonUpload);
 
         adapter = new NoteCursorAdapter(this, null);
         buttonExportAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AsyncExport ae = new AsyncExport();
+                ExportAsyncTask ae = new ExportAsyncTask();
                 ae.execute();
             }
         });
@@ -130,7 +128,6 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         if (adapter.getItemCount() == 0) {
             tvEmpty.setVisibility(View.VISIBLE);
             buttonExportAll.setVisibility(View.GONE);
-            buttonUpload.setVisibility(View.GONE);
             recyclerView.setVisibility(View.GONE);
         }
     }
@@ -140,7 +137,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(null);
     }
 
-    class AsyncExport extends AsyncTask<Void, Integer, String> {
+    class ExportAsyncTask extends AsyncTask<Void, Integer, String> {
         @Override
         protected String doInBackground(Void... params) {
             try {
@@ -180,9 +177,9 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
-                    if (ae != null) {
-                        ae.cancel(false);
-                        ae = null;
+                    if (exportTask != null) {
+                        exportTask.cancel(false);
+                        exportTask = null;
                     }
                 }
             });

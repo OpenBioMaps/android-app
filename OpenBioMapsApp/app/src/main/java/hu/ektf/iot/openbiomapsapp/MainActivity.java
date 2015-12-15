@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 // If GPS is on
                 currentLocation = gpsHandler.getLocation();
-                if (currentLocation != null && System.currentTimeMillis()-currentLocation.getTime()<=gpsRefreshRate) {
+                if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
                     note.setLocation(currentLocation);
                     note.setDate(new Date());
                     note.setComment(etNote.getText().toString());
@@ -195,8 +195,10 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 note.setComment(etNote.getText().toString());
+                note.setUrl(sharedPrefStorage.getServerUrl());
                 note.setState(State.CLOSED);
                 saveNote();
+                ((BioMapsApplication) getApplication()).requestSync();
 
                 note = new Note();
                 createAdapters();
@@ -241,7 +243,6 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         gpsHandler.onPause();
 
-        // TODO When should we save the comment?
         note.setComment(etNote.getText().toString());
         saveNote();
     }
@@ -290,7 +291,9 @@ public class MainActivity extends AppCompatActivity {
             saveNote();
             updateUI();
         }
-        //TODO: need to fix RESULT_CODE_CANCELLED in case replaying record
+
+        // TODO resultCode is CANCELED if do not attach in the voice recorder, but simply press back.
+        // Is there anything we could do about it?
         if (requestCode == REQ_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
