@@ -127,8 +127,8 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(data);
         if (adapter.getItemCount() == 0) {
             tvEmpty.setVisibility(View.VISIBLE);
-            buttonExportAll.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.GONE);
+           buttonExportAll.setVisibility(View.GONE);
+           recyclerView.setVisibility(View.GONE);
         }
     }
 

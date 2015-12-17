@@ -521,7 +521,6 @@ public class MainActivity extends AppCompatActivity {
                 gpsHandler.setExternalListener(null);
                 progressGps.setVisibility(View.GONE);
                 currentLocation = location;
-
                 note.setLocation(currentLocation);
                 note.setDate(new Date());
                 note.setComment(etNote.getText().toString());
