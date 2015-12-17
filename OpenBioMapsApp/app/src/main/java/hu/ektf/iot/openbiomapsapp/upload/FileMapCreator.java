@@ -1,5 +1,6 @@
 package hu.ektf.iot.openbiomapsapp.upload;
 
+import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
 import java.io.File;
@@ -37,7 +38,14 @@ public class FileMapCreator {
     public static String getMimeType(String url) {
         String type = null;
         String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        if (extension != null) {
+        if (!TextUtils.isEmpty(extension)) {
+            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
+        }
+        else
+        {
+            int lastIndex = url.lastIndexOf(".");
+            if(lastIndex>-1)
+                extension = url.substring(lastIndex+1);
             type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         }
         return type;
