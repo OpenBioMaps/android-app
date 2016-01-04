@@ -364,7 +364,7 @@ public class MainActivity extends AppCompatActivity {
     private void saveNote() {
         try {
             Object o = bioMapsResolver.insertOrUpdateNote(note);
-            Timber.i("InsertOrUpdate result: " + o.toString());
+            Timber.i("InsertOrUpdate result: %s", o.toString());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
