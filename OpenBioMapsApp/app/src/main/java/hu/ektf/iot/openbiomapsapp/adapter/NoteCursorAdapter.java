@@ -40,7 +40,7 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
             super(v);
             this.itemClickListener = itemClickListener;
             this.longClickListener = longClickListener;
-            
+
             tvComment = (TextView) v.findViewById(R.id.tvNote);
             tvDate = (TextView) v.findViewById(R.id.tvDate);
             ivSounds = (ImageView) v.findViewById(R.id.ivSounds);

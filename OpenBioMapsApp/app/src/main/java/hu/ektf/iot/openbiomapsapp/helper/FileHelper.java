@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp;
+package hu.ektf.iot.openbiomapsapp.helper;
 
 import android.annotation.TargetApi;
 import android.content.ContentUris;

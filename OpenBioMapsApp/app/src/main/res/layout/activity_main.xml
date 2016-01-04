@@ -18,7 +18,7 @@
             android:id="@+id/textViewNote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/tv_note_text"
+            android:text="@string/note"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <TextView
@@ -27,7 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:text="@string/tv_current_time_text"
+            android:text="@string/tv_current_time"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <EditText
@@ -50,7 +50,7 @@
             android:layout_toLeftOf="@+id/strut"
             android:layout_toStartOf="@+id/strut"
             android:padding="5dp"
-            android:text="@string/button_position_text" />
+            android:text="@string/button_position" />
 
         <View
             android:id="@+id/strut"
@@ -69,7 +69,7 @@
             android:layout_toEndOf="@id/strut"
             android:layout_toRightOf="@+id/strut"
             android:enabled="false"
-            android:text="@string/button_show_map_text" />
+            android:text="@string/button_show_map" />
 
         <TextView
             android:id="@+id/textViewPosition"
@@ -78,7 +78,7 @@
             android:layout_below="@+id/buttonPosition"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
-            android:text="@string/tv_position_text"
+            android:text="@string/tv_position"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
         <ProgressBar
@@ -97,7 +97,7 @@
             android:layout_alignStart="@+id/etNote"
             android:layout_below="@+id/textViewPosition"
             android:layout_marginTop="8dp"
-            android:text="@string/button_voice_record_text" />
+            android:text="@string/button_voice_record" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/audioRecycler"
@@ -117,7 +117,7 @@
             android:layout_alignStart="@+id/etNote"
             android:layout_below="@+id/audioRecycler"
             android:layout_marginTop="8dp"
-            android:text="@string/button_create_image_text" />
+            android:text="@string/button_create_image" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/imageRecycler"

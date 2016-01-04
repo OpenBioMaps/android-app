@@ -89,7 +89,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                     }
                 });
 
-                alertDialogBuilder.setNegativeButton(getString(R.string.settings_cancel), new DialogInterface.OnClickListener() {
+                alertDialogBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -184,7 +184,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             barProgressDialog = new ProgressDialog(UploadActivity.this);
             barProgressDialog.setTitle(getString(R.string.export_progressbar_title));
             barProgressDialog.setMessage(getString(R.string.export_progressbar_progress));
-            barProgressDialog.setProgressStyle(barProgressDialog.STYLE_HORIZONTAL);
+            barProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             barProgressDialog.setProgress(0);
             barProgressDialog.setMax(100);
             barProgressDialog.setCancelable(false);

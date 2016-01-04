@@ -14,43 +14,15 @@ import android.os.Bundle;
  * This class is responsible for keeping track of the location changes and initializing the current location
  * to the last known one when the object is first instantiated.
  */
-public class GpsHandler {
+public class GpsHelper {
     private static final int TWO_MINUTES = 1000 * 60 * 2;
     private static final long UPDATE_TIME = 500;
     private static final int UPDATE_DISTANCE = 0;
 
     private static Location location;
 
-    private LocationListener externalListener = null;
-
-    public void setExternalListener(LocationListener ll) {
-        this.externalListener = ll;
-    }
-
-    private LocationListener locationListener = new LocationListener() {
-        public void onLocationChanged(Location location) {
-            Location currentLocation = getLocation();
-            if (externalListener != null) {
-                externalListener.onLocationChanged(currentLocation);
-            }
-            if (isBetterLocation(location, currentLocation)) {
-                setLocation(location);
-            }
-        }
-
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
-        }
-
-        public void onProviderEnabled(String provider) {
-        }
-
-        public void onProviderDisabled(String provider) {
-        }
-    };
-
     private static void setLocation(Location newLocation) {
-        GpsHandler.location = newLocation;
+        GpsHelper.location = newLocation;
     }
 
     /**
@@ -59,10 +31,16 @@ public class GpsHandler {
      * @return The current location.
      */
     public static Location getLocation() {
-        return GpsHandler.location;
+        return GpsHelper.location;
     }
 
     private LocationManager locationManager;
+    private LocationListener internalLocationListener = new InternalLocationListener();
+    private LocationListener externalListener = null;
+
+    public void setExternalListener(LocationListener ll) {
+        this.externalListener = ll;
+    }
 
     /**
      * Create an instance which is listening for location updates and saves them in a static variable,
@@ -70,7 +48,7 @@ public class GpsHandler {
      *
      * @param context The context to be used to access the LOCATION_SERVICE.
      */
-    public GpsHandler(Context context) {
+    public GpsHelper(Context context) {
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         if (getLocation() == null) {
             String[] providers = new String[]{LocationManager.GPS_PROVIDER,
@@ -108,7 +86,7 @@ public class GpsHandler {
 
     private void registerProviders(String[] providers) {
         for (int i = 0; i < providers.length; i++) {
-            locationManager.requestLocationUpdates(providers[i], UPDATE_TIME, UPDATE_DISTANCE, locationListener);
+            locationManager.requestLocationUpdates(providers[i], UPDATE_TIME, UPDATE_DISTANCE, internalLocationListener);
         }
     }
 
@@ -116,8 +94,8 @@ public class GpsHandler {
      * Unregisters the locationListener of the class from location updates. Must be called if
      * location updates are no more required by the app.
      */
-    public void unregisterProviders() {
-        locationManager.removeUpdates(locationListener);
+    private void unregisterProviders() {
+        locationManager.removeUpdates(internalLocationListener);
     }
 
     /**
@@ -178,5 +156,27 @@ public class GpsHandler {
             return provider2 == null;
         }
         return provider1.equals(provider2);
+    }
+
+    private class InternalLocationListener implements LocationListener {
+        public void onLocationChanged(Location location) {
+            Location currentLocation = getLocation();
+            if (externalListener != null) {
+                externalListener.onLocationChanged(currentLocation);
+            }
+            if (isBetterLocation(location, currentLocation)) {
+                setLocation(location);
+            }
+        }
+
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        public void onProviderEnabled(String provider) {
+        }
+
+        public void onProviderDisabled(String provider) {
+        }
     }
 }

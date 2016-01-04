@@ -38,14 +38,15 @@ import java.util.List;
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
-import hu.ektf.iot.openbiomapsapp.helper.GpsHandler;
+import hu.ektf.iot.openbiomapsapp.helper.FileHelper;
+import hu.ektf.iot.openbiomapsapp.helper.GpsHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 import hu.ektf.iot.openbiomapsapp.object.Note.State;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-    //REQ CODES
+    // REQ CODES
     private static final int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
     private static final int REQ_CAMERA = 3;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
     private static final String NOTE = "note";
 
-    //Views
+    // Views
     private EditText etNote;
     private TextView tvPosition;
     private TextView tvDate;
@@ -64,8 +65,8 @@ public class MainActivity extends AppCompatActivity {
     private ImageListAdapter adapterImage;
     private AudioListAdapter adapterAudio;
 
-    //Gps stuffs
-    private GpsHandler gpsHandler;
+    // Gps stuffs
+    private GpsHelper gpsHelper;
     private Location currentLocation;
     private long gpsRefreshRate = 10000;
 
@@ -86,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
 
         bioMapsResolver = new BioMapsResolver(this);
         sharedPrefStorage = new StorageHelper(MainActivity.this);
-        gpsHandler = new GpsHandler(MainActivity.this);
+        gpsHelper = new GpsHelper(MainActivity.this);
         fileHelper = new FileHelper(getApplicationContext());
 
         if (savedInstanceState != null) {
@@ -132,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 // If GPS is on
-                currentLocation = gpsHandler.getLocation();
+                currentLocation = GpsHelper.getLocation();
                 if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
                     note.setLocation(currentLocation);
                     note.setDate(new Date());
@@ -144,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
                     progressGps.setVisibility(View.VISIBLE);
                     tvPosition.setText(R.string.waiting_for_gps);
 
-                    gpsHandler.setExternalListener(new ExternalLocationListener());
+                    gpsHelper.setExternalListener(new ExternalLocationListener());
                 }
             }
         });
@@ -167,7 +168,8 @@ public class MainActivity extends AppCompatActivity {
                     startActivityForResult(intent,
                             REQ_RECORDING);
                 } else {
-                    //TODO Handle situation
+                    // TODO Some devices might not have an Audio recorder
+                    // we should create our own for this situation
                 }
             }
         });
@@ -185,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (note.getLocation() == null) {
-                    // TODO Dialog might be better
                     Toast.makeText(MainActivity.this, R.string.no_location, Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -232,13 +233,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        gpsHandler.onResume();
+        gpsHelper.onResume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        gpsHandler.onPause();
+        gpsHelper.onPause();
 
         note.setComment(etNote.getText().toString());
         saveNote();
@@ -263,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri selectedImageUri = intent.getData();
                 selectedImagePath = selectedImageUri.getPath();
-                String galleryPath = fileHelper.getPath(this, selectedImageUri);
+                String galleryPath = FileHelper.getPath(this, selectedImageUri);
                 if (galleryPath != null) {
                     selectedImagePath = galleryPath;
                 }
@@ -289,8 +290,6 @@ public class MainActivity extends AppCompatActivity {
             updateUI();
         }
 
-        // TODO resultCode is CANCELED if do not attach in the voice recorder, but simply press back.
-        // Is there anything we could do about it?
         if (requestCode == REQ_RECORDING) {
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
@@ -301,8 +300,6 @@ public class MainActivity extends AppCompatActivity {
                 note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
-            } else {
-                Toast.makeText(getApplicationContext(), R.string.error_audio_capture_text, Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode,
@@ -334,13 +331,13 @@ public class MainActivity extends AppCompatActivity {
             alertDialogBuilder
                     .setCancelable(false)
                     .setTitle(R.string.settings_server_title)
-                    .setPositiveButton(R.string.settings_save,
+                    .setPositiveButton(R.string.save,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
                                 }
                             })
-                    .setNegativeButton(R.string.settings_cancel,
+                    .setNegativeButton(R.string.cancel,
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     dialog.cancel();
@@ -384,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
             tvPosition.setText(note.getLocationString(this));
             buttonShowMap.setEnabled(true);
         } else {
-            tvPosition.setText(R.string.tv_position_text);
+            tvPosition.setText(R.string.tv_position);
             buttonShowMap.setEnabled(false);
         }
 
@@ -428,12 +425,12 @@ public class MainActivity extends AppCompatActivity {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.dialog_text_gps)
                 .setCancelable(false)
-                .setPositiveButton(R.string.dialog_text_yes, new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
-                .setNegativeButton(R.string.dialog_text_no, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                     public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         dialog.cancel();
                     }
@@ -457,7 +454,7 @@ public class MainActivity extends AppCompatActivity {
     private void showImageSourceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.title_image_source_dialog);
-        builder.setNeutralButton(R.string.image_source_cancel, null);
+        builder.setNeutralButton(R.string.cancel, null);
         builder.setItems(R.array.image_source, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -515,7 +512,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-                gpsHandler.setExternalListener(null);
+                gpsHelper.setExternalListener(null);
                 progressGps.setVisibility(View.GONE);
                 currentLocation = location;
                 note.setLocation(currentLocation);

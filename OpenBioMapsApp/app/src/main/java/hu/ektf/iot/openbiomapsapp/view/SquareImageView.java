@@ -12,7 +12,7 @@ import hu.ektf.iot.openbiomapsapp.R;
  */
 public class SquareImageView extends ImageView {
 
-    public static enum FixedAlong {
+    public enum FixedAlong {
         width, height
     }
 
