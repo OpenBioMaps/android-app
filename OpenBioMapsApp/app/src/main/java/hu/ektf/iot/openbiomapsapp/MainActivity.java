@@ -52,8 +52,6 @@ public class MainActivity extends AppCompatActivity {
 
     // State key constants
     private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
-    private static final String IMAGES_LIST = "imagesList";
-    private static final String AUDIOS_LIST = "audiosList";
     private static final String NOTE = "note";
 
     //Views
@@ -70,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     private GpsHandler gpsHandler;
     private Location currentLocation;
     private long gpsRefreshRate = 10000;
-    private long timeStamp;
 
     // Persistence
     private BioMapsResolver bioMapsResolver;
@@ -80,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
     private FileHelper fileHelper;
     private Note note;
     private String selectedImagePath;
-    private String soundPath = "";
     private File imageFile;
 
     @Override
@@ -219,10 +215,11 @@ public class MainActivity extends AppCompatActivity {
         adapterAudio.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String audioUrl = note.getSoundsList().get(position);
+                Uri myUri = Uri.fromFile(new File(audioUrl));
+
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
-                String audiourl = note.getSoundsList().get(position);
-                Uri myUri = Uri.fromFile(new File(audiourl));
                 intent.setDataAndType(myUri, "audio/*");
                 startActivity(intent);
 

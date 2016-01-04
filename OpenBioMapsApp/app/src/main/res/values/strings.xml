@@ -28,8 +28,11 @@
     <string name="export_progressbar_progress">Exportálás foylamatban...</string>
 
     <string name="dialog_export_title">Exportálás</string>
-    <string name="dialog_export_path">Az exportálás helye:</string>
+    <string name="dialog_export_path">Az exportálás helye:\n%1$s</string>
     <string name="dialog_export_text_yes">Exportálás</string>
+
+    <string name="dialog_details_title">Részletek</string>
+    <string name="dialog_details_message">Url: %1$s\nResponse: %2$s</string>
 
     <string name="title_image_chooser">Válassz képet</string>
     <string name="no_file">Fájl létrehozása nem sikerült</string>

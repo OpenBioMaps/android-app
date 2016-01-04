@@ -36,7 +36,7 @@ public class Note implements Parcelable {
 
         private final int value;
 
-        private State(int value) {
+        State(int value) {
             this.value = value;
         }
 
@@ -75,19 +75,6 @@ public class Note implements Parcelable {
         imagesList = new ArrayList<>();
         soundsList = new ArrayList<>();
         state = State.CREATED;
-    }
-
-    public Note(Integer id, String comment, Location location, Date date, ArrayList<String> imagesList, ArrayList<String> soundsList, State state, String url, String response) {
-        this();
-        setId(id);
-        setComment(comment);
-        setLocation(location);
-        setDate(date);
-        setImagesList(imagesList);
-        setSoundsList(soundsList);
-        setState(state);
-        setUrl(url);
-        setResponse(response);
     }
 
     public ContentValues getContentValues() {

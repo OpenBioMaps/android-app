@@ -86,6 +86,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
             JsonElement response = mapsService.uploadNote("abc123", "PFS", "mapp", noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
 
+            noteToSync.setResponse(response.toString());
             noteToSync.setState(State.UPLOADED);
             bioMapsResolver.updateNote(noteToSync);
 

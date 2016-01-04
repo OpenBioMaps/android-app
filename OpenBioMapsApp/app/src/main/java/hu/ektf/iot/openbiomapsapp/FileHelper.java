@@ -1,6 +1,5 @@
 package hu.ektf.iot.openbiomapsapp;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
@@ -27,80 +26,6 @@ public class FileHelper {
         this.context = context;
     }
 
-    @SuppressLint("NewApi")
-    public String getImagePath(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
-
-        String[] projection = {MediaStore.Images.Media.DATA};
-
-        Cursor cursor;
-        if (Build.VERSION.SDK_INT > 19) {
-            // Will return "image:x*"
-            String wholeID = DocumentsContract.getDocumentId(uri);
-            // Split at colon, use second item in the array
-            String id = wholeID.contains(":") ? wholeID.split(":")[1] : wholeID;
-            // where id is equal to
-            String sel = MediaStore.Images.Media._ID + "=?";
-
-            cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    projection, sel, new String[]{id}, null);
-        } else {
-            cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        }
-        String path = null;
-
-        try {
-            int column_index = cursor
-                    .getColumnIndex(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            path = cursor.getString(column_index).toString();
-            cursor.close();
-        } catch (NullPointerException e) {
-            // Nothing to do, will return null
-        }
-
-        return path;
-    }
-
-    @SuppressLint("NewApi")
-    public String getAudioPath(Uri uri) {
-        if (uri == null) {
-            return null;
-        }
-
-        String[] projection = {MediaStore.Audio.Media.DATA};
-
-        Cursor cursor;
-        if (Build.VERSION.SDK_INT > 19) {
-            // Will return "image:x*"
-            String wholeID = DocumentsContract.getDocumentId(uri);
-            // Split at colon, use second item in the array
-            String id = wholeID.contains(":") ? wholeID.split(":")[1] : wholeID;
-            // where id is equal to
-            String sel = MediaStore.Audio.Media._ID + "=?";
-
-            cursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    projection, sel, new String[]{id}, null);
-        } else {
-            cursor = context.getContentResolver().query(uri, projection, null, null, null);
-        }
-        String path = null;
-
-        try {
-            int column_index = cursor
-                    .getColumnIndex(MediaStore.Audio.Media.DATA);
-            cursor.moveToFirst();
-            path = cursor.getString(column_index).toString();
-            cursor.close();
-        } catch (NullPointerException e) {
-            // Nothing to do, will return null
-        }
-
-        return path;
-    }
-
     /**
      * This method creates an File object helping the image uploading process.
      *
@@ -111,14 +36,12 @@ public class FileHelper {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
                 .format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
+        String imageFileName = "IMG_" + timeStamp + ".jpg";
         File storageDir = Environment
                 .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-        File image = File.createTempFile(imageFileName, /* prefix */
-                ".jpg", /* suffix */
-                storageDir /* directory */
-        );
+        File image = new File(storageDir.getPath() + File.separator
+                + imageFileName);
         return image;
     }
 

@@ -48,41 +48,41 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
         final StorageHelper sh = new StorageHelper(UploadActivity.this);
 
+        buttonExportAll = (Button) findViewById(R.id.buttonExport);
+        buttonExportAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ExportAsyncTask exportTask = new ExportAsyncTask();
+                exportTask.execute();
+            }
+        });
+
+        tvEmpty = (TextView) findViewById(R.id.textViewEmpty);
+
         recyclerView = (RecyclerView) findViewById(R.id.recyclerUploadList);
         recyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
-        buttonExportAll = (Button) findViewById(R.id.buttonExport);
-
-        tvEmpty = (TextView) findViewById(R.id.textViewEmpty);
 
         adapter = new NoteCursorAdapter(this, null);
-        buttonExportAll.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ExportAsyncTask ae = new ExportAsyncTask();
-                ae.execute();
-            }
-        });
-
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
                 final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
 
                 alertDialogBuilder.setTitle(getString(R.string.dialog_export_title));
-                alertDialogBuilder.setMessage(getString(R.string.dialog_export_path) + "\n" + sh.getExportPath());
+                alertDialogBuilder.setMessage(getString(R.string.dialog_export_path, sh.getExportPath()));
 
                 alertDialogBuilder.setPositiveButton(getString(R.string.dialog_export_text_yes), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
-                        Cursor c = adapter.getCursor();
-                        c.moveToPosition(position);
-                        Note n = NoteCreator.getNoteFromCursor(c);
+                        Cursor cursor = adapter.getCursor();
+                        cursor.moveToPosition(position);
+                        Note note = NoteCreator.getNoteFromCursor(cursor);
                         try {
-                            ExportHelper.exportNote(n);
+                            ExportHelper.exportNote(note);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -100,10 +100,25 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             }
         });
 
+        adapter.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Cursor cursor = adapter.getCursor();
+                cursor.moveToPosition(position);
+                Note note = NoteCreator.getNoteFromCursor(cursor);
+
+                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
+                alertDialogBuilder.setTitle(getString(R.string.dialog_details_title));
+                alertDialogBuilder.setMessage(getString(R.string.dialog_details_message, note.getUrl(), note.getResponse()));
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
+                return false;
+            }
+        });
+
         recyclerView.setAdapter(adapter);
 
         getSupportLoaderManager().initLoader(NOTE_LOADER, null, this);
-
     }
 
 
