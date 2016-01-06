@@ -41,12 +41,53 @@
             android:scrollbarAlwaysDrawVerticalTrack="true"
             android:textSize="18sp" />
 
+
+        <LinearLayout
+            android:id="@+id/quick_button_wrapper"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etNote"
+            android:layout_marginTop="4dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button_quick_a"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:tag="A"
+                android:text="A" />
+
+            <Button
+                android:id="@+id/button_quick_b"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:tag="B"
+                android:text="B" />
+
+            <Button
+                android:id="@+id/button_quick_c"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:tag="C"
+                android:text="C" />
+
+            <Button
+                android:id="@+id/button_quick_d"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:tag="D"
+                android:text="D" />
+        </LinearLayout>
+
         <Button
             android:id="@+id/buttonPosition"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/etNote"
-            android:layout_marginTop="8dp"
+            android:layout_below="@+id/quick_button_wrapper"
             android:layout_toLeftOf="@+id/strut"
             android:layout_toStartOf="@+id/strut"
             android:padding="5dp"
@@ -56,6 +97,7 @@
             android:id="@+id/strut"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_below="@+id/quick_button_wrapper"
             android:layout_centerHorizontal="true"
             android:visibility="invisible" />
 
@@ -64,8 +106,7 @@
             style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/etNote"
-            android:layout_marginTop="8dp"
+            android:layout_below="@+id/quick_button_wrapper"
             android:layout_toEndOf="@id/strut"
             android:layout_toRightOf="@+id/strut"
             android:enabled="false"

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">OpenBioMaps</string>
+    <string name="title_activity_settings">Beállítások</string>
     <string name="title_activity_upload">Feltöltés</string>
 
     <!-- General -->
@@ -30,6 +31,7 @@
     <string name="tv_no_gps_data">Nincs GPS érték! Próbálja újra!</string>
     <string name="tv_voice_records">Hangfelvételek: </string>
     <string name="tv_location">szélesség: %1$f \nhosszúság: %2$f</string>
+    <string name="tv_quick_note">Gyorsjegyzet beállítása</string>
     <string name="waiting_for_gps">Lekérdezés folyamatban...</string>
     <string name="emptylist">Nem található jegyzet az adatbázisban!</string>
 
@@ -38,12 +40,15 @@
     <string name="error_no_location">Pozíció rögzítése kötelező</string>
 
     <!-- Dialog strings -->
-    <string name="dialog_text_gps">Nincs bekapcsolva a készüléken a GPS. Engedélyezi annak bekapcsolását?</string>
-    <string name="settings_server_title">Szerver elérhetősége</string>
+    <string name="dialog_gps_off_message">Nincs bekapcsolva a készüléken a GPS. Engedélyezed annak bekapcsolását?</string>
+    <string name="dialog_set_server_url_title">Szerver elérhetősége</string>
 
-    <string name="export_progressbar_title">Exportálás</string>
-    <string name="export_progressbar_cancel">Megszakítás</string>
-    <string name="export_progressbar_progress">Exportálás foylamatban...</string>
+    <string name="progress_export_title">Exportálás</string>
+    <string name="progress_export_cancel">Megszakítás</string>
+    <string name="progress_export_progress">Exportálás foylamatban...</string>
+
+    <string name="dialog_no_quick_note_title">Nincs jegyzet</string>
+    <string name="dialog_no_quick_note_message">Nincs megadva ilyen gyorsjegyzet. Szeretnéd most megadni?</string>
 
     <string name="dialog_export_title">Exportálás</string>
     <string name="dialog_export_path">Az exportálás helye:\n%1$s</string>
@@ -54,8 +59,8 @@
 
     <string name="dialog_change_url_title">Url módosítás</string>
 
-    <string name="title_image_chooser">Válassz képet</string>
-    <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
+    <string name="dialog_image_source_title">Meglévő kép csatolása vagy kép készítése</string>
+    <string name="dialog_image_chooser_title">Válassz forrást</string>
 
     <string-array name="image_source">
         <item>SD kártya</item>

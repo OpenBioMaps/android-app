@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         buttonSave = (Button) findViewById(R.id.buttonReset);
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
 
-        int unitWidth = getListUnitWidth();
+        int unitWidth = getListItemWidth();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         imageRecycler.setLayoutManager(layoutManager);
         RecyclerView.LayoutManager layoutAudio = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // If GPS is off, show a dialog
                 if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    buildDialogNoGps();
+                    showNoGpsDialog();
                     return;
                 }
                 // If GPS is on
@@ -208,6 +208,13 @@ public class MainActivity extends AppCompatActivity {
                 updateUI();
             }
         });
+
+        // Quick note click handling
+        QuickNoteClickListener quickListener = new QuickNoteClickListener();
+        findViewById(R.id.button_quick_a).setOnClickListener(quickListener);
+        findViewById(R.id.button_quick_b).setOnClickListener(quickListener);
+        findViewById(R.id.button_quick_c).setOnClickListener(quickListener);
+        findViewById(R.id.button_quick_d).setOnClickListener(quickListener);
 
         adapterImage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -316,15 +323,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_upload:
+            case R.id.action_upload: {
                 Intent intent = new Intent(MainActivity.this, UploadActivity.class);
                 startActivity(intent);
                 return true;
-            case R.id.action_server_settings:
+            }
+            case R.id.action_server_settings: {
                 showServerUrlDialog();
                 return true;
-            default:
+            }
+            case R.id.action_app_settings: {
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            }
+            default: {
                 return super.onOptionsItemSelected(item);
+            }
         }
     }
 
@@ -340,7 +355,7 @@ public class MainActivity extends AppCompatActivity {
         new AlertDialog.Builder(MainActivity.this)
                 .setView(dialogView)
                 .setCancelable(false)
-                .setTitle(R.string.settings_server_title)
+                .setTitle(R.string.dialog_set_server_url_title)
                 .setPositiveButton(R.string.save,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -392,7 +407,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private int getListUnitWidth() {
+    private int getListItemWidth() {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
         float unitDpWidth = ((dpWidth - 32) / 3);
@@ -402,7 +417,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void createAdapters() {
-        int unitWidth = getListUnitWidth();
+        int unitWidth = getListItemWidth();
         adapterImage = new ImageListAdapter(note.getImagesList());
         adapterAudio = new AudioListAdapter(note.getSoundsList());
         adapterImage.setImageSize(unitWidth);
@@ -422,23 +437,17 @@ public class MainActivity extends AppCompatActivity {
         audioRecycler.setLayoutParams(params2);
     }
 
-    // TODO Separating dialogs in a DialogHelper?
-    private void buildDialogNoGps() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.dialog_text_gps)
+    private void showNoGpsDialog() {
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.dialog_gps_off_message)
                 .setCancelable(false)
                 .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                     public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
                         startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                     }
                 })
-                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                    public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        dialog.cancel();
-                    }
-                });
-        final AlertDialog alert = builder.create();
-        alert.show();
+                .setNegativeButton(R.string.no, null)
+                .create().show();
     }
 
     //this method checks that the common intent is available or not
@@ -454,34 +463,32 @@ public class MainActivity extends AppCompatActivity {
      * This function shows an Dialog helping the image uploading process.
      */
     private void showImageSourceDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.title_image_source_dialog);
-        builder.setNeutralButton(R.string.cancel, null);
-        builder.setItems(R.array.image_source, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-                    case 0:
-                        dispatchChooseImageIntent();
-                        break;
-                    case 1:
-                        dispatchTakePictureIntent();
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.dialog_image_source_title)
+                .setItems(R.array.image_source, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                dispatchChooseImageIntent();
+                                break;
+                            case 1:
+                                dispatchTakePictureIntent();
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                })
+                .setNeutralButton(R.string.cancel, null)
+                .create().show();
     }
 
     private void dispatchChooseImageIntent() {
         Intent intent = new Intent();
         intent.setType("image/*");
         intent.setAction(Intent.ACTION_PICK);
-        startActivityForResult(Intent.createChooser(intent, getString(R.string.title_image_chooser)),
+        startActivityForResult(Intent.createChooser(intent, getString(R.string.dialog_image_chooser_title)),
                 REQ_IMAGE_CHOOSER);
     }
 
@@ -507,6 +514,37 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Toast.makeText(this, R.string.error_no_file, Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+    private class QuickNoteClickListener implements View.OnClickListener {
+        @Override
+        public void onClick(View v) {
+            String noteLetter = (String) v.getTag();
+            String quickNote = sharedPrefStorage.getQuickNote(noteLetter);
+
+            if (TextUtils.isEmpty(quickNote)) {
+                showNoQuickNoteDialog();
+                return;
+            }
+
+            etNote.setText(quickNote);
+            etNote.setSelection(quickNote.length());
+            note.setComment(quickNote);
+            saveNote();
+        }
+
+        private void showNoQuickNoteDialog() {
+            new AlertDialog.Builder(MainActivity.this)
+                    .setTitle(R.string.dialog_no_quick_note_title)
+                    .setMessage(R.string.dialog_no_quick_note_message)
+                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                        }
+                    })
+                    .setNegativeButton(R.string.no, null)
+                    .create().show();
         }
     }
 
