@@ -86,8 +86,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bioMapsResolver = new BioMapsResolver(this);
-        sharedPrefStorage = new StorageHelper(MainActivity.this);
-        gpsHelper = new GpsHelper(MainActivity.this);
+        sharedPrefStorage = new StorageHelper(this);
+        gpsHelper = new GpsHelper(this);
         fileHelper = new FileHelper(getApplicationContext());
 
         if (savedInstanceState != null) {
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String url = sharedPrefStorage.getServerUrl();
-                if(TextUtils.isEmpty(url)){
+                if (TextUtils.isEmpty(url)) {
                     showServerUrlDialog();
                     return;
                 }
@@ -315,7 +315,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.action_upload:
                 Intent intent = new Intent(MainActivity.this, UploadActivity.class);
                 startActivity(intent);
@@ -328,21 +328,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void showServerUrlDialog(){
+    private void showServerUrlDialog() {
         LayoutInflater li = LayoutInflater.from(MainActivity.this);
         View dialogView = li.inflate(R.layout.dialog_server_settings, null);
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                MainActivity.this);
-        alertDialogBuilder.setView(dialogView);
-
         final EditText etServerUrl = (EditText) dialogView
                 .findViewById(R.id.etServerUrl);
-
         etServerUrl.setText(sharedPrefStorage.getServerUrl());
         etServerUrl.setSelection(etServerUrl.getText().length());
 
-        alertDialogBuilder
+        new AlertDialog.Builder(MainActivity.this)
+                .setView(dialogView)
                 .setCancelable(false)
                 .setTitle(R.string.settings_server_title)
                 .setPositiveButton(R.string.save,
@@ -351,14 +347,8 @@ public class MainActivity extends AppCompatActivity {
                                 sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
                             }
                         })
-                .setNegativeButton(R.string.cancel,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.cancel();
-                            }
-                        });
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+                .setNegativeButton(R.string.cancel, null)
+                .create().show();
     }
 
     private void createNote() {

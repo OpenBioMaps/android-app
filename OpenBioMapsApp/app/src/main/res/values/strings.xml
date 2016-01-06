@@ -52,12 +52,19 @@
     <string name="dialog_details_title">Részletek</string>
     <string name="dialog_details_message">Url: %1$s\n\nResponse: %2$s</string>
 
+    <string name="dialog_change_url_title">Url módosítás</string>
+
     <string name="title_image_chooser">Válassz képet</string>
     <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>
 
     <string-array name="image_source">
         <item>SD kártya</item>
         <item>Kép készítése</item>
+    </string-array>
+
+    <string-array name="note_context">
+        <item>@string/dialog_export_title</item>
+        <item>@string/dialog_change_url_title</item>
     </string-array>
 
 </resources>

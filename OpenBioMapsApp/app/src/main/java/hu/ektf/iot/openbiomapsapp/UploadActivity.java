@@ -13,12 +13,16 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.NoteCursorAdapter;
@@ -40,13 +44,14 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     private TextView tvEmpty;
 
     private ExportAsyncTask exportTask;
+    private StorageHelper sharedPrefStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload);
 
-        final StorageHelper sh = new StorageHelper(UploadActivity.this);
+        sharedPrefStorage = new StorageHelper(this);
 
         buttonExportAll = (Button) findViewById(R.id.buttonExport);
         buttonExportAll.setOnClickListener(new View.OnClickListener() {
@@ -70,48 +75,16 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
-
-                alertDialogBuilder.setTitle(getString(R.string.dialog_export_title));
-                alertDialogBuilder.setMessage(getString(R.string.dialog_export_path, sh.getExportPath()));
-
-                alertDialogBuilder.setPositiveButton(getString(R.string.dialog_export_text_yes), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        Cursor cursor = adapter.getCursor();
-                        cursor.moveToPosition(position);
-                        Note note = NoteCreator.getNoteFromCursor(cursor);
-                        try {
-                            ExportHelper.exportNote(note);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
-                alertDialogBuilder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                Note note = getNoteByPosition(position);
+                showDetailDialog(note);
             }
         });
 
         adapter.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor cursor = adapter.getCursor();
-                cursor.moveToPosition(position);
-                Note note = NoteCreator.getNoteFromCursor(cursor);
-
-                final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(UploadActivity.this);
-                alertDialogBuilder.setTitle(getString(R.string.dialog_details_title));
-                alertDialogBuilder.setMessage(getString(R.string.dialog_details_message, note.getUrl(), note.getResponse()));
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                Note note = getNoteByPosition(position);
+                showContextMenu(note);
                 return false;
             }
         });
@@ -121,6 +94,91 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         getSupportLoaderManager().initLoader(NOTE_LOADER, null, this);
     }
 
+    private Note getNoteByPosition(int position) {
+        Cursor cursor = adapter.getCursor();
+        cursor.moveToPosition(position);
+        Note note = NoteCreator.getNoteFromCursor(cursor);
+        return note;
+    }
+
+    private void showDetailDialog(final Note note) {
+        new AlertDialog.Builder(UploadActivity.this)
+                .setTitle(getString(R.string.dialog_details_title))
+                .setMessage(getString(R.string.dialog_details_message, note.getUrl(), note.getResponse()))
+                .create().show();
+    }
+
+    private void showContextMenu(final Note note) {
+        new AlertDialog.Builder(UploadActivity.this)
+                .setItems(R.array.note_context, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case 0:
+                                showExportDialog(note);
+                                break;
+                            case 1:
+                                showChangeUrlDialog(note);
+                                break;
+                        }
+                    }
+                })
+                .create().show();
+    }
+
+    private void showExportDialog(final Note note) {
+        new AlertDialog.Builder(UploadActivity.this)
+                .setTitle(getString(R.string.dialog_export_title))
+                .setMessage(getString(R.string.dialog_export_path, sharedPrefStorage.getExportPath()))
+                .setPositiveButton(getString(R.string.dialog_export_text_yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        ExportAsyncTask exportTask = new ExportAsyncTask();
+                        exportTask.execute(note);
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
+                .create().show();
+    }
+
+    private void showChangeUrlDialog(final Note note) {
+        LayoutInflater li = LayoutInflater.from(UploadActivity.this);
+        View dialogView = li.inflate(R.layout.dialog_server_settings, null);
+
+        final EditText etServerUrl = (EditText) dialogView
+                .findViewById(R.id.etServerUrl);
+        etServerUrl.setText(note.getUrl());
+        etServerUrl.setSelection(etServerUrl.getText().length());
+
+        new AlertDialog.Builder(
+                UploadActivity.this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .setTitle(R.string.dialog_change_url_title)
+                .setPositiveButton(R.string.save,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                String newUrl = etServerUrl.getText().toString();
+                                if (TextUtils.isEmpty(newUrl) || TextUtils.equals(note.getUrl(), newUrl)) {
+                                    return;
+                                }
+
+                                note.setState(Note.State.CLOSED);
+                                note.setResponse("");
+                                note.setUrl(newUrl);
+
+                                try {
+                                    BioMapsResolver bioMapsResolver = new BioMapsResolver(UploadActivity.this);
+                                    bioMapsResolver.updateNote(note);
+                                    ((BioMapsApplication) getApplication()).requestSync();
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, null)
+                .create().show();
+    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
@@ -142,8 +200,8 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(data);
         if (adapter.getItemCount() == 0) {
             tvEmpty.setVisibility(View.VISIBLE);
-           buttonExportAll.setVisibility(View.GONE);
-           recyclerView.setVisibility(View.GONE);
+            buttonExportAll.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.GONE);
         }
     }
 
@@ -152,17 +210,21 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(null);
     }
 
-    class ExportAsyncTask extends AsyncTask<Void, Integer, String> {
+    class ExportAsyncTask extends AsyncTask<Note, Integer, String> {
         @Override
-        protected String doInBackground(Void... params) {
+        protected String doInBackground(Note... params) {
             try {
-                ArrayList<Note> allNote = new BioMapsResolver(UploadActivity.this).getAllNote();
-                int count = allNote.size();
+                ArrayList<Note> notes = new ArrayList<>(Arrays.asList(params));
+                if (notes.isEmpty()) {
+                    notes = new BioMapsResolver(UploadActivity.this).getAllNote();
+                }
+
+                int count = notes.size();
                 for (int i = 0; i < count; i++) {
                     if (isCancelled()) break;
-                    if (allNote.get(i).getState() == Note.State.CREATED) break;
+                    if (notes.get(i).getState() == Note.State.CREATED) continue;
 
-                    ExportHelper.exportNote(allNote.get(i));
+                    ExportHelper.exportNote(notes.get(i));
                     publishProgress((int) ((i / (float) count) * 100));
                 }
             } catch (RemoteException e) {
