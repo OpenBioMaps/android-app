@@ -7,14 +7,14 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 
-import com.google.gson.JsonElement;
-
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 import hu.ektf.iot.openbiomapsapp.object.Note.State;
+import retrofit.client.Response;
+import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
@@ -58,8 +58,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     public void onPerformSync(Account account, Bundle bundle, String s, ContentProviderClient contentProviderClient, SyncResult syncResult) {
         Timber.v("Wow! Such sync, so upload!");
 
-        Timber.v("isSyncing is " + String.valueOf(isSyncing));
-        // TODO Should it be handled thread safe?
         if (!isSyncing) {
             isSyncing = true;
             doSync();
@@ -78,15 +76,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 return;
             }
 
-            endpoint.setUrl(noteToSync.getUrl());
-
             Timber.d("Upload started");
             noteToSync.setState(State.UPLOADING);
             bioMapsResolver.updateNote(noteToSync);
-            Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
-            JsonElement response = mapsService.uploadNote("abc123", "PFS", "mapp", noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
 
-            noteToSync.setResponse(response.toString());
+            endpoint.setUrl(noteToSync.getUrl());
+            Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
+            Response response = mapsService.uploadNote(noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
+            String respStr = new String(((TypedByteArray) response.getBody()).getBytes());
+
+            noteToSync.setResponse(respStr);
             noteToSync.setState(State.UPLOADED);
             bioMapsResolver.updateNote(noteToSync);
 
@@ -96,6 +95,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             if (noteToSync != null) {
                 try {
+                    noteToSync.setResponse("EXCEPTION: " + ex.toString());
                     noteToSync.setState(State.UPLOAD_ERROR);
                     bioMapsResolver.updateNote(noteToSync);
                 } catch (Exception e) {

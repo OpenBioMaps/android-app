@@ -4,8 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Environment;
 
-import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
-
 /**
  * Created by Csaba on 2015. 10. 28..
  */
@@ -14,7 +12,6 @@ public class StorageHelper {
 
     private static final String KEY_SERVER_URL = "KEY_SERVER_URL";
     private static final String KEY_EXPORT_PATH = "KEY_EXPORT_PATH";
-    private static final String DEFAULT_SERVER_URL = BioMapsApplication.DEFAULT_END_POINT;
     private static final String DEFAULT_EXPORT_PATH = Environment.getExternalStorageDirectory() + "/openbiomaps/";
 
     private Context context;
@@ -32,7 +29,7 @@ public class StorageHelper {
     }
 
     public String getServerUrl() {
-        return sharedPreferences.getString(KEY_SERVER_URL, DEFAULT_SERVER_URL);
+        return sharedPreferences.getString(KEY_SERVER_URL, null);
     }
 
     public void setServerUrl(String newServerUrl) {

@@ -186,13 +186,19 @@ public class MainActivity extends AppCompatActivity {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                String url = sharedPrefStorage.getServerUrl();
+                if(TextUtils.isEmpty(url)){
+                    showServerUrlDialog();
+                    return;
+                }
+
                 if (note.getLocation() == null) {
-                    Toast.makeText(MainActivity.this, R.string.no_location, Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, R.string.error_no_location, Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 note.setComment(etNote.getText().toString());
-                note.setUrl(sharedPrefStorage.getServerUrl());
+                note.setUrl(url);
                 note.setState(State.CLOSED);
                 saveNote();
                 ((BioMapsApplication) getApplication()).requestSync();
@@ -309,44 +315,50 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_upload) {
-            Intent intent = new Intent(MainActivity.this, UploadActivity.class);
-            startActivity(intent);
+        switch (item.getItemId()){
+            case R.id.action_upload:
+                Intent intent = new Intent(MainActivity.this, UploadActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.action_server_settings:
+                showServerUrlDialog();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-        if (id == R.id.action_server_settings) {
-            LayoutInflater li = LayoutInflater.from(MainActivity.this);
-            View dialogView = li.inflate(R.layout.dialog_server_settings, null);
+    }
 
-            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
-                    MainActivity.this);
-            alertDialogBuilder.setView(dialogView);
+    private void showServerUrlDialog(){
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        View dialogView = li.inflate(R.layout.dialog_server_settings, null);
 
-            final EditText etServerUrl = (EditText) dialogView
-                    .findViewById(R.id.etServerUrl);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(
+                MainActivity.this);
+        alertDialogBuilder.setView(dialogView);
 
-            etServerUrl.setText(sharedPrefStorage.getServerUrl());
-            etServerUrl.setSelection(etServerUrl.getText().length());
+        final EditText etServerUrl = (EditText) dialogView
+                .findViewById(R.id.etServerUrl);
 
-            alertDialogBuilder
-                    .setCancelable(false)
-                    .setTitle(R.string.settings_server_title)
-                    .setPositiveButton(R.string.save,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
-                                }
-                            })
-                    .setNegativeButton(R.string.cancel,
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            });
-            AlertDialog alertDialog = alertDialogBuilder.create();
-            alertDialog.show();
-        }
-        return super.onOptionsItemSelected(item);
+        etServerUrl.setText(sharedPrefStorage.getServerUrl());
+        etServerUrl.setSelection(etServerUrl.getText().length());
+
+        alertDialogBuilder
+                .setCancelable(false)
+                .setTitle(R.string.settings_server_title)
+                .setPositiveButton(R.string.save,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
+                            }
+                        })
+                .setNegativeButton(R.string.cancel,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        });
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     private void createNote() {
@@ -393,7 +405,7 @@ public class MainActivity extends AppCompatActivity {
     private int getListUnitWidth() {
         DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
         float dpWidth = displayMetrics.widthPixels / displayMetrics.density;
-        float unitDpWidth = (((dpWidth - 16) / 3) + 5);
+        float unitDpWidth = ((dpWidth - 32) / 3);
         // TODO Do it more robust (using getDimension)
         int unitPixelWidth = (int) (unitDpWidth * displayMetrics.density);
         return unitPixelWidth;
@@ -503,7 +515,7 @@ public class MainActivity extends AppCompatActivity {
 
                 startActivityForResult(takePictureIntent, REQ_CAMERA);
             } else {
-                Toast.makeText(this, R.string.no_file, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.error_no_file, Toast.LENGTH_LONG).show();
             }
         }
     }

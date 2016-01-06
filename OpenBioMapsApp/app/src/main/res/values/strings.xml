@@ -34,8 +34,8 @@
     <string name="emptylist">Nem található jegyzet az adatbázisban!</string>
 
     <!-- Errors -->
-    <string name="no_file">Fájl létrehozása nem sikerült</string>
-    <string name="no_location">Pozíció rögzítése kötelező</string>
+    <string name="error_no_file">Fájl létrehozása nem sikerült</string>
+    <string name="error_no_location">Pozíció rögzítése kötelező</string>
 
     <!-- Dialog strings -->
     <string name="dialog_text_gps">Nincs bekapcsolva a készüléken a GPS. Engedélyezi annak bekapcsolását?</string>
@@ -50,7 +50,7 @@
     <string name="dialog_export_text_yes">Exportálás</string>
 
     <string name="dialog_details_title">Részletek</string>
-    <string name="dialog_details_message">Url: %1$s\nResponse: %2$s</string>
+    <string name="dialog_details_message">Url: %1$s\n\nResponse: %2$s</string>
 
     <string name="title_image_chooser">Válassz képet</string>
     <string name="title_image_source_dialog">Meglévő kép csatolása vagy kép készítése</string>

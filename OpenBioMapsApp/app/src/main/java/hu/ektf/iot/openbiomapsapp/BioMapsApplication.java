@@ -21,13 +21,11 @@ public class BioMapsApplication extends Application {
     public static final String ACCOUNT_NAME = "default";
     private Account account;
 
-    public static final String DEFAULT_END_POINT = "http://openbiomaps.org/pds";
     private DynamicEndpoint dynamicEndpoint;
     private BioMapsServiceInterface mapsService;
 
     private void setupRetrofit() {
         dynamicEndpoint = new DynamicEndpoint();
-        dynamicEndpoint.setUrl(DEFAULT_END_POINT);
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setEndpoint(dynamicEndpoint)
                 .setLogLevel(getRetrofitLogLevel())
