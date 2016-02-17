@@ -244,13 +244,13 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         @Override
         protected void onPreExecute() {
             barProgressDialog = new ProgressDialog(UploadActivity.this);
-            barProgressDialog.setTitle(getString(R.string.progress_export_title));
-            barProgressDialog.setMessage(getString(R.string.progress_export_progress));
+            barProgressDialog.setTitle(getString(R.string.dialog_export_progress_title));
+            barProgressDialog.setMessage(getString(R.string.dialog_export_progress_progress));
             barProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             barProgressDialog.setProgress(0);
             barProgressDialog.setMax(100);
             barProgressDialog.setCancelable(false);
-            barProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.progress_export_cancel), new DialogInterface.OnClickListener() {
+            barProgressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, getString(R.string.dialog_export_progress_cancel), new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                     dialog.dismiss();
