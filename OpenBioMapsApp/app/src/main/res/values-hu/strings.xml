@@ -53,5 +53,7 @@
     <string name="tv_location">szélesség: %1$f \nhosszúság: %2$f</string>
     <string name="tv_quick_note">Gyorsjegyzet beállítása</string>
     <string name="tv_position">Rögzítse pozícióját!</string>
+    <string name="dialog_delete_title">Törlés</string>
+    <string name="dialog_delete_message">Biztos törölni szeretné ezt a bejegyzést?</string>
 
 </resources>

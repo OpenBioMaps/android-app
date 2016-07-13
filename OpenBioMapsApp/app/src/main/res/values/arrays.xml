@@ -8,5 +8,8 @@
     <string-array name="note_context">
         <item>@string/dialog_export_title</item>
         <item>@string/dialog_change_url_title</item>
+        <item>@string/dialog_delete_title</item>
     </string-array>
+
+
 </resources>

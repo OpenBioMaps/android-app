@@ -33,6 +33,7 @@ import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.object.Note;
+import timber.log.Timber;
 
 public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     private static final int NOTE_LOADER = 0;
@@ -45,6 +46,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
     private ExportAsyncTask exportTask;
     private StorageHelper sharedPrefStorage;
+    private BioMapsResolver bioMapsResolver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         setContentView(R.layout.activity_upload);
 
         sharedPrefStorage = new StorageHelper(this);
+        bioMapsResolver = new BioMapsResolver(this);
 
         buttonExportAll = (Button) findViewById(R.id.buttonExport);
         buttonExportAll.setOnClickListener(new View.OnClickListener() {
@@ -120,6 +123,8 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                             case 1:
                                 showChangeUrlDialog(note);
                                 break;
+                            case 2:
+                                showDeleteDialog(note);
                         }
                     }
                 })
@@ -168,7 +173,6 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                                 note.setUrl(newUrl);
 
                                 try {
-                                    BioMapsResolver bioMapsResolver = new BioMapsResolver(UploadActivity.this);
                                     bioMapsResolver.updateNote(note);
                                     ((BioMapsApplication) getApplication()).requestSync();
                                 } catch (RemoteException e) {
@@ -177,6 +181,23 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                             }
                         })
                 .setNegativeButton(R.string.cancel, null)
+                .create().show();
+    }
+    private void showDeleteDialog(final Note note) {
+        new AlertDialog.Builder(UploadActivity.this)
+                .setTitle(R.string.dialog_delete_title)
+                .setMessage(R.string.dialog_delete_message)
+                .setPositiveButton(getString(R.string.yes), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface arg0, int arg1) {
+                        try {
+                            bioMapsResolver.deleteNoteById(note.getId());
+                        }
+                        catch(Exception e){
+                            Timber.e(e,"Delete failed.");}
+                    }
+                })
+                .setNegativeButton(getString(R.string.cancel), null)
                 .create().show();
     }
 
@@ -216,7 +237,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
             try {
                 ArrayList<Note> notes = new ArrayList<>(Arrays.asList(params));
                 if (notes.isEmpty()) {
-                    notes = new BioMapsResolver(UploadActivity.this).getAllNote();
+                    notes = bioMapsResolver.getAllNote();
                 }
 
                 int count = notes.size();
