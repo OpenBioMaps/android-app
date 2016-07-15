@@ -9,10 +9,12 @@ import android.content.pm.ResolveInfo;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,6 +32,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
+
+import android.support.v4.app.FragmentActivity;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -45,11 +56,12 @@ import hu.ektf.iot.openbiomapsapp.object.Note;
 import hu.ektf.iot.openbiomapsapp.object.Note.State;
 import timber.log.Timber;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnConnectionFailedListener {
     // REQ CODES
     private static final int REQ_RECORDING = 1;
     private static final int REQ_IMAGE_CHOOSER = 2;
     private static final int REQ_CAMERA = 3;
+    private static final int REQ_PLACE_PICKER = 4;
 
     // State key constants
     private static final String SELECTED_IMAGE_PATH = "selectedImagePath";
@@ -59,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText etNote;
     private TextView tvPosition;
     private TextView tvDate;
-    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave;
+    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave, buttonSetPosition, buttonPickOnMap;
     private ProgressBar progressGps;
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
@@ -69,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private GpsHelper gpsHelper;
     private Location currentLocation;
     private long gpsRefreshRate = 10000;
+    private GoogleApiClient mGoogleApiClient;
 
     // Persistence
     private BioMapsResolver bioMapsResolver;
@@ -84,6 +97,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mGoogleApiClient = new GoogleApiClient
+                .Builder(this)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
+                .enableAutoManage(this, this)
+                .build();
 
         bioMapsResolver = new BioMapsResolver(this);
         sharedPrefStorage = new StorageHelper(this);
@@ -112,6 +132,8 @@ public class MainActivity extends AppCompatActivity {
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
         buttonSave = (Button) findViewById(R.id.buttonReset);
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
+        buttonSetPosition = (Button) findViewById(R.id.buttonSetPosition);
+        buttonPickOnMap = (Button) findViewById(R.id.buttonPickOnMap);
 
         int unitWidth = getListItemWidth();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -126,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                buttonShowMap.setVisibility(View.INVISIBLE);
 
                 // If GPS is off, show a dialog
                 if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -135,11 +158,7 @@ public class MainActivity extends AppCompatActivity {
                 // If GPS is on
                 currentLocation = GpsHelper.getLocation();
                 if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
-                    note.setLocation(currentLocation);
-                    note.setDate(new Date());
-                    note.setComment(etNote.getText().toString());
-                    saveNote();
-                    updateUI();
+                   saveLocation(currentLocation);
 
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -153,9 +172,30 @@ public class MainActivity extends AppCompatActivity {
         buttonShowMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
+                String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude() + "?q=" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
                 startActivity(intent);
+            }
+        });
+
+        buttonSetPosition.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                stopLocationListener();
+                showSetLocationDialog();
+
+            }
+        });
+        buttonPickOnMap.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                stopLocationListener();
+                try {
+                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                    startActivityForResult(builder.build(MainActivity.this), REQ_PLACE_PICKER);
+                }
+                catch (Exception e) {
+                    //TODO Handle exception properly
+                Timber.e(e, "Place picking failed");
+                }
             }
         });
 
@@ -243,6 +283,19 @@ public class MainActivity extends AppCompatActivity {
         updateUI();
     }
 
+    public void stopLocationListener(){
+        gpsHelper.setExternalListener(null);
+        progressGps.setVisibility(View.GONE);
+    }
+
+    private void saveLocation(Location currentLocation) {
+        note.setLocation(currentLocation);
+        note.setDate(new Date());
+        note.setComment(etNote.getText().toString());
+        saveNote();
+        updateUI();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -314,7 +367,19 @@ public class MainActivity extends AppCompatActivity {
                 saveNote();
                 updateUI();
             }
-        } else {
+        }
+
+        if (requestCode == REQ_PLACE_PICKER){
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(intent, this);
+                Location location = new Location("OpenBioMaps");
+                location.setLatitude(place.getLatLng().latitude);
+                location.setLongitude(place.getLatLng().longitude);
+                saveLocation(location);
+            }
+        }
+
+        else {
             super.onActivityResult(requestCode,
                     resultCode, intent);
         }
@@ -366,6 +431,41 @@ public class MainActivity extends AppCompatActivity {
                 .create().show();
     }
 
+    private void showSetLocationDialog() {
+        LayoutInflater li = LayoutInflater.from(MainActivity.this);
+        View dialogView = li.inflate(R.layout.dialog_setlocation, null);
+
+        final EditText etSetLatitude = (EditText) dialogView
+                .findViewById(R.id.etLocationLatitude);
+        final EditText etSetLongitude = (EditText) dialogView
+                .findViewById(R.id.etLocationLongitude);
+
+        new AlertDialog.Builder(MainActivity.this)
+                .setView(dialogView)
+                .setCancelable(false)
+                .setTitle(R.string.dialog_set_location_title)
+                .setPositiveButton(R.string.save,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                String lat = etSetLatitude.getText().toString();
+                                String lon = etSetLongitude.getText().toString();
+                                Location location = new Location("OpenBioMaps");
+                                try {
+                                    location.setLatitude(Double.parseDouble(lat));
+                                    location.setLongitude(Double.parseDouble(lon));
+                                    saveLocation(location);
+                                }
+                                catch (Exception e) {
+                                    //TODO Unhandled Parse exception
+                                    Timber.e(e, "Parse failed");
+                                }
+                            }
+                        })
+                .setNegativeButton(R.string.cancel, null)
+                .create().show();
+
+    }
+
     private void createNote() {
         try {
             note = bioMapsResolver.getNoteByStatus(State.CREATED);
@@ -396,10 +496,11 @@ public class MainActivity extends AppCompatActivity {
 
         if (note.getLocation() != null) {
             tvPosition.setText(note.getLocationString(this));
+            buttonShowMap.setVisibility(View.VISIBLE);
             buttonShowMap.setEnabled(true);
         } else {
             tvPosition.setText(R.string.tv_position);
-            buttonShowMap.setEnabled(false);
+            buttonShowMap.setVisibility(View.INVISIBLE);
         }
 
         imageRecycler.setVisibility(note.getImagesList().size() == 0 ? View.GONE : View.VISIBLE);
@@ -517,6 +618,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Toast.makeText(this, "Internet connection Error", Toast.LENGTH_LONG);
+    }
+
     private class QuickNoteClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v) {
@@ -552,14 +658,9 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-                gpsHelper.setExternalListener(null);
-                progressGps.setVisibility(View.GONE);
+               stopLocationListener();
                 currentLocation = location;
-                note.setLocation(currentLocation);
-                note.setDate(new Date());
-                note.setComment(etNote.getText().toString());
-                saveNote();
-                updateUI();
+                saveLocation(location);
             }
         }
 

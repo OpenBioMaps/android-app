@@ -55,5 +55,10 @@
     <string name="tv_position">Rögzítse pozícióját!</string>
     <string name="dialog_delete_title">Törlés</string>
     <string name="dialog_delete_message">Biztos törölni szeretné ezt a bejegyzést?</string>
+    <string name="button_pick_on_map">Választás térképen</string>
+    <string name="button_setPosition">Pozíció beállítása</string>
+    <string name="dialog_setLatitude">Szélesség</string>
+    <string name="dialog_setLongitude">Hosszúság</string>
+    <string name="dialog_set_location_title">Lokáció beállítása</string>
 
 </resources>

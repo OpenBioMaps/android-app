@@ -27,6 +27,8 @@
     <string name="button_reset">CREATE NEW</string>
     <string name="button_show_map">Show on map</string>
     <string name="button_voice_record">Voice record</string>
+    <string name="button_pick_on_map">Pick on map</string>
+    <string name="button_setPosition">Set position</string>
 
     <!-- Dialog strings -->
     <string name="dialog_change_url_title">Change url</string>
@@ -46,6 +48,9 @@
     <string name="dialog_set_server_url_title">Server url</string>
     <string name="dialog_delete_title">Delete</string>
     <string name="dialog_delete_message">Are you sure you want to delete this note?</string>
+    <string name="dialog_setLatitude">Latitude</string>
+    <string name="dialog_setLongitude">Longitude</string>
+    <string name="dialog_set_location_title">Set location</string>
 
     <!-- Errors -->
     <string name="error_no_file">Unable to create file</string>

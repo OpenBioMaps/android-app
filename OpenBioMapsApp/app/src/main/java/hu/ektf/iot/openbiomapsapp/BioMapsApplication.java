@@ -6,6 +6,8 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.multidex.MultiDex;
+import android.support.multidex.MultiDexApplication;
 
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
@@ -16,7 +18,7 @@ import timber.log.Timber;
 /**
  * Created by szugyi on 20/11/15.
  */
-public class BioMapsApplication extends Application {
+public class BioMapsApplication extends MultiDexApplication {
     public static final String ACCOUNT_TYPE = "openbiomaps.org";
     public static final String ACCOUNT_NAME = "default";
     private Account account;
@@ -47,6 +49,12 @@ public class BioMapsApplication extends Application {
         setupRetrofit();
         setupLogging();
         createSyncAccount(this);
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        MultiDex.install(this);
     }
 
     public BioMapsServiceInterface getMapsService() {

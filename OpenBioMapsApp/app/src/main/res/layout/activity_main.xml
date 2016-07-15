@@ -103,20 +103,42 @@
 
         <Button
             android:id="@+id/buttonShowMap"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/quick_button_wrapper"
             android:layout_toEndOf="@id/strut"
             android:layout_toRightOf="@+id/strut"
-            android:enabled="false"
+            android:visibility="invisible"
+            android:singleLine="true"
             android:text="@string/button_show_map" />
+
+        <Button
+            android:id="@+id/buttonSetPosition"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/buttonPosition"
+            android:layout_toLeftOf="@+id/strut"
+            android:layout_toStartOf="@+id/strut"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:text="@string/button_setPosition" />
+
+        <Button
+            android:id="@+id/buttonPickOnMap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/buttonSetPosition"
+            android:layout_below="@+id/buttonShowMap"
+            android:padding="5dp"
+            android:singleLine="true"
+            android:text="@string/button_pick_on_map" />
+
 
         <TextView
             android:id="@+id/textViewPosition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/buttonPosition"
+            android:layout_below="@+id/buttonSetPosition"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:text="@string/tv_position"
@@ -126,7 +148,7 @@
             android:id="@+id/progressGps"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/buttonShowMap"
+            android:layout_below="@+id/buttonPickOnMap"
             android:layout_toRightOf="@+id/textViewPosition"
             android:visibility="invisible" />
 

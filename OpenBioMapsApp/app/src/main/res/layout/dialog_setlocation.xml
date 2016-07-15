@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    >
+    <EditText
+        android:id="@+id/etLocationLatitude"
+        android:hint="@string/dialog_setLatitude"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        />
+
+    <EditText
+        android:id="@+id/etLocationLongitude"
+        android:hint="@string/dialog_setLongitude"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        />
+
+</LinearLayout>
