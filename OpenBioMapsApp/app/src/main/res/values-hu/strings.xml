@@ -60,5 +60,7 @@
     <string name="dialog_setLatitude">Szélesség</string>
     <string name="dialog_setLongitude">Hosszúság</string>
     <string name="dialog_set_location_title">Lokáció beállítása</string>
+    <string name="dialog_try_again_title">Próbálja újra</string>
+    <string name="toast_uploading">Feltöltés...</string>
 
 </resources>
