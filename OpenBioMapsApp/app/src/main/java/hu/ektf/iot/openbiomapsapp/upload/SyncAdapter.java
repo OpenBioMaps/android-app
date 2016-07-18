@@ -7,10 +7,14 @@ import android.content.Context;
 import android.content.SyncResult;
 import android.os.Bundle;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
+import hu.ektf.iot.openbiomapsapp.object.BioMapsResponse;
 import hu.ektf.iot.openbiomapsapp.object.Note;
 import hu.ektf.iot.openbiomapsapp.object.Note.State;
 import retrofit.client.Response;
@@ -25,6 +29,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private BioMapsResolver bioMapsResolver;
     private BioMapsServiceInterface mapsService;
     private DynamicEndpoint endpoint;
+    private Gson gson;
 
     /**
      * Set up the sync adapter
@@ -52,6 +57,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         BioMapsApplication bioMapsApplication = (BioMapsApplication) context.getApplicationContext();
         mapsService = bioMapsApplication.getMapsService();
         endpoint = bioMapsApplication.getDynamicEndpoint();
+        gson = new Gson();
     }
 
     @Override
@@ -84,11 +90,19 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
             Response response = mapsService.uploadNote(noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
             String respStr = new String(((TypedByteArray) response.getBody()).getBytes());
-
             noteToSync.setResponse(respStr);
             noteToSync.setState(State.UPLOADED);
-            bioMapsResolver.updateNote(noteToSync);
 
+            try {
+                BioMapsResponse respObj = gson.fromJson(respStr, BioMapsResponse.class);
+                if (!respObj.getError().isEmpty()) {
+                    noteToSync.setState(State.UPLOAD_ERROR);
+                }
+            } catch (Exception e) {
+                Timber.e(e, "Upload response contained error");
+            }
+
+            bioMapsResolver.updateNote(noteToSync);
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -98,6 +112,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     noteToSync.setResponse("EXCEPTION: " + ex.toString());
                     noteToSync.setState(State.UPLOAD_ERROR);
                     bioMapsResolver.updateNote(noteToSync);
+                    doSync();
                 } catch (Exception e) {
                     ex.printStackTrace();
                 }
