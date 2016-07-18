@@ -56,11 +56,14 @@
     <string name="dialog_delete_title">Törlés</string>
     <string name="dialog_delete_message">Biztos törölni szeretné ezt a bejegyzést?</string>
     <string name="button_pick_on_map">Választás térképen</string>
-    <string name="button_setPosition">Pozíció beállítása</string>
     <string name="dialog_setLatitude">Szélesség</string>
     <string name="dialog_setLongitude">Hosszúság</string>
     <string name="dialog_set_location_title">Lokáció beállítása</string>
     <string name="dialog_try_again_title">Próbálja újra</string>
     <string name="toast_uploading">Feltöltés...</string>
+    <string name="button_set_location">Pozíció beállítása</string>
+    <string name="toast_upload_failed">Sikertelen feltöltés</string>
+    <string name="dialog_lat_error_message">Helytelen szélességi érték! [-90,90]</string>
+    <string name="dialog_lon_error_message">Helytelen hosszúsági érték! [-180,180]</string>
 
 </resources>

@@ -28,7 +28,7 @@
     <string name="button_show_map">Show on map</string>
     <string name="button_voice_record">Voice record</string>
     <string name="button_pick_on_map">Pick on map</string>
-    <string name="button_setPosition">Set position</string>
+    <string name="button_set_location">Set location</string>
 
     <!-- Dialog strings -->
     <string name="dialog_change_url_title">Change url</string>
@@ -53,6 +53,8 @@
     <string name="dialog_set_location_title">Set location</string>
     <string name="toast_uploading">Uploading...</string>
     <string name="toast_upload_failed">Upload failed</string>
+    <string name="dialog_lat_error_message">Wrong lat value! [-90,90]</string>
+    <string name="dialog_lon_error_message">Wrong lon value! [-180,180]</string>
 
     <!-- Errors -->
     <string name="error_no_file">Unable to create file</string>

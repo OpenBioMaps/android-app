@@ -113,7 +113,7 @@
             android:text="@string/button_show_map" />
 
         <Button
-            android:id="@+id/buttonSetPosition"
+            android:id="@+id/buttonSetLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/buttonPosition"
@@ -121,13 +121,13 @@
             android:layout_toStartOf="@+id/strut"
             android:padding="5dp"
             android:singleLine="true"
-            android:text="@string/button_setPosition" />
+            android:text="@string/button_set_location" />
 
         <Button
             android:id="@+id/buttonPickOnMap"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/buttonSetPosition"
+            android:layout_toRightOf="@+id/buttonSetLocation"
             android:layout_below="@+id/buttonShowMap"
             android:padding="5dp"
             android:singleLine="true"
@@ -138,7 +138,7 @@
             android:id="@+id/textViewPosition"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/buttonSetPosition"
+            android:layout_below="@+id/buttonSetLocation"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="8dp"
             android:text="@string/tv_position"

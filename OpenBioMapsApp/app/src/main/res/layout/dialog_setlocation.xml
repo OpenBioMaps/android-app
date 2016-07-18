@@ -10,6 +10,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
+        android:inputType="numberDecimal|numberSigned"
         />
 
     <EditText
@@ -18,6 +19,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
+        android:inputType="numberDecimal|numberSigned"
         />
 
 </LinearLayout>

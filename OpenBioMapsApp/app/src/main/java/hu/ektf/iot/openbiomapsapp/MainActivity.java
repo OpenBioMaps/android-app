@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     private EditText etNote;
     private TextView tvPosition;
     private TextView tvDate;
-    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave, buttonSetPosition, buttonPickOnMap;
+    private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave, buttonSetLocation, buttonPickOnMap;
     private ProgressBar progressGps;
     private RecyclerView imageRecycler, audioRecycler;
     private ImageListAdapter adapterImage;
@@ -132,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         buttonCamera = (Button) findViewById(R.id.buttonCamera);
         buttonSave = (Button) findViewById(R.id.buttonReset);
         progressGps = (ProgressBar) findViewById(R.id.progressGps);
-        buttonSetPosition = (Button) findViewById(R.id.buttonSetPosition);
+        buttonSetLocation = (Button) findViewById(R.id.buttonSetLocation);
         buttonPickOnMap = (Button) findViewById(R.id.buttonPickOnMap);
 
         int unitWidth = getListItemWidth();
@@ -158,7 +158,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 // If GPS is on
                 currentLocation = GpsHelper.getLocation();
                 if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
-                   saveLocation(currentLocation);
+                    saveLocation(currentLocation);
 
                 } else {
                     progressGps.setVisibility(View.VISIBLE);
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
             }
         });
 
-        buttonSetPosition.setOnClickListener(new View.OnClickListener() {
+        buttonSetLocation.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 stopLocationListener();
                 showSetLocationDialog();
@@ -191,10 +191,9 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 try {
                     PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
                     startActivityForResult(builder.build(MainActivity.this), REQ_PLACE_PICKER);
-                }
-                catch (Exception e) {
+                } catch (Exception e) {
                     //TODO Handle exception properly
-                Timber.e(e, "Place picking failed");
+                    Timber.e(e, "Place picking failed");
                 }
             }
         });
@@ -283,7 +282,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         updateUI();
     }
 
-    public void stopLocationListener(){
+    public void stopLocationListener() {
         gpsHelper.setExternalListener(null);
         progressGps.setVisibility(View.GONE);
     }
@@ -369,7 +368,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
             }
         }
 
-        if (requestCode == REQ_PLACE_PICKER){
+        if (requestCode == REQ_PLACE_PICKER) {
             if (resultCode == RESULT_OK) {
                 Place place = PlacePicker.getPlace(intent, this);
                 Location location = new Location("OpenBioMaps");
@@ -377,9 +376,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 location.setLongitude(place.getLatLng().longitude);
                 saveLocation(location);
             }
-        }
-
-        else {
+        } else {
             super.onActivityResult(requestCode,
                     resultCode, intent);
         }
@@ -439,32 +436,57 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .findViewById(R.id.etLocationLatitude);
         final EditText etSetLongitude = (EditText) dialogView
                 .findViewById(R.id.etLocationLongitude);
+        if(note.getLocation() != null) {
+            etSetLatitude.setText(String.valueOf(note.getLocation().getLatitude()));
+            etSetLongitude.setText(String.valueOf(note.getLocation().getLongitude()));
+        }
 
-        new AlertDialog.Builder(MainActivity.this)
+        final AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setView(dialogView)
                 .setCancelable(false)
                 .setTitle(R.string.dialog_set_location_title)
-                .setPositiveButton(R.string.save,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                String lat = etSetLatitude.getText().toString();
-                                String lon = etSetLongitude.getText().toString();
-                                Location location = new Location("OpenBioMaps");
-                                try {
-                                    location.setLatitude(Double.parseDouble(lat));
-                                    location.setLongitude(Double.parseDouble(lon));
-                                    saveLocation(location);
-                                }
-                                catch (Exception e) {
-                                    //TODO Unhandled Parse exception
-                                    Timber.e(e, "Parse failed");
-                                }
-                            }
-                        })
+                .setPositiveButton(R.string.save, null)
                 .setNegativeButton(R.string.cancel, null)
-                .create().show();
+                .create();
 
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+
+            @Override
+            public void onShow(DialogInterface dialog) {
+
+                Button pos = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                pos.setOnClickListener(new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View view) {
+                        String lat = etSetLatitude.getText().toString();
+                        String lon = etSetLongitude.getText().toString();
+                        try {
+                            Double latitude = Double.parseDouble(lat);
+                            Double longitude = Double.parseDouble(lon);
+                            if (latitude <= -90 || latitude >= 90) {
+                                etSetLatitude.setError(getString(R.string.dialog_lat_error_message));
+                                return;
+                            }
+                            if (longitude <= -180 || longitude >= 180) {
+                                etSetLongitude.setError(getString(R.string.dialog_lon_error_message));
+                                return;
+                            }
+                            Location location = new Location("OpenBioMaps");
+                            location.setLatitude(latitude);
+                            location.setLongitude(longitude);
+                            saveLocation(location);
+                        } catch (Exception e) {
+                            Timber.e(e, "Parse failed");
+                        }
+                        alertDialog.dismiss();
+                    }
+                });
+            }
+        });
+        alertDialog.show();
     }
+
 
     private void createNote() {
         try {
@@ -658,7 +680,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         @Override
         public void onLocationChanged(Location location) {
             if (location != null) {
-               stopLocationListener();
+                stopLocationListener();
                 currentLocation = location;
                 saveLocation(location);
             }
