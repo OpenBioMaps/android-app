@@ -22,6 +22,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -106,9 +108,17 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     }
 
     private void showDetailDialog(final Note note) {
+        String prettyJSON = note.getResponse();
+        try{
+            int spacesToIndentEachLevel = 2;
+            prettyJSON = new JSONObject(prettyJSON).toString(spacesToIndentEachLevel);
+        }
+        catch (Exception e){
+            Timber.e(e, "Format failed");
+        }
         new AlertDialog.Builder(UploadActivity.this)
                 .setTitle(getString(R.string.dialog_details_title))
-                .setMessage(getString(R.string.dialog_details_message, note.getUrl(), note.getResponse()))
+                .setMessage(getString(R.string.dialog_details_message, note.getUrl(), prettyJSON))
                 .create().show();
     }
 
@@ -220,7 +230,6 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         }
         return;
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
