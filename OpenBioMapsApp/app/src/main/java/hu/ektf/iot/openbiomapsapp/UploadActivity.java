@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -125,6 +126,10 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                                 break;
                             case 2:
                                 showDeleteDialog(note);
+                                break;
+                            case 3:
+                                retryUpload(note);
+                                break;
                         }
                     }
                 })
@@ -183,6 +188,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 .setNegativeButton(R.string.cancel, null)
                 .create().show();
     }
+
     private void showDeleteDialog(final Note note) {
         new AlertDialog.Builder(UploadActivity.this)
                 .setTitle(R.string.dialog_delete_title)
@@ -192,14 +198,29 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                     public void onClick(DialogInterface arg0, int arg1) {
                         try {
                             bioMapsResolver.deleteNoteById(note.getId());
+                        } catch (Exception e) {
+                            Timber.e(e, "Delete failed.");
                         }
-                        catch(Exception e){
-                            Timber.e(e,"Delete failed.");}
                     }
                 })
                 .setNegativeButton(getString(R.string.cancel), null)
                 .create().show();
     }
+
+
+    private void retryUpload(final Note note) {
+        Toast.makeText(UploadActivity.this, R.string.toast_uploading, Toast.LENGTH_LONG).show();
+        note.setState(Note.State.CLOSED);
+        note.setResponse("");
+        try {
+            bioMapsResolver.updateNote(note);
+            ((BioMapsApplication) getApplication()).requestSync();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return;
+    }
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {

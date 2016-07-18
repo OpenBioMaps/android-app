@@ -51,6 +51,8 @@
     <string name="dialog_setLatitude">Latitude</string>
     <string name="dialog_setLongitude">Longitude</string>
     <string name="dialog_set_location_title">Set location</string>
+    <string name="toast_uploading">Uploading...</string>
+    <string name="toast_upload_failed">Upload failed</string>
 
     <!-- Errors -->
     <string name="error_no_file">Unable to create file</string>
