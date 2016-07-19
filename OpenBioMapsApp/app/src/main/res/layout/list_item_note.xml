@@ -40,7 +40,7 @@
 
     <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_toRightOf="@+id/layoutTexts"
         android:layout_weight="1"
         android:orientation="horizontal"
@@ -49,7 +49,7 @@
         <ImageView
             android:id="@+id/ivImages"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="28"
             android:src="@drawable/photo" />
 
@@ -66,7 +66,7 @@
         <ImageView
             android:id="@+id/ivSounds"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_toRightOf="@+id/ivImages"
             android:layout_weight="28"
             android:src="@drawable/audio" />
@@ -84,10 +84,10 @@
         <ImageView
             android:id="@+id/ivStatus"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_toRightOf="@+id/ivSounds"
             android:layout_weight="30"
-            android:src="@drawable/state_succes" />
+            android:src="@drawable/state_success" />
     </LinearLayout>
 
 </LinearLayout>

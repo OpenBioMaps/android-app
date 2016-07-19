@@ -99,7 +99,7 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
         switch (myListItem.getState()) {
             case UPLOADED:
                 viewHolder.ivStatus.setVisibility(View.VISIBLE);
-                viewHolder.ivStatus.setImageResource(R.drawable.state_succes);
+                viewHolder.ivStatus.setImageResource(R.drawable.state_success);
                 break;
             case UPLOADING:
                 viewHolder.ivStatus.setVisibility(View.VISIBLE);
