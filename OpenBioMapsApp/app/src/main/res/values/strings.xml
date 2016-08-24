@@ -65,5 +65,6 @@
     <string name="tv_location">latitude: %1$f \nlongitude: %2$f</string>
     <string name="tv_quick_note">Set quick note</string>
     <string name="tv_position">Acquire your location!</string>
+    <string name="dialog_try_again_title">Try again</string>
 
 </resources>
