@@ -66,5 +66,6 @@
     <string name="tv_quick_note">Set quick note</string>
     <string name="tv_position">Acquire your location!</string>
     <string name="dialog_try_again_title">Try again</string>
+    <string name="title_activity_form">FormActivity</string>
 
 </resources>
