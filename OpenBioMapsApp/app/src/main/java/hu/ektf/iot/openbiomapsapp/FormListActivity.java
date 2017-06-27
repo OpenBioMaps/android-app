@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.adapter.FormAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.FormListAdapter;
 import hu.ektf.iot.openbiomapsapp.object.Form;
 import hu.ektf.iot.openbiomapsapp.view.ItemClickSupport;
 
@@ -20,7 +20,7 @@ public class FormListActivity extends AppCompatActivity {
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
-    private FormAdapter adapter = new FormAdapter();
+    private FormListAdapter adapter = new FormListAdapter();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
