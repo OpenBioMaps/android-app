@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    buildToolsVersion '25.0.3'
 
     defaultConfig {
         applicationId "hu.ektf.iot.openbiomapsapp"
@@ -20,6 +20,8 @@ android {
         }
     }
 }
+
+apply from: "signing.gradle"
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

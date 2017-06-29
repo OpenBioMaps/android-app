@@ -26,6 +26,8 @@ proguard/
 # Log Files
 *.log
 
-local.properties
-.idea/
+.idea
 .DS_Store
+*.iml
+/captures
+.externalNativeBuild
