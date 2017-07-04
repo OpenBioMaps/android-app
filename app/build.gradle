@@ -22,7 +22,7 @@ android {
         prod {
             manifestPlaceholders = [applicationLabel: "@string/app_name"]
 
-            buildConfigField "String", "BASE_URL", '"http://openbiomaps.org/projects/dinpi/"'
+            buildConfigField "String", "BASE_URL", '"http://openbiomaps.org"'
         }
     }
 
@@ -48,7 +48,8 @@ dependencies {
     compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'io.reactivex:rxjava:1.3.0'
     compile 'io.reactivex:rxandroid:1.2.1'
-    compile 'com.jakewharton.timber:timber:4.1.0'
+    compile 'com.squareup.okhttp:okhttp:2.7.5'
+    compile 'com.jakewharton.timber:timber:4.5.1'
     // Used for moving and deleting files
     compile 'commons-io:commons-io:2.4'
 }

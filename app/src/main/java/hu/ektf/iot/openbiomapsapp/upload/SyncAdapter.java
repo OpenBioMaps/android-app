@@ -8,15 +8,14 @@ import android.content.SyncResult;
 import android.os.Bundle;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
-import hu.ektf.iot.openbiomapsapp.object.BioMapsResponse;
-import hu.ektf.iot.openbiomapsapp.object.Note;
-import hu.ektf.iot.openbiomapsapp.object.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
+import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.model.Note.State;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedFile;
@@ -27,7 +26,7 @@ import timber.log.Timber;
  */
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private BioMapsResolver bioMapsResolver;
-    private BioMapsServiceInterface mapsService;
+    private BioMapsService mapsService;
     private DynamicEndpoint endpoint;
     private Gson gson;
 

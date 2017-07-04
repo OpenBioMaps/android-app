@@ -6,11 +6,26 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils;
+
+import com.squareup.okhttp.Authenticator;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
+
+import java.io.IOException;
+import java.net.Proxy;
 
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
-import hu.ektf.iot.openbiomapsapp.upload.BioMapsServiceInterface;
+import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
+import hu.ektf.iot.openbiomapsapp.repo.ObmClient;
+import hu.ektf.iot.openbiomapsapp.repo.ObmClientImpl;
+import hu.ektf.iot.openbiomapsapp.upload.BioMapsService;
 import hu.ektf.iot.openbiomapsapp.upload.DynamicEndpoint;
 import retrofit.RestAdapter;
+import retrofit.client.OkClient;
 import timber.log.Timber;
 
 /**
@@ -21,16 +36,71 @@ public class BioMapsApplication extends Application {
     public static final String ACCOUNT_NAME = "default";
     private Account account;
 
+    private ObmClient repo;
+    private StorageHelper storage;
     private DynamicEndpoint dynamicEndpoint;
-    private BioMapsServiceInterface mapsService;
+    private BioMapsService mapsService;
 
     private void setupRetrofit() {
+        // TODO: Will we handle dynamic endpoint?
         dynamicEndpoint = new DynamicEndpoint();
+        OkHttpClient okHttpClient = new OkHttpClient();
+        okHttpClient.networkInterceptors().add(getAuthInterceptor());
+        okHttpClient.setAuthenticator(getOAuthAuthenticator());
+
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(dynamicEndpoint)
+                .setEndpoint(BuildConfig.BASE_URL) //dynamicEndpoint)
+                .setClient(new OkClient(okHttpClient))
                 .setLogLevel(getRetrofitLogLevel())
                 .build();
-        mapsService = restAdapter.create(BioMapsServiceInterface.class);
+        mapsService = restAdapter.create(BioMapsService.class);
+    }
+
+    private Interceptor getAuthInterceptor() {
+        return new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request originalRequest = chain.request();
+
+                String accessToken = storage.getAccessToken();
+                if (TextUtils.isEmpty(accessToken)) {
+                    return chain.proceed(originalRequest);
+                }
+
+                Request authorisedRequest = originalRequest.newBuilder()
+                        .header("Authorization", "Bearer " + accessToken)
+                        .build();
+
+                return chain.proceed(authorisedRequest);
+            }
+        };
+    }
+
+    private Authenticator getOAuthAuthenticator() {
+        return new Authenticator() {
+            @Override
+            public Request authenticate(Proxy proxy, Response response) throws IOException {
+                String refreshToken = storage.getRefreshToken();
+                if (TextUtils.isEmpty(refreshToken)) {
+                    return null;
+                }
+
+                try {
+                    TokenResponse tokenResponse = repo.refreshToken(refreshToken);
+                    return response.request().newBuilder()
+                            .addHeader("Authorization", "Bearer " + tokenResponse.getAccessToken())
+                            .build();
+                } catch (Throwable throwable) {
+                    Timber.e(throwable);
+                    return null;
+                }
+            }
+
+            @Override
+            public Request authenticateProxy(Proxy proxy, Response response) throws IOException {
+                return null;
+            }
+        };
     }
 
     protected RestAdapter.LogLevel getRetrofitLogLevel() {
@@ -44,12 +114,14 @@ public class BioMapsApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        repo = new ObmClientImpl(this);
+        storage = new StorageHelper(this);
         setupRetrofit();
         setupLogging();
         createSyncAccount(this);
     }
 
-    public BioMapsServiceInterface getMapsService() {
+    public BioMapsService getMapsService() {
         return mapsService;
     }
 
@@ -70,33 +142,13 @@ public class BioMapsApplication extends Application {
         ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, bundle);
     }
 
-    /**
-     * Create a new dummy account for the sync adapter
-     *
-     * @param context The application context
-     */
     private void createSyncAccount(Context context) {
-        // Create the account type and default account
         account = new Account(ACCOUNT_NAME, ACCOUNT_TYPE);
-        // Get an instance of the Android account manager
         AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
-        /*
-         * Add the account and account type, no password or user data
-         * If successful, return the Account object, otherwise report an error.
-         */
+
         if (accountManager.addAccountExplicitly(account, null, null)) {
-            /*
-             * If you don't set android:syncable="true" in
-             * in your <provider> element in the manifest,
-             * then call context.setIsSyncable(account, AUTHORITY, 1)
-             * here.
-             */
             Timber.i("Account was created successfully");
         } else {
-            /*
-             * The account exists or some other error occurred. Log this, report it,
-             * or handle it internally.
-             */
             Timber.i("Account was not created!");
         }
     }

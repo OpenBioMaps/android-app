@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
-import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.model.Note;
 
 /**
  * Created by Pádi on 2015. 12. 04..

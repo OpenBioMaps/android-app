@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.object.Form;
+import hu.ektf.iot.openbiomapsapp.model.Form;
 
 public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.ViewHolder> {
 
@@ -36,6 +36,10 @@ public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.ViewHo
 
         holder.id.setText(String.valueOf(form.getId()));
         holder.name.setText(form.getVisibility());
+    }
+
+    public Form getItemAt(int position) {
+        return data.get(position);
     }
 
     @Override

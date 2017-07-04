@@ -12,12 +12,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.object.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.FormControl;
 
 public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder> {
 
     private static final int VIEW_TYPE_CHECKBOX = 0;
-    private static final int VIEW_TYPE_EDITTEXT = 1;
+    private static final int VIEW_TYPE_EDIT_TEXT = 1;
 
     private List<FormControl> data = new ArrayList<>();
 
@@ -33,7 +33,7 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
     public FormAdapter.BaseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         if (VIEW_TYPE_CHECKBOX == viewType) {
             return new CheckBoxViewHolder(parent);
-        } else if (VIEW_TYPE_EDITTEXT == viewType) {
+        } else if (VIEW_TYPE_EDIT_TEXT == viewType) {
             return new EditTextViewHolder(parent);
         } else {
             throw new IllegalArgumentException("Unknown view type: " + String.valueOf(viewType));
@@ -53,7 +53,7 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
             case BOOLEAN:
                 return VIEW_TYPE_CHECKBOX;
             default:
-                return VIEW_TYPE_EDITTEXT;
+                return VIEW_TYPE_EDIT_TEXT;
         }
     }
 
@@ -82,8 +82,9 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
         }
 
         @Override
-        public void bind(FormControl control) {
+        public void bind(final FormControl control) {
             label.setText(control.getShortName());
+            input.setTag(R.id.tag_form_control, control);
         }
     }
 
@@ -96,8 +97,9 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
         }
 
         @Override
-        public void bind(FormControl control) {
+        public void bind(final FormControl control) {
             input.setText(control.getShortName());
+            input.setTag(R.id.tag_form_control, control);
         }
     }
 }

@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp;
+package hu.ektf.iot.openbiomapsapp.screen;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import com.viewpagerindicator.CirclePageIndicator;
 
 import java.util.ArrayList;
 
+import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.ImagePagerAdapter;
 
 /**

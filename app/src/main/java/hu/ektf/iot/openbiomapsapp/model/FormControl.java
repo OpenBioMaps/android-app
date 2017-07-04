@@ -1,22 +1,23 @@
-package hu.ektf.iot.openbiomapsapp.object;
+package hu.ektf.iot.openbiomapsapp.model;
 
 import com.google.gson.annotations.SerializedName;
 
 public class FormControl {
 
     public enum Type {
-        @SerializedName("autocomplete") AUTOCOMPLETE,
-        @SerializedName("boolen") BOOLEAN,
-        @SerializedName("date") DATE,
-        @SerializedName("numeric") NUMERIC,
-        @SerializedName("point") POINT,
-        @SerializedName("text") TEXT,
+        @SerializedName("autocomplete")AUTOCOMPLETE,
+        @SerializedName("boolen")BOOLEAN,
+        @SerializedName("date")DATE,
+        @SerializedName("numeric")NUMERIC,
+        @SerializedName("point")POINT,
+        @SerializedName("text")TEXT,
     }
 
     private String column;
     @SerializedName("short_name")
     private String shortName;
     private Type type;
+    private Object value;
 
     public String getColumn() {
         return column;
@@ -40,5 +41,13 @@ public class FormControl {
 
     public void setType(Type type) {
         this.type = type;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
     }
 }
