@@ -10,13 +10,19 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.FormAdapter;
 import hu.ektf.iot.openbiomapsapp.object.FormControl;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepository;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepositoryImpl;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class FormActivity extends AppCompatActivity {
+
+    private ObmRepository repo = new ObmRepositoryImpl();
 
     private RecyclerView recyclerView;
     private FormAdapter adapter = new FormAdapter();
@@ -48,81 +54,14 @@ public class FormActivity extends AppCompatActivity {
     }
 
     private void loadForm() {
-        List<FormControl> controls = new ArrayList<>();
-        FormControl control = new FormControl();
-        control.setType(FormControl.Type.TEXT);
-        control.setShortName("Test Text");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.AUTOCOMPLETE);
-        control.setShortName("Autocomplete control");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.BOOLEAN);
-        control.setShortName("Checkity checkbox");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.DATE);
-        control.setShortName("Here comes a date");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.NUMERIC);
-        control.setShortName("Gimmi number");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.POINT);
-        control.setShortName("Here comes a point");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.TEXT);
-        control.setShortName("Test Text");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.AUTOCOMPLETE);
-        control.setShortName("Autocomplete control");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.BOOLEAN);
-        control.setShortName("Checkity checkbox");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.DATE);
-        control.setShortName("Here comes a date");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.NUMERIC);
-        control.setShortName("Gimmi number");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.POINT);
-        control.setShortName("Here comes a point");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.TEXT);
-        control.setShortName("Test Text");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.AUTOCOMPLETE);
-        control.setShortName("Autocomplete control");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.BOOLEAN);
-        control.setShortName("Checkity checkbox");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.DATE);
-        control.setShortName("Here comes a date");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.NUMERIC);
-        control.setShortName("Gimmi number");
-        controls.add(control);
-        control = new FormControl();
-        control.setType(FormControl.Type.POINT);
-        control.setShortName("Here comes a point");
-        controls.add(control);
-
-        adapter.setControls(controls);
+        repo.loadForm(0)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<List<FormControl>>() {
+                    @Override
+                    public void call(List<FormControl> controls) {
+                        adapter.setControls(controls);
+                    }
+                });
     }
-
 }

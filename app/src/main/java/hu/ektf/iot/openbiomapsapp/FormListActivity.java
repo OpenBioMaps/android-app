@@ -8,15 +8,22 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.FormListAdapter;
 import hu.ektf.iot.openbiomapsapp.object.Form;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepository;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepositoryImpl;
 import hu.ektf.iot.openbiomapsapp.view.ItemClickSupport;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 public class FormListActivity extends AppCompatActivity {
+
+    private ObmRepository repo = new ObmRepositoryImpl();
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
@@ -66,21 +73,20 @@ public class FormListActivity extends AppCompatActivity {
             refreshLayout.setRefreshing(true);
         }
 
-        List<Form> forms = new ArrayList<>();
-        Form form = new Form();
-        form.setId(1);
-        form.setVisibility("Test Form");
-        forms.add(form);
-        form = new Form();
-        form.setId(2);
-        form.setVisibility("Cool form");
-        forms.add(form);
-        form = new Form();
-        form.setId(3);
-        form.setVisibility("The best form evaaar");
-        forms.add(form);
-
-        adapter.setForms(forms);
-        refreshLayout.setRefreshing(false);
+        repo.loadFormList()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(new Action0() {
+                    @Override
+                    public void call() {
+                        refreshLayout.setRefreshing(false);
+                    }
+                })
+                .subscribe(new Action1<List<Form>>() {
+                    @Override
+                    public void call(List<Form> forms) {
+                        adapter.setForms(forms);
+                    }
+                });
     }
 }
