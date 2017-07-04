@@ -27,7 +27,7 @@ public class FileMapCreator {
                 Timber.v(mimeType);
                 File file = new File(filePath);
                 TypedFile typedImage = new TypedFile(mimeType, file);
-                fileMap.put(String.format(BioMapsServiceInterface.PARAM_FILE_ARRAY_FORMAT, count), typedImage);
+                fileMap.put(String.format(BioMapsService.PARAM_FILE_ARRAY_FORMAT, count), typedImage);
                 count++;
             }
         }

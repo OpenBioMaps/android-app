@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.object;
+package hu.ektf.iot.openbiomapsapp.model;
 
 public class Form {
 

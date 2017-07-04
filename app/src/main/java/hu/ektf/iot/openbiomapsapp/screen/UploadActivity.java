@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp;
+package hu.ektf.iot.openbiomapsapp.screen;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,6 +27,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
+import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.NoteCursorAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
@@ -35,7 +37,7 @@ import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
 import hu.ektf.iot.openbiomapsapp.database.NoteTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import hu.ektf.iot.openbiomapsapp.object.Note;
+import hu.ektf.iot.openbiomapsapp.model.Note;
 import timber.log.Timber;
 
 public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {

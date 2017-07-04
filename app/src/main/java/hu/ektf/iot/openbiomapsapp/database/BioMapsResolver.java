@@ -15,8 +15,8 @@ import android.text.TextUtils;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import hu.ektf.iot.openbiomapsapp.object.Note;
-import hu.ektf.iot.openbiomapsapp.object.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.model.Note.State;
 
 /**
  * A wrapper class around the default ContentResolver from the Android system, which makes it possible

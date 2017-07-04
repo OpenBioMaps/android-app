@@ -12,7 +12,10 @@ public class StorageHelper {
 
     private static final String KEY_SERVER_URL = "KEY_SERVER_URL";
     private static final String KEY_EXPORT_PATH = "KEY_EXPORT_PATH";
-    private static final String KEY_QUICK_NOTES = "KEY_QUICK_NOTES_";
+    private static final String KEY_QUICK_NOTES = "KEY_QUICK_NOTES";
+
+    private static final String KEY_ACCESS_TOKEN = "KEY_ACCESS_TOKEN";
+    private static final String KEY_REFRESH_TOKEN = "KEY_REFRESH_TOKEN";
 
     private static final String DEFAULT_EXPORT_PATH = Environment.getExternalStorageDirectory() + "/openbiomaps/";
 
@@ -54,6 +57,24 @@ public class StorageHelper {
 
     public void setQuickNote(String noteLetter, String newNote) {
         editor.putString(KEY_QUICK_NOTES + noteLetter, newNote);
+        editor.commit();
+    }
+
+    public String getAccessToken() {
+        return sharedPreferences.getString(KEY_ACCESS_TOKEN, null);
+    }
+
+    public void setAccessToken(String accessToken) {
+        editor.putString(KEY_ACCESS_TOKEN, accessToken);
+        editor.commit();
+    }
+
+    public String getRefreshToken() {
+        return sharedPreferences.getString(KEY_REFRESH_TOKEN, null);
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        editor.putString(KEY_REFRESH_TOKEN, refreshToken);
         editor.commit();
     }
 }

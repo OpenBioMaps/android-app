@@ -1,13 +1,30 @@
 package hu.ektf.iot.openbiomapsapp.repo;
 
+import android.content.Context;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import hu.ektf.iot.openbiomapsapp.object.Form;
-import hu.ektf.iot.openbiomapsapp.object.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.Form;
+import hu.ektf.iot.openbiomapsapp.model.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import rx.Observable;
 
-public class ObmRepositoryImpl implements ObmRepository {
+public class ObmClientImpl extends ObmClient {
+
+    public ObmClientImpl(Context context) {
+        super(context);
+    }
+
+    @Override
+    public Observable<TokenResponse> login(String username, String password) {
+        return Observable.empty();
+    }
+
+    @Override
+    public TokenResponse refreshToken(String refreshToken) {
+        return null;
+    }
 
     @Override
     public Observable<List<Form>> loadFormList() {

@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp;
+package hu.ektf.iot.openbiomapsapp.screen;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,7 +9,6 @@ import android.content.pm.ResolveInfo;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.location.LocationProvider;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -39,21 +38,21 @@ import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
 
-import android.support.v4.app.FragmentActivity;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
+import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
+import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.helper.FileHelper;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import hu.ektf.iot.openbiomapsapp.object.Note;
-import hu.ektf.iot.openbiomapsapp.object.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.model.Note.State;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFailedListener {

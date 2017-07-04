@@ -1,29 +1,26 @@
-package hu.ektf.iot.openbiomapsapp;
+package hu.ektf.iot.openbiomapsapp.screen;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import java.util.List;
 
+import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.FormListAdapter;
-import hu.ektf.iot.openbiomapsapp.object.Form;
-import hu.ektf.iot.openbiomapsapp.repo.ObmRepository;
-import hu.ektf.iot.openbiomapsapp.repo.ObmRepositoryImpl;
+import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.view.ItemClickSupport;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
+import timber.log.Timber;
 
-public class FormListActivity extends AppCompatActivity {
-
-    private ObmRepository repo = new ObmRepositoryImpl();
+public class FormListActivity extends BaseActivity {
 
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView recyclerView;
@@ -47,8 +44,10 @@ public class FormListActivity extends AppCompatActivity {
                 .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
                     @Override
                     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        // TODO Put form id in extra
+                        Form form = adapter.getItemAt(position);
+
                         Intent intent = new Intent(FormListActivity.this, FormActivity.class);
+                        intent.putExtra(FormActivity.EXTRA_FORM_ID, form.getId());
                         startActivity(intent);
                     }
                 });
@@ -73,7 +72,7 @@ public class FormListActivity extends AppCompatActivity {
             refreshLayout.setRefreshing(true);
         }
 
-        repo.loadFormList()
+        client.loadFormList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(new Action0() {
@@ -86,6 +85,11 @@ public class FormListActivity extends AppCompatActivity {
                     @Override
                     public void call(List<Form> forms) {
                         adapter.setForms(forms);
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        Timber.e(throwable);
                     }
                 });
     }

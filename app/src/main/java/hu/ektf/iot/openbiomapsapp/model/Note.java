@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.object;
+package hu.ektf.iot.openbiomapsapp.model;
 
 import android.content.ContentValues;
 import android.content.Context;
