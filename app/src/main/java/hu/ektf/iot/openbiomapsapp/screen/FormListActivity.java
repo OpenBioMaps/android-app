@@ -72,7 +72,7 @@ public class FormListActivity extends BaseActivity {
             refreshLayout.setRefreshing(true);
         }
 
-        client.loadFormList()
+        repo.loadFormList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(new Action0() {

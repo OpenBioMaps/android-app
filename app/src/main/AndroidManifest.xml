@@ -26,7 +26,8 @@
             android:value="AIzaSyDEOmMrtDEPuBN8cMiucUrConuA3WwuBas" />
 
         <activity
-            android:name=".screen.LoginActivity">
+            android:name=".screen.LoginActivity"
+            android:noHistory="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

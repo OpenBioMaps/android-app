@@ -64,6 +64,10 @@ public class StorageHelper {
         return sharedPreferences.getString(KEY_ACCESS_TOKEN, null);
     }
 
+    public boolean hasAccessToken() {
+        return sharedPreferences.contains(KEY_ACCESS_TOKEN);
+    }
+
     public void setAccessToken(String accessToken) {
         editor.putString(KEY_ACCESS_TOKEN, accessToken);
         editor.commit();
@@ -75,6 +79,12 @@ public class StorageHelper {
 
     public void setRefreshToken(String refreshToken) {
         editor.putString(KEY_REFRESH_TOKEN, refreshToken);
+        editor.commit();
+    }
+
+    public void clearTokens() {
+        editor.remove(KEY_ACCESS_TOKEN);
+        editor.remove(KEY_REFRESH_TOKEN);
         editor.commit();
     }
 }

@@ -1,11 +1,6 @@
 package hu.ektf.iot.openbiomapsapp;
 
-import android.accounts.Account;
-import android.accounts.AccountManager;
-import android.app.Application;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.os.Bundle;
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.squareup.okhttp.Authenticator;
@@ -17,26 +12,20 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.Proxy;
 
-import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
-import hu.ektf.iot.openbiomapsapp.repo.ObmClient;
-import hu.ektf.iot.openbiomapsapp.repo.ObmClientImpl;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepo;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepoImpl;
+import hu.ektf.iot.openbiomapsapp.screen.LoginActivity;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsService;
 import hu.ektf.iot.openbiomapsapp.upload.DynamicEndpoint;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
 import timber.log.Timber;
 
-/**
- * Created by szugyi on 20/11/15.
- */
-public class BioMapsApplication extends Application {
-    public static final String ACCOUNT_TYPE = "openbiomaps.org";
-    public static final String ACCOUNT_NAME = "default";
-    private Account account;
+public class BioMapsApplication extends BaseApplication {
 
-    private ObmClient repo;
+    private ObmRepo repo;
     private StorageHelper storage;
     private DynamicEndpoint dynamicEndpoint;
     private BioMapsService mapsService;
@@ -92,6 +81,10 @@ public class BioMapsApplication extends Application {
                             .build();
                 } catch (Throwable throwable) {
                     Timber.e(throwable);
+                    storage.clearTokens();
+                    Intent intent = new Intent(BioMapsApplication.this, LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                     return null;
                 }
             }
@@ -104,21 +97,16 @@ public class BioMapsApplication extends Application {
     }
 
     protected RestAdapter.LogLevel getRetrofitLogLevel() {
-        return RestAdapter.LogLevel.NONE;
-    }
-
-    protected void setupLogging() {
-        // Placeholder for debug application
+        return BuildConfig.DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE;
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        repo = new ObmClientImpl(this);
-        storage = new StorageHelper(this);
         setupRetrofit();
-        setupLogging();
-        createSyncAccount(this);
+
+        repo = new ObmRepoImpl(this);
+        storage = new StorageHelper(this);
     }
 
     public BioMapsService getMapsService() {
@@ -127,29 +115,5 @@ public class BioMapsApplication extends Application {
 
     public DynamicEndpoint getDynamicEndpoint() {
         return dynamicEndpoint;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void requestSync() {
-        Timber.i("requestSync method was called. Sync will be requested");
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_FORCE, true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, bundle);
-    }
-
-    private void createSyncAccount(Context context) {
-        account = new Account(ACCOUNT_NAME, ACCOUNT_TYPE);
-        AccountManager accountManager = (AccountManager) context.getSystemService(ACCOUNT_SERVICE);
-
-        if (accountManager.addAccountExplicitly(account, null, null)) {
-            Timber.i("Account was created successfully");
-        } else {
-            Timber.i("Account was not created!");
-        }
     }
 }
