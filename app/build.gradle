@@ -13,6 +13,11 @@ android {
         multiDexEnabled true
     }
 
+    lintOptions {
+        checkReleaseBuilds true
+        abortOnError false
+    }
+
     productFlavors {
         mock {
             manifestPlaceholders = [applicationLabel: "mock-OpenBioMaps"]
