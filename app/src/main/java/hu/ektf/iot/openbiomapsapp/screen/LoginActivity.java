@@ -42,6 +42,11 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (repo.isLoggedIn()) {
+            startFormsActivity();
+            return;
+        }
+
         setContentView(R.layout.activity_login);
 
         emailEdit = (AutoCompleteTextView) findViewById(R.id.email);
@@ -79,25 +84,19 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private void attemptLogin() {
-        // Reset errors.
         emailEdit.setError(null);
         passwordEdit.setError(null);
-
-        // Store values at the time of the login attempt.
         String email = emailEdit.getText().toString();
         String password = passwordEdit.getText().toString();
-
         boolean cancel = false;
         View focusView = null;
 
-        // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             passwordEdit.setError(getString(R.string.error_invalid_password));
             focusView = passwordEdit;
             cancel = true;
         }
 
-        // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             emailEdit.setError(getString(R.string.error_field_required));
             focusView = emailEdit;
@@ -109,14 +108,10 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
         }
 
         if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
         } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
             showProgress(true);
-            client.login(email, password)
+            repo.login(email, password)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .doOnTerminate(new Action0() {
@@ -128,9 +123,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                     .doOnNext(new Action1<TokenResponse>() {
                         @Override
                         public void call(TokenResponse tokenResponse) {
-                            Intent intent = new Intent(LoginActivity.this, FormListActivity.class);
-                            startActivity(intent);
-                            finish();
+                            startFormsActivity();
                         }
                     })
                     .doOnError(new Action1<Throwable>() {
@@ -173,6 +166,11 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
                 progressView.setVisibility(show ? View.VISIBLE : View.GONE);
             }
         });
+    }
+
+    private void startFormsActivity() {
+        Intent intent = new Intent(LoginActivity.this, FormListActivity.class);
+        startActivity(intent);
     }
 
     @Override
