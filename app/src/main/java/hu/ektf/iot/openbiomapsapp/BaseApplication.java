@@ -7,7 +7,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 
+import com.crashlytics.android.Crashlytics;
+
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
+import hu.ektf.iot.openbiomapsapp.logging.CrashlyticsLogTree;
+import io.fabric.sdk.android.Fabric;
+import io.fabric.sdk.android.SilentLogger;
 import timber.log.Timber;
 
 public abstract class BaseApplication extends Application {
@@ -19,6 +24,17 @@ public abstract class BaseApplication extends Application {
     private void setupLogging() {
         if (BuildConfig.DEBUG) {
             Timber.plant(new Timber.DebugTree());
+        } else {
+            Timber.plant(new CrashlyticsLogTree());
+        }
+    }
+
+    private void setupFabric() {
+        if (!BuildConfig.DEBUG) {
+            Fabric.with(new Fabric.Builder(this)
+                    .logger(new SilentLogger())
+                    .kits(new Crashlytics())
+                    .build());
         }
     }
 
@@ -26,6 +42,7 @@ public abstract class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         setupLogging();
+        setupFabric();
         createSyncAccount(this);
     }
 
