@@ -59,7 +59,7 @@ public class FormActivity extends BaseActivity {
                 JSONObject formData = getFormData();
                 JSONArray columns = formData.names();
 
-                client.putData(formId, columns.toString(), formData.toString())
+                repo.putData(formId, columns.toString(), formData.toString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Action1<Response>() {
@@ -79,7 +79,7 @@ public class FormActivity extends BaseActivity {
     }
 
     private void loadForm() {
-        client.loadForm(formId)
+        repo.loadForm(formId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action1<List<FormControl>>() {
