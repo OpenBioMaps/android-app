@@ -13,17 +13,14 @@ import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
-import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
 import hu.ektf.iot.openbiomapsapp.model.Note;
 import hu.ektf.iot.openbiomapsapp.model.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
-/**
- * Created by szugyi on 27/11/15.
- */
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private BioMapsResolver bioMapsResolver;
     private BioMapsService mapsService;
@@ -74,7 +71,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void doSync() {
         Note noteToSync = null;
         try {
-            noteToSync = bioMapsResolver.getNoteByStatus(Note.State.CLOSED);
+            noteToSync = bioMapsResolver.getNoteByStatus(State.CLOSED);
             if (noteToSync == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;
