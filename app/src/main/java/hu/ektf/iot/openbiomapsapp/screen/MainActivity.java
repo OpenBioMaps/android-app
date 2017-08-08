@@ -51,8 +51,8 @@ import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.helper.FileHelper;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import hu.ektf.iot.openbiomapsapp.model.Note;
-import hu.ektf.iot.openbiomapsapp.model.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity implements OnConnectionFailedListener {
@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
     // File
     private FileHelper fileHelper;
-    private Note note;
+    private FormData note;
     private String selectedImagePath;
     private File imageFile;
 
@@ -171,9 +171,11 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         buttonShowMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /*
                 String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude() + "?q=" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
                 startActivity(intent);
+                */
             }
         });
 
@@ -230,18 +232,20 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                     return;
                 }
 
+                /*
                 if (note.getLocation() == null) {
                     Toast.makeText(MainActivity.this, R.string.error_no_location, Toast.LENGTH_LONG).show();
                     return;
                 }
+                */
 
-                note.setComment(etNote.getText().toString());
+                //note.setComment(etNote.getText().toString());
                 note.setUrl(url);
                 note.setState(State.CLOSED);
                 saveNote();
                 ((BioMapsApplication) getApplication()).requestSync();
 
-                note = new Note();
+                note = new FormData();
                 createAdapters();
                 updateUI();
             }
@@ -258,7 +262,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent intent = new Intent(getApplicationContext(), ImagePagerActivity.class);
-                intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, note.getImagesList());
+                //intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, note.getImagesList());
                 intent.putExtra(ImagePagerActivity.ARG_POS, position);
                 startActivity(intent);
             }
@@ -267,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         adapterAudio.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String audioUrl = note.getSoundsList().get(position);
+                String audioUrl = note.getFiles().get(position);
                 Uri myUri = Uri.fromFile(new File(audioUrl));
 
                 Intent intent = new Intent();
@@ -287,9 +291,9 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     }
 
     private void saveLocation(Location currentLocation) {
-        note.setLocation(currentLocation);
+        //note.setLocation(currentLocation);
         note.setDate(new Date());
-        note.setComment(etNote.getText().toString());
+        //note.setComment(etNote.getText().toString());
         saveNote();
         updateUI();
     }
@@ -305,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         super.onPause();
         gpsHelper.onPause();
 
-        note.setComment(etNote.getText().toString());
+        //note.setComment(etNote.getText().toString());
         saveNote();
     }
 
@@ -346,10 +350,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
         if (imageFile != null) {
             String local = imageFile.getPath();
-            note.getImagesList().add(local);
+            //note.getImagesList().add(local);
             adapterImage.notifyDataSetChanged();
 
-            note.setComment(etNote.getText().toString());
+            //note.setComment(etNote.getText().toString());
             saveNote();
             updateUI();
         }
@@ -358,10 +362,10 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
             if (resultCode == RESULT_OK) {
                 Uri audioUri = intent.getData();
                 String fileName = FileHelper.getPath(MainActivity.this, intent.getData());
-                note.getSoundsList().add(fileName);
+                note.getFiles().add(fileName);
                 adapterAudio.notifyDataSetChanged();
 
-                note.setComment(etNote.getText().toString());
+                //note.setComment(etNote.getText().toString());
                 saveNote();
                 updateUI();
             }
@@ -435,10 +439,12 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .findViewById(R.id.etLocationLatitude);
         final EditText etSetLongitude = (EditText) dialogView
                 .findViewById(R.id.etLocationLongitude);
+        /*
         if(note.getLocation() != null) {
             etSetLatitude.setText(String.valueOf(note.getLocation().getLatitude()));
             etSetLongitude.setText(String.valueOf(note.getLocation().getLongitude()));
         }
+        */
 
         final AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this)
                 .setView(dialogView)
@@ -489,19 +495,19 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
     private void createNote() {
         try {
-            note = bioMapsResolver.getNoteByStatus(State.CREATED);
+            note = bioMapsResolver.getFormDataByStatus(State.CREATED);
         } catch (RemoteException e) {
             e.printStackTrace();
         }
 
         if (note == null) {
-            note = new Note();
+            note = new FormData();
         }
     }
 
     private void saveNote() {
         try {
-            Object o = bioMapsResolver.insertOrUpdateNote(note);
+            Object o = bioMapsResolver.insertOrUpdateFormData(note);
             Timber.i("InsertOrUpdate result: %s", o.toString());
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -509,6 +515,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     }
 
     private void updateUI() {
+        /*
         if (!TextUtils.equals(etNote.getText(), note.getComment())) {
             etNote.setText(note.getComment());
         }
@@ -525,8 +532,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         }
 
         imageRecycler.setVisibility(note.getImagesList().size() == 0 ? View.GONE : View.VISIBLE);
-        audioRecycler.setVisibility(note.getSoundsList().size() == 0 ? View.GONE : View.VISIBLE);
-
+        audioRecycler.setVisibility(note.getFiles().size() == 0 ? View.GONE : View.VISIBLE);
+        */
     }
 
     private int getListItemWidth() {
@@ -540,8 +547,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
     private void createAdapters() {
         int unitWidth = getListItemWidth();
-        adapterImage = new ImageListAdapter(note.getImagesList());
-        adapterAudio = new AudioListAdapter(note.getSoundsList());
+        //adapterImage = new ImageListAdapter(note.getImagesList());
+        adapterAudio = new AudioListAdapter(note.getFiles());
         adapterImage.setImageSize(unitWidth);
         adapterAudio.setImageSize(unitWidth - 5);
         imageRecycler.setHasFixedSize(true);
@@ -657,7 +664,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
             etNote.setText(quickNote);
             etNote.setSelection(quickNote.length());
-            note.setComment(quickNote);
+            //note.setComment(quickNote);
             saveNote();
         }
 

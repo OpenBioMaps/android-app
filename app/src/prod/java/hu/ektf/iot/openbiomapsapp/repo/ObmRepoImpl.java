@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
+import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
@@ -13,6 +14,7 @@ import hu.ektf.iot.openbiomapsapp.upload.BioMapsService;
 import retrofit.client.Response;
 import rx.Observable;
 import rx.functions.Action1;
+import rx.functions.Func0;
 
 public class ObmRepoImpl extends ObmRepo {
 
@@ -23,12 +25,14 @@ public class ObmRepoImpl extends ObmRepo {
     private static final String SCOPE = "get_form_list get_form_data put_data";
 
     private final BioMapsApplication application;
+    private final BioMapsResolver bioMapsResolver;
     private final BioMapsService service;
     private final StorageHelper storage;
 
     public ObmRepoImpl(Context context) {
         super(context);
         this.application = ((BioMapsApplication) context.getApplicationContext());
+        this.bioMapsResolver = new BioMapsResolver(application);
         this.service = application.getMapsService();
         this.storage = new StorageHelper(context);
     }
@@ -68,7 +72,19 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
-    public Observable<Response> putData(int formId, String columns, String values) {
+    public Observable<Boolean> saveData(int formId, String json) {
+        return Observable.defer(new Func0<Observable<Boolean>>() {
+            @Override
+            public Observable<Boolean> call() {
+
+
+                return Observable.just(true);
+            }
+        });
+    }
+
+    @Override
+    public Response putData(int formId, String columns, String values) {
         return service.putData("put_data", formId, columns, values);
     }
 }

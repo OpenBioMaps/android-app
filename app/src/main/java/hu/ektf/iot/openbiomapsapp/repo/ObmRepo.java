@@ -25,6 +25,8 @@ public abstract class ObmRepo {
 
     public abstract Observable<List<FormControl>> loadForm(int formId);
 
-    public abstract Observable<Response> putData(int formId, String columns, String valuesJson);
+    public abstract Observable<Boolean> saveData(int formId, String json);
+
+    public abstract Response putData(int formId, String columns, String valuesJson);
 
 }

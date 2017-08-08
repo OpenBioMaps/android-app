@@ -22,12 +22,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        NoteTable.onCreate(db);
+        FormDataTable.onCreate(db);
 
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        NoteTable.onUpgrade(db, oldVersion, newVersion);
+        FormDataTable.onUpgrade(db, oldVersion, newVersion);
     }
 }
