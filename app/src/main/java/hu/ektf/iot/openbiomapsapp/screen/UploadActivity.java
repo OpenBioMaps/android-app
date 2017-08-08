@@ -30,14 +30,14 @@ import java.util.Arrays;
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.adapter.NoteCursorAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.FormDataCursorAdapter;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
-import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
-import hu.ektf.iot.openbiomapsapp.database.NoteTable;
+import hu.ektf.iot.openbiomapsapp.database.FormDataCreator;
+import hu.ektf.iot.openbiomapsapp.database.FormDataTable;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
-import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
 import timber.log.Timber;
 
 public class UploadActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -45,7 +45,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
     private ProgressDialog barProgressDialog;
     private RecyclerView recyclerView;
-    private NoteCursorAdapter adapter;
+    private FormDataCursorAdapter adapter;
     private Button buttonExportAll;
     private TextView tvEmpty;
 
@@ -79,11 +79,11 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
 
-        adapter = new NoteCursorAdapter(this, null);
+        adapter = new FormDataCursorAdapter(this, null);
         adapter.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int position, long id) {
-                Note note = getNoteByPosition(position);
+                FormData note = getNoteByPosition(position);
                 showDetailDialog(note);
             }
         });
@@ -91,7 +91,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Note note = getNoteByPosition(position);
+                FormData note = getNoteByPosition(position);
                 showContextMenu(note);
                 return false;
             }
@@ -102,14 +102,14 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         getSupportLoaderManager().initLoader(NOTE_LOADER, null, this);
     }
 
-    private Note getNoteByPosition(int position) {
+    private FormData getNoteByPosition(int position) {
         Cursor cursor = adapter.getCursor();
         cursor.moveToPosition(position);
-        Note note = NoteCreator.getNoteFromCursor(cursor);
+        FormData note = FormDataCreator.getFormDataFromCursor(cursor);
         return note;
     }
 
-    private void showDetailDialog(final Note note) {
+    private void showDetailDialog(final FormData note) {
         String prettyJSON = note.getResponse();
         try{
             int spacesToIndentEachLevel = 2;
@@ -124,7 +124,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 .create().show();
     }
 
-    private void showContextMenu(final Note note) {
+    private void showContextMenu(final FormData note) {
         new AlertDialog.Builder(UploadActivity.this)
                 .setItems(R.array.note_context, new DialogInterface.OnClickListener() {
                     @Override
@@ -148,7 +148,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 .create().show();
     }
 
-    private void showExportDialog(final Note note) {
+    private void showExportDialog(final FormData note) {
         new AlertDialog.Builder(UploadActivity.this)
                 .setTitle(getString(R.string.dialog_export_title))
                 .setMessage(getString(R.string.dialog_export_path, sharedPrefStorage.getExportPath()))
@@ -163,7 +163,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 .create().show();
     }
 
-    private void showChangeUrlDialog(final Note note) {
+    private void showChangeUrlDialog(final FormData note) {
         LayoutInflater li = LayoutInflater.from(UploadActivity.this);
         View dialogView = li.inflate(R.layout.dialog_server_settings, null);
 
@@ -185,12 +185,12 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                                     return;
                                 }
 
-                                note.setState(Note.State.CLOSED);
+                                note.setState(FormData.State.CLOSED);
                                 note.setResponse("");
                                 note.setUrl(newUrl);
 
                                 try {
-                                    bioMapsResolver.updateNote(note);
+                                    bioMapsResolver.updateFormData(note);
                                     ((BioMapsApplication) getApplication()).requestSync();
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
@@ -201,7 +201,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                 .create().show();
     }
 
-    private void showDeleteDialog(final Note note) {
+    private void showDeleteDialog(final FormData note) {
         new AlertDialog.Builder(UploadActivity.this)
                 .setTitle(R.string.dialog_delete_title)
                 .setMessage(R.string.dialog_delete_message)
@@ -209,7 +209,7 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
                     @Override
                     public void onClick(DialogInterface arg0, int arg1) {
                         try {
-                            bioMapsResolver.deleteNoteById(note.getId());
+                            bioMapsResolver.deleteFormDataById(note.getId());
                         } catch (Exception e) {
                             Timber.e(e, "Delete failed.");
                         }
@@ -220,12 +220,12 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
     }
 
 
-    private void retryUpload(final Note note) {
+    private void retryUpload(final FormData note) {
         Toast.makeText(UploadActivity.this, R.string.toast_uploading, Toast.LENGTH_LONG).show();
-        note.setState(Note.State.CLOSED);
+        note.setState(FormData.State.CLOSED);
         note.setResponse("");
         try {
-            bioMapsResolver.updateNote(note);
+            bioMapsResolver.updateFormData(note);
             ((BioMapsApplication) getApplication()).requestSync();
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -235,9 +235,9 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderID, Bundle args) {
-        String selection = NoteTable.STATE + " != ?";
-        String[] selectionArgs = new String[]{String.valueOf(Note.State.CREATED.getValue())};
-        String order = NoteTable.DATE + " DESC";
+        String selection = FormDataTable.STATE + " != ?";
+        String[] selectionArgs = new String[]{String.valueOf(FormData.State.CREATED.getValue())};
+        String order = FormDataTable.DATE + " DESC";
         return new CursorLoader(
                 this,                                      // Activity context
                 BioMapsContentProvider.CONTENT_URI,        // Table to query
@@ -263,19 +263,19 @@ public class UploadActivity extends AppCompatActivity implements LoaderManager.L
         adapter.changeCursor(null);
     }
 
-    class ExportAsyncTask extends AsyncTask<Note, Integer, String> {
+    class ExportAsyncTask extends AsyncTask<FormData, Integer, String> {
         @Override
-        protected String doInBackground(Note... params) {
+        protected String doInBackground(FormData... params) {
             try {
-                ArrayList<Note> notes = new ArrayList<>(Arrays.asList(params));
+                ArrayList<FormData> notes = new ArrayList<>(Arrays.asList(params));
                 if (notes.isEmpty()) {
-                    notes = bioMapsResolver.getAllNote();
+                    notes = bioMapsResolver.getAllFormData();
                 }
 
                 int count = notes.size();
                 for (int i = 0; i < count; i++) {
                     if (isCancelled()) break;
-                    if (notes.get(i).getState() == Note.State.CREATED) continue;
+                    if (notes.get(i).getState() == FormData.State.CREATED) continue;
 
                     ExportHelper.exportNote(notes.get(i));
                     publishProgress((int) ((i / (float) count) * 100));

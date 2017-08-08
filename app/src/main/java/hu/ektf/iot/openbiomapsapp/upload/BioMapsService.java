@@ -16,9 +16,6 @@ import retrofit.http.PartMap;
 import retrofit.mime.TypedFile;
 import rx.Observable;
 
-/**
- * Created by gerybravo on 2015.11.04..
- */
 public interface BioMapsService {
     String PARAM_FILE_ARRAY_FORMAT = "m_file0[%d]";
 
@@ -50,10 +47,10 @@ public interface BioMapsService {
 
     @FormUrlEncoded
     @POST("/projects/dinpi/pds.php")
-    Observable<Response> putData(@Field("scope") String scope,
-                                 @Field("put_api_form") Integer formId,
-                                 @Field("value") String columns,
-                                 @Field("api_form_data") String values);
+    Response putData(@Field("scope") String scope,
+                     @Field("put_api_form") Integer formId,
+                     @Field("value") String columns,
+                     @Field("api_form_data") String values);
 
     @Multipart
     @POST("/service.php")

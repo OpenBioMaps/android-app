@@ -29,13 +29,6 @@
             android:text="Nincs megjegyzés"
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <TextView
-            android:id="@+id/tvLocation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Koordináta: -"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -47,24 +40,7 @@
         android:weightSum="100">
 
         <ImageView
-            android:id="@+id/ivImages"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="28"
-            android:src="@drawable/photo" />
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:layout_marginRight="1dp"
-            android:layout_weight="7"
-            android:text="0"
-            android:id="@+id/tvNumOfImages"
-            android:textStyle="bold" />
-
-        <ImageView
-            android:id="@+id/ivSounds"
+            android:id="@+id/ivFiles"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_toRightOf="@+id/ivImages"
@@ -78,7 +54,7 @@
             android:layout_marginRight="1dp"
             android:layout_weight="7"
             android:text="0"
-            android:id="@+id/tvNumOfSounds"
+            android:id="@+id/tvNumOfFiles"
             android:textStyle="bold" />
 
         <ImageView
