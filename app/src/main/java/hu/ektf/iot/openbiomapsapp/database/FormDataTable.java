@@ -5,33 +5,25 @@ import android.provider.BaseColumns;
 
 import timber.log.Timber;
 
-
-/**
- * This class defines the database table used to store Note type objects.
- */
-public class NoteTable {
-    public static final String TABLE_NAME = "note";
+public class FormDataTable {
+    public static final String TABLE_NAME = "form_data";
 
     public static final String _ID = BaseColumns._ID;
-    public static final String COMMENT = "COMMENT";
-    public static final String SOUND_FILES = "SOUND_FILES";
-    public static final String IMAGE_FILES = "IMAGE_FILES";
+    public static final String FORM_ID = "FORM_ID";
     public static final String DATE = "DATE";
+    public static final String FILES = "FILES";
+    public static final String JSON = "JSON";
     public static final String RESPONSE = "RESPONSE";
-    public static final String LATITUDE = "LATITUDE";
-    public static final String LONGITUDE = "LONGITUDE";
     public static final String STATE = "STATE";
     public static final String URL = "URL";
 
     private static final String CREATE_TABLE =
             "CREATE TABLE " + TABLE_NAME +
                     "(" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COMMENT + " TEXT, " +
-                    LATITUDE + " TEXT, " +
-                    LONGITUDE + " TEXT," +
-                    SOUND_FILES + " TEXT, " +
-                    IMAGE_FILES + " TEXT, " +
+                    FORM_ID + " INTEGER NOT NULL, " +
+                    JSON + " TEXT NOT NULL, " +
                     STATE + " INTEGER NOT NULL, " +
+                    FILES + " TEXT, " +
                     DATE + " TEXT, " +
                     URL + " TEXT, " +
                     RESPONSE + " TEXT);";

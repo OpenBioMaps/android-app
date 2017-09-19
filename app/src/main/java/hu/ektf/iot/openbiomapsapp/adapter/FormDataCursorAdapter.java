@@ -11,27 +11,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.database.NoteCreator;
-import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.database.FormDataCreator;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
 
-/**
- * Created by Pádi on 2015. 12. 04..
- */
-public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapter.ViewHolder> {
+public class FormDataCursorAdapter extends CursorRecyclerViewAdapter<FormDataCursorAdapter.ViewHolder> {
 
     private AdapterView.OnItemClickListener itemClickListener;
     private AdapterView.OnItemLongClickListener longClickListener;
 
-    public NoteCursorAdapter(Context context, Cursor cursor) {
+    public FormDataCursorAdapter(Context context, Cursor cursor) {
         super(context, cursor);
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
         public TextView tvComment;
         public TextView tvDate;
-        public ImageView ivSounds, ivImages, ivStatus;
-        public TextView tvCoord;
-        public TextView tvNumOfImages, tvNumOfSounds;
+        public ImageView ivFiles, ivStatus;
+        public TextView tvNumOfFiles;
 
         public AdapterView.OnItemClickListener itemClickListener;
         public AdapterView.OnItemLongClickListener longClickListener;
@@ -43,12 +39,9 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
 
             tvComment = (TextView) v.findViewById(R.id.tvNote);
             tvDate = (TextView) v.findViewById(R.id.tvDate);
-            ivSounds = (ImageView) v.findViewById(R.id.ivSounds);
-            ivImages = (ImageView) v.findViewById(R.id.ivImages);
+            ivFiles = (ImageView) v.findViewById(R.id.ivFiles);
             ivStatus = (ImageView) v.findViewById(R.id.ivStatus);
-            tvCoord = (TextView) v.findViewById(R.id.tvLocation);
-            tvNumOfImages = (TextView) v.findViewById(R.id.tvNumOfImages);
-            tvNumOfSounds = (TextView) v.findViewById(R.id.tvNumOfSounds);
+            tvNumOfFiles = (TextView) v.findViewById(R.id.tvNumOfFiles);
 
             v.setOnClickListener(this);
             v.setOnLongClickListener(this);
@@ -89,14 +82,11 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
 
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, Cursor cursor) {
-        Note myListItem = NoteCreator.getNoteFromCursor(cursor);
-        viewHolder.tvDate.setText(myListItem.getDateString());
-        viewHolder.tvComment.setText(myListItem.getComment());
-        viewHolder.tvCoord.setText(myListItem.getLocationString());
-        viewHolder.tvNumOfImages.setText(String.valueOf(myListItem.getImagesList().size()));
-        viewHolder.tvNumOfSounds.setText(String.valueOf(myListItem.getSoundsList().size()));
+        FormData formData = FormDataCreator.getFormDataFromCursor(cursor);
+        viewHolder.tvDate.setText(formData.getDateString());
+        viewHolder.tvNumOfFiles.setText(String.valueOf(formData.getFiles().size()));
 
-        switch (myListItem.getState()) {
+        switch (formData.getState()) {
             case UPLOADED:
                 viewHolder.ivStatus.setVisibility(View.VISIBLE);
                 viewHolder.ivStatus.setImageResource(R.drawable.state_success);
@@ -113,6 +103,5 @@ public class NoteCursorAdapter extends CursorRecyclerViewAdapter<NoteCursorAdapt
                 viewHolder.ivStatus.setVisibility(View.INVISIBLE);
                 break;
         }
-
     }
 }

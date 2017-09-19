@@ -13,9 +13,10 @@ import java.util.Map;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
-import hu.ektf.iot.openbiomapsapp.model.Note;
-import hu.ektf.iot.openbiomapsapp.model.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
+import hu.ektf.iot.openbiomapsapp.repo.ObmRepoImpl;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
 import retrofit.mime.TypedFile;
@@ -25,6 +26,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private BioMapsResolver bioMapsResolver;
     private BioMapsService mapsService;
     private DynamicEndpoint endpoint;
+    private ObmRepoImpl repo;
     private Gson gson;
 
     /**
@@ -53,6 +55,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         BioMapsApplication bioMapsApplication = (BioMapsApplication) context.getApplicationContext();
         mapsService = bioMapsApplication.getMapsService();
         endpoint = bioMapsApplication.getDynamicEndpoint();
+        repo = new ObmRepoImpl(context);
         gson = new Gson();
     }
 
@@ -69,45 +72,47 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private boolean isSyncing = false;
 
     private void doSync() {
-        Note noteToSync = null;
+        FormData formData = null;
         try {
-            noteToSync = bioMapsResolver.getNoteByStatus(State.CLOSED);
-            if (noteToSync == null) {
+            formData = bioMapsResolver.getFormDataByStatus(State.CLOSED);
+            if (formData == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;
                 return;
             }
 
             Timber.d("Upload started");
-            noteToSync.setState(State.UPLOADING);
-            bioMapsResolver.updateNote(noteToSync);
+            formData.setState(State.UPLOADING);
+            bioMapsResolver.updateFormData(formData);
 
-            endpoint.setUrl(noteToSync.getUrl());
-            Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(noteToSync.getImagesList(), noteToSync.getSoundsList());
-            Response response = mapsService.uploadNote(noteToSync.getComment(), noteToSync.getDateString(), noteToSync.getGeometryString(), fileMap);
+            endpoint.setUrl(formData.getUrl());
+            Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
+            // TODO: Add files
+            Response response = repo.putData(formData.getFormId(), gson.toJson(formData.getColumns()), formData.getJson());
             String respStr = new String(((TypedByteArray) response.getBody()).getBytes());
-            noteToSync.setResponse(respStr);
-            noteToSync.setState(State.UPLOADED);
+            formData.setResponse(respStr);
+            formData.setState(State.UPLOADED);
 
             try {
                 BioMapsResponse respObj = gson.fromJson(respStr, BioMapsResponse.class);
                 if (!respObj.getError().isEmpty()) {
-                    noteToSync.setState(State.UPLOAD_ERROR);
+                    formData.setState(State.UPLOAD_ERROR);
                 }
             } catch (Exception e) {
+                formData.setState(State.UPLOAD_ERROR);
                 Timber.e(e, "Upload response contained error");
             }
 
-            bioMapsResolver.updateNote(noteToSync);
+            bioMapsResolver.updateFormData(formData);
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
 
-            if (noteToSync != null) {
+            if (formData != null) {
                 try {
-                    noteToSync.setResponse("EXCEPTION: " + ex.toString());
-                    noteToSync.setState(State.UPLOAD_ERROR);
-                    bioMapsResolver.updateNote(noteToSync);
+                    formData.setResponse("EXCEPTION: " + ex.toString());
+                    formData.setState(State.UPLOAD_ERROR);
+                    bioMapsResolver.updateFormData(formData);
                     doSync();
                 } catch (Exception e) {
                     ex.printStackTrace();
