@@ -1,6 +1,5 @@
 package hu.ektf.iot.openbiomapsapp.database;
 
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -17,20 +16,18 @@ import java.util.HashSet;
  */
 public class BioMapsContentProvider extends android.content.ContentProvider {
     private static final UriMatcher sURIMatcher;
-    private static final int NOTES = 10;
-    private static final int NOTE_ID = 20;
-    private static final String BASE_PATH = "notes";
+    private static final int FORM_DATAS = 10;
+    private static final int FORM_DATA_ID = 20;
+    private static final String BASE_PATH = "formdata";
 
     public static final String AUTHORITY = "hu.ektf.iot.openbiomapsapp";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/" + BASE_PATH);
-    public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/notes";
-    public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/note";
     public static final String QUERY_PARAMETER_LIMIT = "limit";
 
     static {
         sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH, NOTES);
-        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", NOTE_ID);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH, FORM_DATAS);
+        sURIMatcher.addURI(AUTHORITY, BASE_PATH + "/#", FORM_DATA_ID);
     }
 
     private DatabaseHelper database;
@@ -47,13 +44,13 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
         checkColumns(projection);
 
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-        queryBuilder.setTables(NoteTable.TABLE_NAME);
+        queryBuilder.setTables(FormDataTable.TABLE_NAME);
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
-            case NOTES:
+            case FORM_DATAS:
                 break;
-            case NOTE_ID:
-                queryBuilder.appendWhere(NoteTable._ID + "=" + uri.getLastPathSegment());
+            case FORM_DATA_ID:
+                queryBuilder.appendWhere(FormDataTable._ID + "=" + uri.getLastPathSegment());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -73,8 +70,8 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         long id = 0;
         switch (uriType) {
-            case NOTES:
-                id = sqlDB.insert(NoteTable.TABLE_NAME, null, values);
+            case FORM_DATAS:
+                id = sqlDB.insert(FormDataTable.TABLE_NAME, null, values);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -89,15 +86,15 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int rowsDeleted = 0;
         switch (uriType) {
-            case NOTES:
-                rowsDeleted = sqlDB.delete(NoteTable.TABLE_NAME, selection, selectionArgs);
+            case FORM_DATAS:
+                rowsDeleted = sqlDB.delete(FormDataTable.TABLE_NAME, selection, selectionArgs);
                 break;
-            case NOTE_ID:
+            case FORM_DATA_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    rowsDeleted = sqlDB.delete(NoteTable.TABLE_NAME, NoteTable._ID + "=" + id, null);
+                    rowsDeleted = sqlDB.delete(FormDataTable.TABLE_NAME, FormDataTable._ID + "=" + id, null);
                 } else {
-                    rowsDeleted = sqlDB.delete(NoteTable.TABLE_NAME, NoteTable._ID + "=" + id + " and " + selection, selectionArgs);
+                    rowsDeleted = sqlDB.delete(FormDataTable.TABLE_NAME, FormDataTable._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             default:
@@ -114,15 +111,15 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
 
         int rowsUpdated = 0;
         switch (uriType) {
-            case NOTES:
-                rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, selection, selectionArgs);
+            case FORM_DATAS:
+                rowsUpdated = sqlDB.update(FormDataTable.TABLE_NAME, values, selection, selectionArgs);
                 break;
-            case NOTE_ID:
+            case FORM_DATA_ID:
                 String id = uri.getLastPathSegment();
                 if (TextUtils.isEmpty(selection)) {
-                    rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, NoteTable._ID + "=" + id, null);
+                    rowsUpdated = sqlDB.update(FormDataTable.TABLE_NAME, values, FormDataTable._ID + "=" + id, null);
                 } else {
-                    rowsUpdated = sqlDB.update(NoteTable.TABLE_NAME, values, NoteTable._ID + "=" + id + " and " + selection, selectionArgs);
+                    rowsUpdated = sqlDB.update(FormDataTable.TABLE_NAME, values, FormDataTable._ID + "=" + id + " and " + selection, selectionArgs);
                 }
                 break;
             default:
@@ -139,10 +136,9 @@ public class BioMapsContentProvider extends android.content.ContentProvider {
     }
 
     private void checkColumns(String[] projection) {
-        String[] available = {NoteTable._ID, NoteTable.COMMENT,
-                NoteTable.SOUND_FILES, NoteTable.IMAGE_FILES,
-                NoteTable.DATE, NoteTable.RESPONSE, NoteTable.LATITUDE,
-                NoteTable.LONGITUDE, NoteTable.STATE, NoteTable.URL};
+        String[] available = {FormDataTable._ID, FormDataTable.DATE,
+                FormDataTable.FILES, FormDataTable.JSON, FormDataTable.RESPONSE,
+                FormDataTable.STATE, FormDataTable.URL};
 
         if (projection != null) {
             HashSet<String> requestedColumns = new HashSet<String>(Arrays.asList(projection));

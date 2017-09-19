@@ -1,10 +1,10 @@
 package hu.ektf.iot.openbiomapsapp.database;
 
-import android.app.Activity;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
@@ -15,8 +15,8 @@ import android.text.TextUtils;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 
-import hu.ektf.iot.openbiomapsapp.model.Note;
-import hu.ektf.iot.openbiomapsapp.model.Note.State;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 
 /**
  * A wrapper class around the default ContentResolver from the Android system, which makes it possible
@@ -25,10 +25,10 @@ import hu.ektf.iot.openbiomapsapp.model.Note.State;
  */
 public class BioMapsResolver {
     private ContentResolver cr;
-    private Uri noteURI = BioMapsContentProvider.CONTENT_URI;
+    private Uri formDataURI = BioMapsContentProvider.CONTENT_URI;
 
-    public BioMapsResolver(Activity activity) {
-        cr = activity.getContentResolver();
+    public BioMapsResolver(Context context) {
+        cr = context.getContentResolver();
     }
 
     public BioMapsResolver(ContentResolver contentResolver) {
@@ -50,44 +50,44 @@ public class BioMapsResolver {
         return cr.openFileDescriptor(uri, mode);
     }
 
-    public ArrayList<Note> queryNotes(final String[] projection,
-                                      final String selection, final String[] selectionArgs,
-                                      final String sortOrder) throws RemoteException {
-        Cursor result = cr.query(noteURI, projection, selection, selectionArgs,
-                sortOrder);
-
-        ArrayList<Note> notes = new ArrayList<Note>();
-
-        notes.addAll(NoteCreator.getNotesFromCursor(result));
-        result.close();
-
-        return notes;
-    }
-
-    public ArrayList<Note> getAllNote() throws RemoteException {
-        return queryNotes(null, null, null, null);
-    }
-
-    public ArrayList<Note> getNotesWithLimit(final String[] projection,
+    public ArrayList<FormData> queryFormData(final String[] projection,
                                              final String selection, final String[] selectionArgs,
-                                             final String sortOrder, final int limit) throws RemoteException {
-        String l = String.valueOf(limit);
-        Cursor result = cr.query(noteURI.buildUpon().appendQueryParameter(BioMapsContentProvider.QUERY_PARAMETER_LIMIT, l).build(), projection, selection, selectionArgs,
+                                             final String sortOrder) throws RemoteException {
+        Cursor result = cr.query(formDataURI, projection, selection, selectionArgs,
                 sortOrder);
 
-        ArrayList<Note> notes = new ArrayList<Note>();
+        ArrayList<FormData> formDatas = new ArrayList<>();
 
-        notes.addAll(NoteCreator.getNotesFromCursor(result));
+        formDatas.addAll(FormDataCreator.getFormDatasFromCursor(result));
         result.close();
 
-        return notes;
+        return formDatas;
     }
 
-    public Note getNoteById(final long id)
+    public ArrayList<FormData> getAllFormData() throws RemoteException {
+        return queryFormData(null, null, null, null);
+    }
+
+    public ArrayList<FormData> getFormDatasWithLimit(final String[] projection,
+                                                     final String selection, final String[] selectionArgs,
+                                                     final String sortOrder, final int limit) throws RemoteException {
+        String l = String.valueOf(limit);
+        Cursor result = cr.query(formDataURI.buildUpon().appendQueryParameter(BioMapsContentProvider.QUERY_PARAMETER_LIMIT, l).build(), projection, selection, selectionArgs,
+                sortOrder);
+
+        ArrayList<FormData> formDatas = new ArrayList<FormData>();
+
+        formDatas.addAll(FormDataCreator.getFormDatasFromCursor(result));
+        result.close();
+
+        return formDatas;
+    }
+
+    public FormData getFormDataById(final long id)
             throws RemoteException {
         String[] selectionArgs = {String.valueOf(id)};
-        ArrayList<Note> results = queryNotes(null,
-                NoteTable._ID + "= ?", selectionArgs, null);
+        ArrayList<FormData> results = queryFormData(null,
+                FormDataTable._ID + "= ?", selectionArgs, null);
 
         if (results.size() > 0) {
             return results.get(0);
@@ -96,14 +96,13 @@ public class BioMapsResolver {
         }
     }
 
-    public Note getNoteByStatus(final State state)
+    public FormData getFormDataByStatus(final State state)
             throws RemoteException {
-        String selection = NoteTable.STATE + "= ?";
+        String selection = FormDataTable.STATE + "= ?";
         String[] selectionArgs = {String.valueOf(state.getValue())};
-        String orderBy = NoteTable.DATE + " ASC";
+        String orderBy = FormDataTable.DATE + " ASC";
 
-        ArrayList<Note> results = queryNotes(null,
-                NoteTable.STATE + "= ?", selectionArgs, null);
+        ArrayList<FormData> results = queryFormData(null, selection, selectionArgs, orderBy);
 
         if (results.size() > 0) {
             return results.get(0);
@@ -112,60 +111,60 @@ public class BioMapsResolver {
         }
     }
 
-    public Uri insert(final Note note) throws RemoteException {
-        ContentValues tempCV = note.getContentValues();
-        tempCV.remove(NoteTable._ID);
-        return cr.insert(noteURI, tempCV);
+    public Uri insert(final FormData formData) throws RemoteException {
+        ContentValues tempCV = formData.getContentValues();
+        tempCV.remove(FormDataTable._ID);
+        return cr.insert(formDataURI, tempCV);
     }
 
-    public int bulkInsertNotes(final ArrayList<Note> notes)
+    public int bulkInsertFormData(final ArrayList<FormData> formDatas)
             throws RemoteException {
-        ContentValues[] values = new ContentValues[notes.size()];
+        ContentValues[] values = new ContentValues[formDatas.size()];
         int index = 0;
-        for (Note note : notes) {
-            ContentValues tempCV = note.getContentValues();
-            tempCV.remove(NoteTable._ID);
+        for (FormData formData : formDatas) {
+            ContentValues tempCV = formData.getContentValues();
+            tempCV.remove(FormDataTable._ID);
             values[index] = tempCV;
             ++index;
         }
-        return cr.bulkInsert(noteURI, values);
+        return cr.bulkInsert(formDataURI, values);
     }
 
-    public int deleteNote(final String selection,
-                          final String[] selectionArgs) throws RemoteException {
-        return cr.delete(noteURI, selection, selectionArgs);
+    public int deleteFormData(final String selection,
+                              final String[] selectionArgs) throws RemoteException {
+        return cr.delete(formDataURI, selection, selectionArgs);
     }
 
-    public int deleteNoteById(long id) throws RemoteException {
+    public int deleteFormDataById(long id) throws RemoteException {
         String[] args = {String.valueOf(id)};
-        return deleteNote(NoteTable._ID + " = ? ", args);
+        return deleteFormData(FormDataTable._ID + " = ? ", args);
     }
 
-    public int deleteNotesByIds(ArrayList<String> id_array) throws RemoteException {
-        return deleteNote(NoteTable._ID + " IN " + "(" + TextUtils.join(", ", id_array) + ")", null);
+    public int deleteFormDatasByIds(ArrayList<String> id_array) throws RemoteException {
+        return deleteFormData(FormDataTable._ID + " IN " + "(" + TextUtils.join(", ", id_array) + ")", null);
     }
 
-    public int updateNote(final Note note, final String selection,
-                          final String[] selectionArgs) throws RemoteException {
-        return cr.update(noteURI, note.getContentValues(), selection, selectionArgs);
+    public int updateFormData(final FormData formData, final String selection,
+                              final String[] selectionArgs) throws RemoteException {
+        return cr.update(formDataURI, formData.getContentValues(), selection, selectionArgs);
     }
 
-    public int updateNote(Note note) throws RemoteException {
-        String selection = NoteTable._ID + " = ?";
-        String[] selectionArgs = {String.valueOf(note.getId())};
-        return updateNote(note, selection, selectionArgs);
+    public int updateFormData(FormData formData) throws RemoteException {
+        String selection = FormDataTable._ID + " = ?";
+        String[] selectionArgs = {String.valueOf(formData.getId())};
+        return updateFormData(formData, selection, selectionArgs);
     }
 
-    public Object insertOrUpdateNote(Note note) throws RemoteException {
+    public Object insertOrUpdateFormData(FormData formData) throws RemoteException {
         Object returnValue = null;
 
-        if (note.getId() == null) {
-            Uri uri = insert(note);
+        if (formData.getId() == null) {
+            Uri uri = insert(formData);
             int id = Integer.parseInt(uri.getLastPathSegment());
-            note.setId(id);
+            formData.setId(id);
             returnValue = uri;
         } else {
-            returnValue = updateNote(note);
+            returnValue = updateFormData(formData);
         }
         return returnValue;
     }

@@ -3,6 +3,8 @@ package hu.ektf.iot.openbiomapsapp;
 import android.content.Intent;
 import android.text.TextUtils;
 
+import com.facebook.stetho.Stetho;
+import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.Authenticator;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
@@ -43,6 +45,11 @@ public class BioMapsApplication extends BaseApplication {
                 .setLogLevel(getRetrofitLogLevel())
                 .build();
         mapsService = restAdapter.create(BioMapsService.class);
+
+        if(BuildConfig.DEBUG) {
+            Stetho.initializeWithDefaults(this);
+            okHttpClient.networkInterceptors().add(new StethoInterceptor());
+        }
     }
 
     private Interceptor getAuthInterceptor() {

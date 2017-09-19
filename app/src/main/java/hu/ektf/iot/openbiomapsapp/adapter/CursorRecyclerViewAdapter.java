@@ -6,7 +6,7 @@ import android.database.DataSetObserver;
 import android.provider.BaseColumns;
 import android.support.v7.widget.RecyclerView;
 
-import hu.ektf.iot.openbiomapsapp.database.NoteTable;
+import hu.ektf.iot.openbiomapsapp.database.FormDataTable;
 
 /**
  * Created by Pádi on 2015. 12. 04..
@@ -98,7 +98,7 @@ public abstract class CursorRecyclerViewAdapter<VH extends RecyclerView.ViewHold
             if (mDataSetObserver != null) {
                 mCursor.registerDataSetObserver(mDataSetObserver);
             }
-            mRowIdColumn = newCursor.getColumnIndexOrThrow(NoteTable._ID);
+            mRowIdColumn = newCursor.getColumnIndexOrThrow(FormDataTable._ID);
             mDataValid = true;
             notifyDataSetChanged();
         } else {

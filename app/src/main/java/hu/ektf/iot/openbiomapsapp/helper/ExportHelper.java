@@ -13,12 +13,9 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import hu.ektf.iot.openbiomapsapp.model.Note;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
 import timber.log.Timber;
 
-/**
- * Created by Pádi on 2015. 11. 26..
- */
 public class ExportHelper {
     public static File createFolderToNote(String date) throws Exception {
         File folder = new File(Environment.getExternalStorageDirectory() + File.separator + "openbiomaps" +
@@ -52,32 +49,18 @@ public class ExportHelper {
         }
     }
 
-    public static void copyAttachmentsToFolder(Note note, File folder) {
-
-        for (String file : note.getImagesList()) {
+    public static void copyAttachmentsToFolder(FormData formData, File folder) {
+        for (String file : formData.getFiles()) {
             String sourcePath = file;
             File source = new File(sourcePath);
             String destinationPath = folder.getPath() + File.separator + source.getName();
             File destination = new File(destinationPath);
             try {
                 FileUtils.copyFile(source, destination);
-                Timber.d("copyattachments file copy succes: " + destinationPath);
+                Timber.d("copy attachments file copy success: " + destinationPath);
             } catch (IOException e) {
                 e.printStackTrace();
-                Timber.d("copyattachments failed: " + sourcePath);
-            }
-        }
-        for (String file : note.getSoundsList()) {
-            String sourcePath = file;
-            File source = new File(sourcePath);
-            String destinationPath = folder.getPath() + File.separator + source.getName();
-            File destination = new File(destinationPath);
-            try {
-                FileUtils.copyFile(source, destination);
-                Timber.d("copyattachments file copy succes: " + destinationPath);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Timber.d("copyattachments failed: " + sourcePath);
+                Timber.d("copy attachments failed: " + sourcePath);
             }
         }
     }
@@ -107,11 +90,10 @@ public class ExportHelper {
         }
     }
 
-    public static void exportNote(Note note) throws Exception {
+    public static void exportNote(FormData note) throws Exception {
         File folder = ExportHelper.createFolderToNote(String.valueOf(note.getDate()));
-        if (note.getComment() != null)
-            ExportHelper.createFileToFolder("note.txt", note.getComment(), folder);
-        ExportHelper.createFileToFolder("geometry.wkt", GeometryConverter.LocationToString(note.getLocation()), folder);
+        if (note.getJson() != null)
+            ExportHelper.createFileToFolder("data.json", note.getJson(), folder);
         ExportHelper.copyAttachmentsToFolder(note, folder);
         ExportHelper.zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
         deleteFolder(note.getDate().toString());
