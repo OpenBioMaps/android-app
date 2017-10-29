@@ -7,9 +7,7 @@ import android.widget.ImageView;
 
 import hu.ektf.iot.openbiomapsapp.R;
 
-/**
- * Created by Pádi on 2015. 11. 05..
- */
+
 public class SquareImageView extends ImageView {
 
     public enum FixedAlong {

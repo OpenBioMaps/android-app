@@ -9,38 +9,25 @@ import android.os.Bundle;
 
 import com.google.gson.Gson;
 
-import java.util.Map;
-
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
-import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
 import hu.ektf.iot.openbiomapsapp.repo.ObmRepoImpl;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
-import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
-    private BioMapsResolver bioMapsResolver;
-    private BioMapsService mapsService;
     private DynamicEndpoint endpoint;
     private ObmRepoImpl repo;
     private Gson gson;
 
-    /**
-     * Set up the sync adapter
-     */
     public SyncAdapter(Context context, boolean autoInitialize) {
         super(context, autoInitialize);
         init(context);
     }
 
-    /**
-     * Set up the sync adapter. This form of the constructor maintains compatibility with Android 3.0
-     * and later platform versions
-     */
     public SyncAdapter(
             Context context,
             boolean autoInitialize,
@@ -50,10 +37,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void init(Context context) {
-        bioMapsResolver = new BioMapsResolver(context.getContentResolver());
-
         BioMapsApplication bioMapsApplication = (BioMapsApplication) context.getApplicationContext();
-        mapsService = bioMapsApplication.getMapsService();
         endpoint = bioMapsApplication.getDynamicEndpoint();
         repo = new ObmRepoImpl(context);
         gson = new Gson();
@@ -73,8 +57,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
     private void doSync() {
         FormData formData = null;
+
         try {
-            formData = bioMapsResolver.getFormDataByStatus(State.CLOSED);
+            formData = repo.getSavedFormDataByState(State.CLOSED);
             if (formData == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;
@@ -83,12 +68,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Timber.d("Upload started");
             formData.setState(State.UPLOADING);
-            bioMapsResolver.updateFormData(formData);
+            repo.saveData(formData).subscribe();
 
             endpoint.setUrl(formData.getUrl());
-            Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
+            // Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
             // TODO: Add files
-            Response response = repo.putData(formData.getFormId(), gson.toJson(formData.getColumns()), formData.getJson());
+            Response response = repo.uploadData(formData.getFormId(), gson.toJson(formData.getColumns()), formData.getJson());
             String respStr = new String(((TypedByteArray) response.getBody()).getBytes());
             formData.setResponse(respStr);
             formData.setState(State.UPLOADED);
@@ -103,7 +88,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Timber.e(e, "Upload response contained error");
             }
 
-            bioMapsResolver.updateFormData(formData);
+            repo.saveData(formData).subscribe();
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -112,7 +97,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     formData.setResponse("EXCEPTION: " + ex.toString());
                     formData.setState(State.UPLOAD_ERROR);
-                    bioMapsResolver.updateFormData(formData);
+                    repo.saveData(formData).subscribe();
                     doSync();
                 } catch (Exception e) {
                     ex.printStackTrace();

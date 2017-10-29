@@ -12,7 +12,7 @@
     <string name="save">Save</string>
     <string name="sd_card">SD card</string>
     <string name="take_photo">Take photo</string>
-    <string name="waiting_for_gps">Acquiring position...</string>
+    <string name="waiting_for_gps">Acquiring position…</string>
     <string name="yes">Yes</string>
     <string name="unknown_input_type">Unknown input type for column: %1$s</string>
 
@@ -38,8 +38,8 @@
     <string name="dialog_export_path">Export path:\n%1$s</string>
     <string name="dialog_export_text_yes">Export</string>
     <string name="dialog_export_title">Export</string>
-    <string name="dialog_export_progress_cancel">Cancle</string>
-    <string name="dialog_export_progress_progress">Export in progress...</string>
+    <string name="dialog_export_progress_cancel">Cancel</string>
+    <string name="dialog_export_progress_progress">Export in progress…</string>
     <string name="dialog_export_progress_title">Export</string>
     <string name="dialog_gps_off_message">GPS is disabled. Do you want to turn it on?</string>
     <string name="dialog_image_chooser_title">Choose source</string>
@@ -52,7 +52,7 @@
     <string name="dialog_setLatitude">Latitude</string>
     <string name="dialog_setLongitude">Longitude</string>
     <string name="dialog_set_location_title">Set location</string>
-    <string name="toast_uploading">Uploading...</string>
+    <string name="toast_uploading">Uploading…</string>
     <string name="toast_upload_failed">Upload failed</string>
     <string name="dialog_lat_error_message">Wrong lat value! [-90,90]</string>
     <string name="dialog_lon_error_message">Wrong lon value! [-180,180]</string>

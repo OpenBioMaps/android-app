@@ -49,31 +49,23 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
         setContentView(R.layout.activity_login);
 
-        emailEdit = (AutoCompleteTextView) findViewById(R.id.email);
+        emailEdit = findViewById(R.id.email);
         populateAutoComplete();
 
-        passwordEdit = (EditText) findViewById(R.id.password);
-        passwordEdit.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
-                }
-                return false;
+        passwordEdit = findViewById(R.id.password);
+        passwordEdit.setOnEditorActionListener((textView, id, keyEvent) -> {
+            if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                attemptLogin();
+                return true;
             }
+            return false;
         });
 
         emailEdit.setText("szugyiczkicsaba@gmail.com");
         passwordEdit.setText("Szugyi3600");
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
+        mEmailSignInButton.setOnClickListener(view -> attemptLogin());
 
         loginFormView = findViewById(R.id.login_form);
         progressView = findViewById(R.id.login_progress);
@@ -114,24 +106,9 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             repo.login(email, password)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .doOnTerminate(new Action0() {
-                        @Override
-                        public void call() {
-                            showProgress(false);
-                        }
-                    })
-                    .doOnNext(new Action1<TokenResponse>() {
-                        @Override
-                        public void call(TokenResponse tokenResponse) {
-                            startFormsActivity();
-                        }
-                    })
-                    .doOnError(new Action1<Throwable>() {
-                        @Override
-                        public void call(Throwable throwable) {
-                            Timber.e(throwable);
-                        }
-                    })
+                    .doOnTerminate(() -> showProgress(false))
+                    .doOnNext(tokenResponse -> startFormsActivity())
+                    .doOnError(throwable -> Timber.e(throwable))
                     .subscribe();
         }
     }

@@ -5,16 +5,16 @@ import android.content.Context;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
-import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
+import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import hu.ektf.iot.openbiomapsapp.upload.BioMapsService;
 import retrofit.client.Response;
+import rx.Completable;
 import rx.Observable;
-import rx.functions.Action1;
-import rx.functions.Func0;
 
 public class ObmRepoImpl extends ObmRepo {
 
@@ -25,16 +25,16 @@ public class ObmRepoImpl extends ObmRepo {
     private static final String SCOPE = "get_form_list get_form_data put_data";
 
     private final BioMapsApplication application;
-    private final BioMapsResolver bioMapsResolver;
     private final BioMapsService service;
     private final StorageHelper storage;
+    private final AppDatabase database;
 
     public ObmRepoImpl(Context context) {
         super(context);
         this.application = ((BioMapsApplication) context.getApplicationContext());
-        this.bioMapsResolver = new BioMapsResolver(application);
         this.service = application.getMapsService();
         this.storage = new StorageHelper(context);
+        this.database = application.getAppDatabase();
     }
 
     @Override
@@ -45,12 +45,9 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<TokenResponse> login(String username, String password) {
         return service.login(username, password, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE_PASSWORD, SCOPE)
-                .doOnNext(new Action1<TokenResponse>() {
-                    @Override
-                    public void call(TokenResponse tokenResponse) {
-                        storage.setAccessToken(tokenResponse.getAccessToken());
-                        storage.setRefreshToken(tokenResponse.getRefreshToken());
-                    }
+                .doOnNext(tokenResponse -> {
+                    storage.setAccessToken(tokenResponse.getAccessToken());
+                    storage.setRefreshToken(tokenResponse.getRefreshToken());
                 });
     }
 
@@ -63,7 +60,9 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Observable<List<Form>> loadFormList() {
-        return service.getForms("get_form_list");
+        return service.getForms("get_form_list")
+                .doOnNext(forms -> database.formDao().insertAll(forms))
+                .onErrorReturn(throwable -> database.formDao().getForms());
     }
 
     @Override
@@ -72,19 +71,32 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
-    public Observable<Boolean> saveData(int formId, String json) {
-        return Observable.defer(new Func0<Observable<Boolean>>() {
-            @Override
-            public Observable<Boolean> call() {
-
-
-                return Observable.just(true);
-            }
-        });
+    public List<FormData> getSavedFormData() {
+        return database.formDataDao().getFormDataList();
     }
 
     @Override
-    public Response putData(int formId, String columns, String values) {
+    public Observable<List<FormData>> getSavedFormDataAsync() {
+       return Observable.fromCallable(() -> database.formDataDao().getFormDataList());
+    }
+
+    @Override
+    public FormData getSavedFormDataByState(FormData.State state) {
+        return database.formDataDao().getFormDataListByState(state);
+    }
+
+    @Override
+    public Completable saveData(final FormData formData) {
+        return Completable.fromAction(() -> database.formDataDao().insert(formData));
+    }
+
+    @Override
+    public Completable deleteData(FormData formData) {
+        return Completable.fromAction(() -> database.formDataDao().delete(formData));
+    }
+
+    @Override
+    public Response uploadData(int formId, String columns, String values) {
         return service.putData("put_data", formId, columns, values);
     }
 }
