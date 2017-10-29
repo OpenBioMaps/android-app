@@ -5,18 +5,20 @@ android:
   components:
   - tools
   - platform-tools
-  - tools
-  - build-tools-25.0.3
+  - build-tools-27.0.0
   - android-25
   - extra-android-support
   - extra-google-google_play_services
   - extra-google-m2repository
   - extra-android-m2repository
+
 before_install:
 - openssl aes-256-cbc -K $encrypted_62ed174ed142_key -iv $encrypted_62ed174ed142_iv
   -in obm.keystore.enc -out obm.keystore -d
+
 install: ./gradlew clean
 script: ./gradlew assembleProd
+
 deploy:
   skip_cleanup: true
   overwrite: true
@@ -27,6 +29,7 @@ deploy:
   on:
     all_branches: true
     tag: true
+
 env:
   global:
   - secure: qGkZcURoFunXdgUoe9qBIf8hgoNCjUUYCOC0C/qkT3t+hfSVJdxtZqU8kHgihz2OeecmHBFF53VEbgOkNAsEXabfvSgCEfW80CWlbEdiwUdOWQ8xLG5cwK5hxU7VHYELj03X9AqiVDoAdLQ6m0OWJA7xazQ1o43zuSUcSuMRrd4ktVwc1Uu2UnIoeec05t70seNueln7+aQb9hV0URwmFB1OGZln3bOjllRkOD8Yhx6xK2LnM/CNLYJAal+2BCmt9GPnsLVWFmjjyUpdp9so3MIIvaibMg/mJSe/hP8UXVwkPeOQjV/iPDywmaFr+dM3Gylxnh2J20xRmifIUhBw+C9ybKkwutv6zjlZPwgnCLK37S4v/U/OO5YXSbZ4PkHOviLq24hBiV0oQCYToMnK1V1yaQgt2k5BJrW02MlmK1eDn0TqwnQB1omJ8trclZNi/CURJrcIFzEsBWmVzP3GVw9N9IwH7p7BeMvj+54GtKotFanJB2DoJdSRTguMdTU1ultHDxuJZD1x23JWdo89IE7B+6CN+/2Wbe2QW4K088nOIYxJRjmIKxwMB30sG8iMebau6aZPGtofefTf8XqbbUjyiFSM12VFP5INJgypUYdW0LkTZVMl12TJ/vOV6dMMjnBydTl6tiz+jWLTsTYeuHHHl3iB4rWGEsiw9CKiccE=
