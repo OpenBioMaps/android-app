@@ -14,6 +14,7 @@
     <string name="take_photo">Take photo</string>
     <string name="waiting_for_gps">Acquiring position...</string>
     <string name="yes">Yes</string>
+    <string name="unknown_input_type">Unknown input type for column: %1$s</string>
 
     <!-- ActionBar strings -->
     <string name="action_app_settings">App settings</string>
@@ -76,8 +77,6 @@
     <string name="error_invalid_password">This password is too short</string>
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email
-        completions."
-    </string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
 
 </resources>
