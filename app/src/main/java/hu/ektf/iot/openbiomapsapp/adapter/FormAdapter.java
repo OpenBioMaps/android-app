@@ -83,8 +83,8 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
 
         public EditTextViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_edit_text, parent, false));
-            this.label = (TextView) itemView.findViewById(R.id.label);
-            this.input = (EditText) itemView.findViewById(R.id.input);
+            this.label = itemView.findViewById(R.id.label);
+            this.input = itemView.findViewById(R.id.input);
         }
 
         @Override
@@ -99,7 +99,7 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
 
         public CheckBoxViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_check_box, parent, false));
-            this.input = (CheckBox) itemView.findViewById(R.id.input);
+            this.input = itemView.findViewById(R.id.input);
         }
 
         @Override
@@ -114,7 +114,7 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
 
         public UnknownInputViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_unknown_input, parent, false));
-            this.text = (TextView) itemView.findViewById(R.id.text);
+            this.text = itemView.findViewById(R.id.text);
         }
 
         @Override

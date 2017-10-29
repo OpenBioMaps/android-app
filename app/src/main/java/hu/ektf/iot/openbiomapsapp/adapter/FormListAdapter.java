@@ -53,8 +53,8 @@ public class FormListAdapter extends RecyclerView.Adapter<FormListAdapter.ViewHo
 
         public ViewHolder(View v) {
             super(v);
-            this.id = (TextView) v.findViewById(R.id.id);
-            this.name = (TextView) v.findViewById(R.id.name);
+            this.id = v.findViewById(R.id.id);
+            this.name = v.findViewById(R.id.name);
         }
     }
 }

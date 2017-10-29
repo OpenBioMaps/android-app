@@ -4,9 +4,7 @@ import android.text.TextUtils;
 
 import retrofit.Endpoint;
 
-/**
- * Created by szugyi on 07/12/15.
- */
+
 public class DynamicEndpoint implements Endpoint {
     private String url;
 

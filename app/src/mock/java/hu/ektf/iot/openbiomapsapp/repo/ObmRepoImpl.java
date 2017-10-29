@@ -153,11 +153,6 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
-    public Observable<Boolean> saveData(int formId, String json) {
-        return null;
-    }
-
-    @Override
     public Response putData(int formId, String columns, String valuesJson) {
         return null;
     }

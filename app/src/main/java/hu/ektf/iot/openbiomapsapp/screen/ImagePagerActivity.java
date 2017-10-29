@@ -12,9 +12,7 @@ import java.util.ArrayList;
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.ImagePagerAdapter;
 
-/**
- * Created by Pádi on 2015. 11. 05..
- */
+
 public class ImagePagerActivity extends Activity {
     public static final String ARG_IMAGES = "ARG_IMAGES";
     public static final String ARG_POS = "ARG_POS";
@@ -35,11 +33,11 @@ public class ImagePagerActivity extends Activity {
         position = getIntent().getIntExtra(ARG_POS, 0);
         mImagePagerAdapter = new ImagePagerAdapter(this, measurementImages);
 
-        mViewPager = (ViewPager) findViewById(R.id.pager);
+        mViewPager = findViewById(R.id.pager);
         mViewPager.setAdapter(mImagePagerAdapter);
         mViewPager.setCurrentItem(position);
 
-        mIndicator = (CirclePageIndicator) findViewById(R.id.indicator);
+        mIndicator = findViewById(R.id.indicator);
         mIndicator.setViewPager(mViewPager);
     }
 }

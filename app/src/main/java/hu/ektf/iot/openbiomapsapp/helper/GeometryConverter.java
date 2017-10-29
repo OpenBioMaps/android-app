@@ -4,9 +4,7 @@ import android.location.Location;
 
 import java.util.Locale;
 
-/**
- * Created by Pádi on 2015. 11. 26..
- */
+
 public class GeometryConverter {
     public static String LocationToString(Location loc) throws Exception {
         if (loc == null) throw new IllegalArgumentException("Location should not be null");
