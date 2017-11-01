@@ -1,0 +1,18 @@
+if (file('../obm.keystore').exists()) {
+    android {
+        signingConfigs {
+            releaseSigningConfig {
+                storeFile file('../obm.keystore')
+                storePassword System.getenv('storepass')
+                keyAlias System.getenv('alias')
+                keyPassword System.getenv('keypass')
+            }
+        }
+
+        buildTypes {
+            release {
+                signingConfig signingConfigs.releaseSigningConfig
+            }
+        }
+    }
+}

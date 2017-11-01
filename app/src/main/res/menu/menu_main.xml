@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" tools:context=".screen.MainActivity">
+    <item android:id="@+id/action_upload" android:title="@string/action_upload"
+        android:orderInCategory="100" app:showAsAction="never"
+        />
+    <item android:id="@+id/action_server_settings" android:title="@string/action_server_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+    <item android:id="@+id/action_app_settings" android:title="@string/action_app_settings"
+        android:orderInCategory="100" app:showAsAction="never" />
+</menu>
