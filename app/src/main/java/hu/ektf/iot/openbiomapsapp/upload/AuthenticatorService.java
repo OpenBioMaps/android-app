@@ -5,10 +5,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 /**
- * A bound Service that instantiates the authenticator
- * when started.
- * <p/>
- * Created by szugyi on 27/11/15.
+ * A bound Service that instantiates the authenticator when started.
  */
 public class AuthenticatorService extends Service {
     // Instance field that stores the authenticator object

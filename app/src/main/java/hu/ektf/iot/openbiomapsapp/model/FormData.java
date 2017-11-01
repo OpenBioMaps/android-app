@@ -1,30 +1,30 @@
 package hu.ektf.iot.openbiomapsapp.model;
 
-import android.content.ContentValues;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.SparseArray;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.Locale;
 
-import hu.ektf.iot.openbiomapsapp.database.FormDataCreator;
-
+@Entity(tableName = "form_data")
 public class FormData implements Parcelable {
 
     public enum State {
         CREATED(0), CLOSED(1), UPLOADING(2), UPLOADED(3), UPLOAD_ERROR(4);
 
-        private static final Map<Integer, State> lookup
-                = new HashMap<Integer, State>();
+        private static final SparseArray<State> LOOKUP = new SparseArray<>();
 
         static {
             for (State s : EnumSet.allOf(State.class))
-                lookup.put(s.getValue(), s);
+                LOOKUP.put(s.getValue(), s);
         }
 
         private final int value;
@@ -38,7 +38,7 @@ public class FormData implements Parcelable {
         }
 
         public static State getByValue(int value) {
-            return lookup.get(value);
+            return LOOKUP.get(value);
         }
     }
 
@@ -52,12 +52,13 @@ public class FormData implements Parcelable {
     private static final String STATE = "state";
     private static final String URL = "url";
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
 
+    @PrimaryKey(autoGenerate = true)
     private Integer id;
-    private ArrayList<String> columns;
+    private List<String> columns;
     private Date date;
-    private ArrayList<String> files;
+    private List<String> files;
     private Integer formId;
     private String json;
     private State state;
@@ -69,10 +70,6 @@ public class FormData implements Parcelable {
         state = State.CREATED;
     }
 
-    public ContentValues getContentValues() {
-        return FormDataCreator.getCVfromFormData(this);
-    }
-
     public Integer getId() {
         return id;
     }
@@ -81,11 +78,11 @@ public class FormData implements Parcelable {
         this.id = id;
     }
 
-    public ArrayList<String> getColumns() {
+    public List<String> getColumns() {
         return columns;
     }
 
-    public void setColumns(ArrayList<String> columns) {
+    public void setColumns(List<String> columns) {
         this.columns = columns;
     }
 
@@ -101,11 +98,11 @@ public class FormData implements Parcelable {
         this.date = date;
     }
 
-    public ArrayList<String> getFiles() {
+    public List<String> getFiles() {
         return files;
     }
 
-    public void setFiles(ArrayList<String> files) {
+    public void setFiles(List<String> files) {
         this.files = files;
     }
 
@@ -160,8 +157,8 @@ public class FormData implements Parcelable {
         Bundle bundle = new Bundle();
         bundle.putLong(DATE, getDate() == null ? -1 : getDate().getTime());
         if (getId() != null) bundle.putInt(ID, getId());
-        if (getColumns() != null) bundle.putStringArrayList(COLUMNS, getColumns());
-        if (getFiles() != null) bundle.putStringArrayList(FILES, getFiles());
+        if (getColumns() != null) bundle.putStringArrayList(COLUMNS, new ArrayList<>(getColumns()));
+        if (getFiles() != null) bundle.putStringArrayList(FILES, new ArrayList<>(getFiles()));
         if (getFormId() != null) bundle.putInt(FORM_ID, getFormId());
         if (getJson() != null) bundle.putString(JSON, getJson());
         if (getState() != null) bundle.putSerializable(STATE, state);

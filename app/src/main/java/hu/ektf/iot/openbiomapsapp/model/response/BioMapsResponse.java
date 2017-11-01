@@ -2,9 +2,7 @@ package hu.ektf.iot.openbiomapsapp.model.response;
 
 import java.util.ArrayList;
 
-/**
- * Created by szugyi on 2016.07.18..
- */
+
 public class BioMapsResponse {
     ArrayList<String> error;
     ArrayList<String> result;

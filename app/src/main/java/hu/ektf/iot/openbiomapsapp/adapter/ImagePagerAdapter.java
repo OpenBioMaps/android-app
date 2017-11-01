@@ -15,9 +15,7 @@ import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.R;
 
-/**
- * Created by Pádi on 2015. 11. 05..
- */
+
 public class ImagePagerAdapter extends PagerAdapter {
     private Context mContext;
     private LayoutInflater mLayoutInflater;
@@ -45,7 +43,7 @@ public class ImagePagerAdapter extends PagerAdapter {
         File imageFile = new File(imagePath);
 
         View itemView = mLayoutInflater.inflate(R.layout.pager_item_image, container, false);
-        ImageView imageView = (ImageView) itemView.findViewById(R.id.imageView);
+        ImageView imageView = itemView.findViewById(R.id.imageView);
         Picasso.with(mContext)
                 .load(imageFile)
                 .placeholder(R.drawable.transparent_black)

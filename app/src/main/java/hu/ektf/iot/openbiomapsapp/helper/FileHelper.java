@@ -15,9 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-/**
- * Created by Pádi on 2015. 12. 03..
- */
+
 public class FileHelper {
 
     Context context;

@@ -2,7 +2,6 @@ package hu.ektf.iot.openbiomapsapp.screen;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -11,7 +10,6 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.RemoteException;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -23,7 +21,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
@@ -47,7 +44,6 @@ import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
 import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
-import hu.ektf.iot.openbiomapsapp.database.BioMapsResolver;
 import hu.ektf.iot.openbiomapsapp.helper.FileHelper;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
@@ -83,7 +79,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     private GoogleApiClient mGoogleApiClient;
 
     // Persistence
-    private BioMapsResolver bioMapsResolver;
     private StorageHelper sharedPrefStorage;
 
     // File
@@ -104,7 +99,6 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .enableAutoManage(this, this)
                 .build();
 
-        bioMapsResolver = new BioMapsResolver(this);
         sharedPrefStorage = new StorageHelper(this);
         gpsHelper = new GpsHelper(this);
         fileHelper = new FileHelper(getApplicationContext());
@@ -120,19 +114,19 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         }
 
         //Getting the views
-        etNote = (EditText) findViewById(R.id.etNote);
-        tvPosition = (TextView) findViewById(R.id.textViewPosition);
-        tvDate = (TextView) findViewById(R.id.textViewDate);
-        buttonPosition = (Button) findViewById(R.id.buttonPosition);
-        buttonShowMap = (Button) findViewById(R.id.buttonShowMap);
-        buttonAudioRecord = (Button) findViewById(R.id.buttonAudioRecord);
-        imageRecycler = (RecyclerView) findViewById(R.id.imageRecycler);
-        audioRecycler = (RecyclerView) findViewById(R.id.audioRecycler);
-        buttonCamera = (Button) findViewById(R.id.buttonCamera);
-        buttonSave = (Button) findViewById(R.id.buttonReset);
-        progressGps = (ProgressBar) findViewById(R.id.progressGps);
-        buttonSetLocation = (Button) findViewById(R.id.buttonSetLocation);
-        buttonPickOnMap = (Button) findViewById(R.id.buttonPickOnMap);
+        etNote = findViewById(R.id.etNote);
+        tvPosition = findViewById(R.id.textViewPosition);
+        tvDate = findViewById(R.id.textViewDate);
+        buttonPosition = findViewById(R.id.buttonPosition);
+        buttonShowMap = findViewById(R.id.buttonShowMap);
+        buttonAudioRecord = findViewById(R.id.buttonAudioRecord);
+        imageRecycler = findViewById(R.id.imageRecycler);
+        audioRecycler = findViewById(R.id.audioRecycler);
+        buttonCamera = findViewById(R.id.buttonCamera);
+        buttonSave = findViewById(R.id.buttonReset);
+        progressGps = findViewById(R.id.progressGps);
+        buttonSetLocation = findViewById(R.id.buttonSetLocation);
+        buttonPickOnMap = findViewById(R.id.buttonPickOnMap);
 
         int unitWidth = getListItemWidth();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
@@ -143,112 +137,93 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
 
         createAdapters();
 
-        buttonPosition.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                buttonShowMap.setVisibility(View.INVISIBLE);
+        buttonPosition.setOnClickListener(v -> {
+            final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+            buttonShowMap.setVisibility(View.INVISIBLE);
 
-                // If GPS is off, show a dialog
-                if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    showNoGpsDialog();
-                    return;
-                }
-                // If GPS is on
-                currentLocation = GpsHelper.getLocation();
-                if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
-                    saveLocation(currentLocation);
+            // If GPS is off, show a dialog
+            if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                showNoGpsDialog();
+                return;
+            }
+            // If GPS is on
+            currentLocation = GpsHelper.getLocation();
+            if (currentLocation != null && System.currentTimeMillis() - currentLocation.getTime() <= gpsRefreshRate) {
+                saveLocation(currentLocation);
 
-                } else {
-                    progressGps.setVisibility(View.VISIBLE);
-                    tvPosition.setText(R.string.waiting_for_gps);
+            } else {
+                progressGps.setVisibility(View.VISIBLE);
+                tvPosition.setText(R.string.waiting_for_gps);
 
-                    gpsHelper.setExternalListener(new ExternalLocationListener());
-                }
+                gpsHelper.setExternalListener(new ExternalLocationListener());
             }
         });
 
-        buttonShowMap.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                /*
-                String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude() + "?q=" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
-                startActivity(intent);
-                */
+        buttonShowMap.setOnClickListener(view -> {
+            /*
+            String uriString = "geo:" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude() + "?q=" + note.getLocation().getLatitude() + "," + note.getLocation().getLongitude();
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uriString));
+            startActivity(intent);
+            */
+        });
+
+        buttonSetLocation.setOnClickListener(view -> {
+            stopLocationListener();
+            showSetLocationDialog();
+
+        });
+        buttonPickOnMap.setOnClickListener(view -> {
+            stopLocationListener();
+            try {
+                PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+                startActivityForResult(builder.build(MainActivity.this), REQ_PLACE_PICKER);
+            } catch (Exception e) {
+                //TODO Handle exception properly
+                Timber.e(e, "Place picking failed");
             }
         });
 
-        buttonSetLocation.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                stopLocationListener();
-                showSetLocationDialog();
-
-            }
-        });
-        buttonPickOnMap.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                stopLocationListener();
-                try {
-                    PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
-                    startActivityForResult(builder.build(MainActivity.this), REQ_PLACE_PICKER);
-                } catch (Exception e) {
-                    //TODO Handle exception properly
-                    Timber.e(e, "Place picking failed");
-                }
+        buttonAudioRecord.setOnClickListener(view -> {
+            Intent intent =
+                    new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
+            if (isAvailable(MainActivity.this, intent)) {
+                startActivityForResult(intent,
+                        REQ_RECORDING);
+            } else {
+                // TODO Some devices might not have an Audio recorder
+                // we should create our own for this situation
             }
         });
 
-        buttonAudioRecord.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent =
-                        new Intent(MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                if (isAvailable(MainActivity.this, intent)) {
-                    startActivityForResult(intent,
-                            REQ_RECORDING);
-                } else {
-                    // TODO Some devices might not have an Audio recorder
-                    // we should create our own for this situation
-                }
+        buttonCamera.setOnClickListener(view -> {
+            if (fileHelper.isSDPresent()) {
+                showImageSourceDialog();
             }
         });
 
-        buttonCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fileHelper.isSDPresent()) {
-                    showImageSourceDialog();
-                }
+        buttonSave.setOnClickListener(view -> {
+            String url = sharedPrefStorage.getServerUrl();
+            if (TextUtils.isEmpty(url)) {
+                showServerUrlDialog();
+                return;
             }
-        });
 
-        buttonSave.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String url = sharedPrefStorage.getServerUrl();
-                if (TextUtils.isEmpty(url)) {
-                    showServerUrlDialog();
-                    return;
-                }
-
-                /*
-                if (note.getLocation() == null) {
-                    Toast.makeText(MainActivity.this, R.string.error_no_location, Toast.LENGTH_LONG).show();
-                    return;
-                }
-                */
-
-                //note.setComment(etNote.getText().toString());
-                note.setUrl(url);
-                note.setState(State.CLOSED);
-                saveNote();
-                ((BioMapsApplication) getApplication()).requestSync();
-
-                note = new FormData();
-                createAdapters();
-                updateUI();
+            /*
+            if (note.getLocation() == null) {
+                Toast.makeText(MainActivity.this, R.string.error_no_location, Toast.LENGTH_LONG).show();
+                return;
             }
+            */
+
+            //note.setComment(etNote.getText().toString());
+            note.setUrl(url);
+            note.setState(State.CLOSED);
+            saveNote();
+            ((BioMapsApplication) getApplication()).requestSync();
+
+            note = new FormData();
+            createAdapters();
+            updateUI();
         });
 
         // Quick note click handling
@@ -258,28 +233,22 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         findViewById(R.id.button_quick_c).setOnClickListener(quickListener);
         findViewById(R.id.button_quick_d).setOnClickListener(quickListener);
 
-        adapterImage.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getApplicationContext(), ImagePagerActivity.class);
-                //intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, note.getImagesList());
-                intent.putExtra(ImagePagerActivity.ARG_POS, position);
-                startActivity(intent);
-            }
+        adapterImage.setOnItemClickListener((parent, view, position, id) -> {
+            Intent intent = new Intent(getApplicationContext(), ImagePagerActivity.class);
+            //intent.putStringArrayListExtra(ImagePagerActivity.ARG_IMAGES, note.getImagesList());
+            intent.putExtra(ImagePagerActivity.ARG_POS, position);
+            startActivity(intent);
         });
 
-        adapterAudio.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String audioUrl = note.getFiles().get(position);
-                Uri myUri = Uri.fromFile(new File(audioUrl));
+        adapterAudio.setOnItemClickListener((parent, view, position, id) -> {
+            String audioUrl = note.getFiles().get(position);
+            Uri myUri = Uri.fromFile(new File(audioUrl));
 
-                Intent intent = new Intent();
-                intent.setAction(android.content.Intent.ACTION_VIEW);
-                intent.setDataAndType(myUri, "audio/*");
-                startActivity(intent);
+            Intent intent = new Intent();
+            intent.setAction(Intent.ACTION_VIEW);
+            intent.setDataAndType(myUri, "audio/*");
+            startActivity(intent);
 
-            }
         });
 
         updateUI();
@@ -412,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         LayoutInflater li = LayoutInflater.from(MainActivity.this);
         View dialogView = li.inflate(R.layout.dialog_server_settings, null);
 
-        final EditText etServerUrl = (EditText) dialogView
+        final EditText etServerUrl = dialogView
                 .findViewById(R.id.etServerUrl);
         etServerUrl.setText(sharedPrefStorage.getServerUrl());
         etServerUrl.setSelection(etServerUrl.getText().length());
@@ -422,11 +391,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .setCancelable(false)
                 .setTitle(R.string.dialog_set_server_url_title)
                 .setPositiveButton(R.string.save,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                sharedPrefStorage.setServerUrl(etServerUrl.getText().toString());
-                            }
-                        })
+                        (dialog, id) -> sharedPrefStorage.setServerUrl(etServerUrl.getText().toString()))
                 .setNegativeButton(R.string.cancel, null)
                 .create().show();
     }
@@ -435,9 +400,9 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         LayoutInflater li = LayoutInflater.from(MainActivity.this);
         View dialogView = li.inflate(R.layout.dialog_setlocation, null);
 
-        final EditText etSetLatitude = (EditText) dialogView
+        final EditText etSetLatitude = dialogView
                 .findViewById(R.id.etLocationLatitude);
-        final EditText etSetLongitude = (EditText) dialogView
+        final EditText etSetLongitude = dialogView
                 .findViewById(R.id.etLocationLongitude);
         /*
         if(note.getLocation() != null) {
@@ -454,64 +419,50 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
                 .setNegativeButton(R.string.cancel, null)
                 .create();
 
-        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+        alertDialog.setOnShowListener(dialog -> {
 
-            @Override
-            public void onShow(DialogInterface dialog) {
-
-                Button pos = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                pos.setOnClickListener(new View.OnClickListener() {
-
-                    @Override
-                    public void onClick(View view) {
-                        String lat = etSetLatitude.getText().toString();
-                        String lon = etSetLongitude.getText().toString();
-                        try {
-                            Double latitude = Double.parseDouble(lat);
-                            Double longitude = Double.parseDouble(lon);
-                            if (latitude <= -90 || latitude >= 90) {
-                                etSetLatitude.setError(getString(R.string.dialog_lat_error_message));
-                                return;
-                            }
-                            if (longitude <= -180 || longitude >= 180) {
-                                etSetLongitude.setError(getString(R.string.dialog_lon_error_message));
-                                return;
-                            }
-                            Location location = new Location("OpenBioMaps");
-                            location.setLatitude(latitude);
-                            location.setLongitude(longitude);
-                            saveLocation(location);
-                        } catch (Exception e) {
-                            Timber.e(e, "Parse failed");
-                        }
-                        alertDialog.dismiss();
+            Button pos = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            pos.setOnClickListener(view -> {
+                String lat = etSetLatitude.getText().toString();
+                String lon = etSetLongitude.getText().toString();
+                try {
+                    Double latitude = Double.parseDouble(lat);
+                    Double longitude = Double.parseDouble(lon);
+                    if (latitude <= -90 || latitude >= 90) {
+                        etSetLatitude.setError(getString(R.string.dialog_lat_error_message));
+                        return;
                     }
-                });
-            }
+                    if (longitude <= -180 || longitude >= 180) {
+                        etSetLongitude.setError(getString(R.string.dialog_lon_error_message));
+                        return;
+                    }
+                    Location location = new Location("OpenBioMaps");
+                    location.setLatitude(latitude);
+                    location.setLongitude(longitude);
+                    saveLocation(location);
+                } catch (Exception e) {
+                    Timber.e(e, "Parse failed");
+                }
+                alertDialog.dismiss();
+            });
         });
         alertDialog.show();
     }
 
 
     private void createNote() {
-        try {
-            note = bioMapsResolver.getFormDataByStatus(State.CREATED);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-
         if (note == null) {
             note = new FormData();
         }
     }
 
     private void saveNote() {
-        try {
-            Object o = bioMapsResolver.insertOrUpdateFormData(note);
-            Timber.i("InsertOrUpdate result: %s", o.toString());
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Object o = bioMapsResolver.insertOrUpdateFormData(note);
+//            Timber.i("InsertOrUpdate result: %s", o.toString());
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void updateUI() {
@@ -570,11 +521,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
         new AlertDialog.Builder(this)
                 .setMessage(R.string.dialog_gps_off_message)
                 .setCancelable(false)
-                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                    public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                    }
-                })
+                .setPositiveButton(R.string.yes, (dialog, id) -> startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS)))
                 .setNegativeButton(R.string.no, null)
                 .create().show();
     }
@@ -594,19 +541,16 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     private void showImageSourceDialog() {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.dialog_image_source_title)
-                .setItems(R.array.image_source, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0:
-                                dispatchChooseImageIntent();
-                                break;
-                            case 1:
-                                dispatchTakePictureIntent();
-                                break;
-                            default:
-                                break;
-                        }
+                .setItems(R.array.image_source, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            dispatchChooseImageIntent();
+                            break;
+                        case 1:
+                            dispatchTakePictureIntent();
+                            break;
+                        default:
+                            break;
                     }
                 })
                 .setNeutralButton(R.string.cancel, null)
@@ -672,11 +616,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
             new AlertDialog.Builder(MainActivity.this)
                     .setTitle(R.string.dialog_no_quick_note_title)
                     .setMessage(R.string.dialog_no_quick_note_message)
-                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                        }
-                    })
+                    .setPositiveButton(R.string.yes, (dialog, id) -> startActivity(new Intent(MainActivity.this, SettingsActivity.class)))
                     .setNegativeButton(R.string.no, null)
                     .create().show();
         }

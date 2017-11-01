@@ -1,5 +1,6 @@
 package hu.ektf.iot.openbiomapsapp;
 
+import android.arch.persistence.room.Room;
 import android.content.Intent;
 import android.text.TextUtils;
 
@@ -14,6 +15,7 @@ import com.squareup.okhttp.Response;
 import java.io.IOException;
 import java.net.Proxy;
 
+import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import hu.ektf.iot.openbiomapsapp.repo.ObmRepo;
@@ -31,6 +33,18 @@ public class BioMapsApplication extends BaseApplication {
     private StorageHelper storage;
     private DynamicEndpoint dynamicEndpoint;
     private BioMapsService mapsService;
+    private AppDatabase database;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        setupRetrofit();
+
+        repo = new ObmRepoImpl(this);
+        storage = new StorageHelper(this);
+        database = Room.databaseBuilder(this,
+                AppDatabase.class, "OBM-database").build();
+    }
 
     private void setupRetrofit() {
         // TODO: Will we handle dynamic endpoint?
@@ -46,29 +60,26 @@ public class BioMapsApplication extends BaseApplication {
                 .build();
         mapsService = restAdapter.create(BioMapsService.class);
 
-        if(BuildConfig.DEBUG) {
+        if (BuildConfig.DEBUG) {
             Stetho.initializeWithDefaults(this);
             okHttpClient.networkInterceptors().add(new StethoInterceptor());
         }
     }
 
     private Interceptor getAuthInterceptor() {
-        return new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request originalRequest = chain.request();
+        return chain -> {
+            Request originalRequest = chain.request();
 
-                String accessToken = storage.getAccessToken();
-                if (TextUtils.isEmpty(accessToken)) {
-                    return chain.proceed(originalRequest);
-                }
-
-                Request authorisedRequest = originalRequest.newBuilder()
-                        .header("Authorization", "Bearer " + accessToken)
-                        .build();
-
-                return chain.proceed(authorisedRequest);
+            String accessToken = storage.getAccessToken();
+            if (TextUtils.isEmpty(accessToken)) {
+                return chain.proceed(originalRequest);
             }
+
+            Request authorisedRequest = originalRequest.newBuilder()
+                    .header("Authorization", "Bearer " + accessToken)
+                    .build();
+
+            return chain.proceed(authorisedRequest);
         };
     }
 
@@ -107,20 +118,15 @@ public class BioMapsApplication extends BaseApplication {
         return BuildConfig.DEBUG ? RestAdapter.LogLevel.FULL : RestAdapter.LogLevel.NONE;
     }
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        setupRetrofit();
-
-        repo = new ObmRepoImpl(this);
-        storage = new StorageHelper(this);
-    }
-
     public BioMapsService getMapsService() {
         return mapsService;
     }
 
     public DynamicEndpoint getDynamicEndpoint() {
         return dynamicEndpoint;
+    }
+
+    public AppDatabase getAppDatabase() {
+        return database;
     }
 }

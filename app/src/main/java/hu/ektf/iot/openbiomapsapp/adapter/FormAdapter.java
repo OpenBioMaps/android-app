@@ -16,6 +16,7 @@ import hu.ektf.iot.openbiomapsapp.model.FormControl;
 
 public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder> {
 
+    private static final int VIEW_TYPE_UNKNOWN = -1;
     private static final int VIEW_TYPE_CHECKBOX = 0;
     private static final int VIEW_TYPE_EDIT_TEXT = 1;
 
@@ -36,7 +37,7 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
         } else if (VIEW_TYPE_EDIT_TEXT == viewType) {
             return new EditTextViewHolder(parent);
         } else {
-            throw new IllegalArgumentException("Unknown view type: " + String.valueOf(viewType));
+            return new UnknownInputViewHolder(parent);
         }
     }
 
@@ -49,6 +50,11 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
     @Override
     public int getItemViewType(int position) {
         FormControl.Type type = data.get(position).getType();
+
+        if (type == null) {
+            return VIEW_TYPE_UNKNOWN;
+        }
+
         switch (type) {
             case BOOLEAN:
                 return VIEW_TYPE_CHECKBOX;
@@ -77,8 +83,8 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
 
         public EditTextViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_edit_text, parent, false));
-            this.label = (TextView) itemView.findViewById(R.id.id);
-            this.input = (EditText) itemView.findViewById(R.id.input);
+            this.label = itemView.findViewById(R.id.label);
+            this.input = itemView.findViewById(R.id.input);
         }
 
         @Override
@@ -93,13 +99,27 @@ public class FormAdapter extends RecyclerView.Adapter<FormAdapter.BaseViewHolder
 
         public CheckBoxViewHolder(ViewGroup parent) {
             super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_check_box, parent, false));
-            this.input = (CheckBox) itemView.findViewById(R.id.input);
+            this.input = itemView.findViewById(R.id.input);
         }
 
         @Override
         public void bind(final FormControl control) {
             input.setText(control.getShortName());
             input.setTag(R.id.tag_form_control, control);
+        }
+    }
+
+    public static class UnknownInputViewHolder extends BaseViewHolder {
+        public TextView text;
+
+        public UnknownInputViewHolder(ViewGroup parent) {
+            super(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_unknown_input, parent, false));
+            this.text = itemView.findViewById(R.id.text);
+        }
+
+        @Override
+        public void bind(final FormControl control) {
+            text.setText(text.getContext().getString(R.string.unknown_input_type, control.getColumn()));
         }
     }
 }

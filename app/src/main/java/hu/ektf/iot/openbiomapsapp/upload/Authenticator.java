@@ -10,8 +10,6 @@ import android.os.Bundle;
 /*
  * Implement AbstractAccountAuthenticator and stub out all
  * of its methods
- *
- * Created by szugyi on 27/11/15.
  */
 public class Authenticator extends AbstractAccountAuthenticator {
     // Simple constructor
