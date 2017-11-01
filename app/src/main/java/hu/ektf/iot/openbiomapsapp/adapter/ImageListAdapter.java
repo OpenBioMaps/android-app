@@ -15,9 +15,6 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
 
-/**
- * Created by Pádi on 2015. 11. 05..
- */
 public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
     private int imageSize = 600;
     private List<String> dataset;
@@ -30,7 +27,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         public ViewHolder(View v, AdapterView.OnItemClickListener itemClickListener) {
             super(v);
             this.itemClickListener = itemClickListener;
-            this.imageView = (ImageView) v.findViewById(R.id.image);
+            this.imageView = v.findViewById(R.id.image);
             v.setOnClickListener(this);
         }
 

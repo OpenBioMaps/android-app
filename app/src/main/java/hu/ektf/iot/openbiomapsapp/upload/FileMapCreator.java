@@ -11,9 +11,7 @@ import java.util.Map;
 import retrofit.mime.TypedFile;
 import timber.log.Timber;
 
-/**
- * Created by szugyi on 20/11/15.
- */
+
 public class FileMapCreator {
     public static Map<String, TypedFile> createFileMap(List<String>... fileLists) {
         Map<String, TypedFile> fileMap = new HashMap<String, TypedFile>();

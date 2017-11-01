@@ -1,8 +1,6 @@
 package hu.ektf.iot.openbiomapsapp.helper;
 
-/**
- * Created by Csaba on 2015. 10. 28..
- */
+
 
 import android.content.Context;
 import android.location.Location;

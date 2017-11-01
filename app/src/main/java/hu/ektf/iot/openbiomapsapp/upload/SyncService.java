@@ -5,11 +5,8 @@ import android.content.Intent;
 import android.os.IBinder;
 
 /**
- * Define a Service that returns an IBinder for the
- * sync adapter class, allowing the sync adapter framework to call
- * onPerformSync().
- * <p/>
- * Created by szugyi on 27/11/15.
+ * Define a Service that returns an IBinder for the sync adapter class,
+ * allowing the sync adapter framework to call onPerformSync().
  */
 public class SyncService extends Service {
     // Storage for an instance of the sync adapter

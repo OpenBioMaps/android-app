@@ -31,8 +31,8 @@ public class FormListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_form_list);
 
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipeRefreshLayout);
-        recyclerView = (RecyclerView) findViewById(R.id.list);
+        refreshLayout = findViewById(R.id.swipeRefreshLayout);
+        recyclerView = findViewById(R.id.list);
 
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
@@ -41,23 +41,15 @@ public class FormListActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
 
         ItemClickSupport.addTo(recyclerView)
-                .setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        Form form = adapter.getItemAt(position);
+                .setOnItemClickListener((recyclerView, position, v) -> {
+                    Form form = adapter.getItemAt(position);
 
-                        Intent intent = new Intent(FormListActivity.this, FormActivity.class);
-                        intent.putExtra(FormActivity.EXTRA_FORM_ID, form.getId());
-                        startActivity(intent);
-                    }
+                    Intent intent = new Intent(FormListActivity.this, FormActivity.class);
+                    intent.putExtra(FormActivity.EXTRA_FORM_ID, form.getId());
+                    startActivity(intent);
                 });
 
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                loadForms();
-            }
-        });
+        refreshLayout.setOnRefreshListener(() -> loadForms());
         loadForms();
     }
 
@@ -75,22 +67,7 @@ public class FormListActivity extends BaseActivity {
         repo.loadFormList()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate(new Action0() {
-                    @Override
-                    public void call() {
-                        refreshLayout.setRefreshing(false);
-                    }
-                })
-                .subscribe(new Action1<List<Form>>() {
-                    @Override
-                    public void call(List<Form> forms) {
-                        adapter.setForms(forms);
-                    }
-                }, new Action1<Throwable>() {
-                    @Override
-                    public void call(Throwable throwable) {
-                        Timber.e(throwable);
-                    }
-                });
+                .doOnTerminate(() -> refreshLayout.setRefreshing(false))
+                .subscribe(forms -> adapter.setForms(forms), throwable -> Timber.e(throwable));
     }
 }

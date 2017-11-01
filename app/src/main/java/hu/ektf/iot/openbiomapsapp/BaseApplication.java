@@ -9,14 +9,13 @@ import android.os.Bundle;
 
 import com.crashlytics.android.Crashlytics;
 
-import hu.ektf.iot.openbiomapsapp.database.BioMapsContentProvider;
 import hu.ektf.iot.openbiomapsapp.logging.CrashlyticsLogTree;
+import hu.ektf.iot.openbiomapsapp.upload.StubContentProvider;
 import io.fabric.sdk.android.Fabric;
 import io.fabric.sdk.android.SilentLogger;
 import timber.log.Timber;
 
 public abstract class BaseApplication extends Application {
-
     public static final String ACCOUNT_TYPE = "openbiomaps.org";
     public static final String ACCOUNT_NAME = "default";
     private Account account;
@@ -52,7 +51,7 @@ public abstract class BaseApplication extends Application {
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_FORCE, true);
         bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
-        ContentResolver.requestSync(account, BioMapsContentProvider.AUTHORITY, bundle);
+        ContentResolver.requestSync(account, StubContentProvider.AUTHORITY, bundle);
     }
 
     private void createSyncAccount(Context context) {

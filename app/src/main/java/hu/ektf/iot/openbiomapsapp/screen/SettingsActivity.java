@@ -26,31 +26,28 @@ public class SettingsActivity extends AppCompatActivity {
 
         storageHelper = new StorageHelper(SettingsActivity.this);
 
-        editA = (EditText) findViewById(R.id.quick_a_editText);
-        editB = (EditText) findViewById(R.id.quick_b_editText);
-        editC = (EditText) findViewById(R.id.quick_c_editText);
-        editD = (EditText) findViewById(R.id.quick_d_editText);
+        editA = findViewById(R.id.quick_a_editText);
+        editB = findViewById(R.id.quick_b_editText);
+        editC = findViewById(R.id.quick_c_editText);
+        editD = findViewById(R.id.quick_d_editText);
 
         editA.setText(storageHelper.getQuickNote("A"));
         editB.setText(storageHelper.getQuickNote("B"));
         editC.setText(storageHelper.getQuickNote("C"));
         editD.setText(storageHelper.getQuickNote("D"));
 
-        saveButton = (Button) findViewById(R.id.save_button);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String quickA = editA.getText().toString();
-                String quickB = editB.getText().toString();
-                String quickC = editC.getText().toString();
-                String quickD = editD.getText().toString();
+        saveButton = findViewById(R.id.save_button);
+        saveButton.setOnClickListener(v -> {
+            String quickA = editA.getText().toString();
+            String quickB = editB.getText().toString();
+            String quickC = editC.getText().toString();
+            String quickD = editD.getText().toString();
 
-                storageHelper.setQuickNote("A", quickA);
-                storageHelper.setQuickNote("B", quickB);
-                storageHelper.setQuickNote("C", quickC);
-                storageHelper.setQuickNote("D", quickD);
-                finish();
-            }
+            storageHelper.setQuickNote("A", quickA);
+            storageHelper.setQuickNote("B", quickB);
+            storageHelper.setQuickNote("C", quickC);
+            storageHelper.setQuickNote("D", quickD);
+            finish();
         });
     }
 }

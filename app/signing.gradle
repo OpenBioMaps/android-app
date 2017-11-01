@@ -8,6 +8,7 @@ if (file('../obm.keystore').exists()) {
                 keyPassword System.getenv('keypass')
             }
         }
+
         buildTypes {
             release {
                 signingConfig signingConfigs.releaseSigningConfig
