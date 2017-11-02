@@ -17,7 +17,7 @@ before_install:
   -in obm.keystore.enc -out obm.keystore -d
 
 install: ./gradlew clean
-script: ./gradlew assembleProd
+script: ./gradlew assembleProdRelease
 
 deploy:
   skip_cleanup: true
@@ -25,10 +25,12 @@ deploy:
   provider: releases
   api_key:
     secure: qkShQEWmLJZJow/TWHoxyGwNXKlAxKAx/aUwuOUOArkSWfTPg1EBmRNp5C4lht8TJunOppSjhS37AcLp1VPHggioh+YU1q3kkA+OxWpTeweEQOYTyI5FO64glH2dHHZXR/JrQ4GwGKw8CaAJXqqvTEXW6bFZY5U82sAgERmeCKL0/1rkF4x+NeqFF8/GUce2UGTOcQlsSDh7vefHEA6ga9FaTdIIBULvrMMMng0jSR9lg2i1MwQh8oXlMZXodL/4KLbF7f9PNqd+2YupuV4BMtOdNYHOv3t0ZLmiqfoziTKC6xjW2AZpMpZUBEkPlTjDsV9sBqiTuXxq2uJLSFzdeWgoiFcZvWwsrKzzyOg7F4lUkkrNd2ykVd0wORhbwpA6ndx+3mJz63bjPMdlFMQ/DY1Goy4eR8HFA1l8acaf7YRUMf8BM7fn5b9uFu7h2OLHSoz5gpUEEexnqcRVIgmIGAQDyRDOkDz8wn8qy0TonwTSkBS4VAlv3lnkCuLrHSdaKjVd58ryB+5rf1Y+MgEEUy1vtqDWk7IGldTBop290idKitRtFyhRF5hS5oFYDKwx2ivJ8ADu42HG2yNQmljLhrQL1rPSqcg+9tpsTqS7kWeWlhMC/2Dgau79QjqHeXUdclHzN+t6HwEdte8Uv2r0xNb6u/A76/BQu8py/mVyC2E=
-  file: app/build/outputs/apk/app-prod-release.apk
+  file: app/build/outputs/apk/prod/release/app-prod-release.apk
+  branches:
+    only:
+    - master
   on:
-    all_branches: true
-    tag: true
+    tags: true
 
 env:
   global:
