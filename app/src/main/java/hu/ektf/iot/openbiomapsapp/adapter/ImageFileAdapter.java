@@ -15,7 +15,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
 
-public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.ViewHolder> {
+public class ImageFileAdapter extends RecyclerView.Adapter<ImageFileAdapter.ViewHolder> {
     private int imageSize = 600;
     private List<String> dataset;
     private AdapterView.OnItemClickListener itemClickListener;
@@ -39,7 +39,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
         }
     }
 
-    public ImageListAdapter(List<String> dataset) {
+    public ImageFileAdapter(List<String> dataset) {
         this.dataset = dataset;
     }
 
@@ -52,7 +52,7 @@ public class ImageListAdapter extends RecyclerView.Adapter<ImageListAdapter.View
     }
 
     @Override
-    public ImageListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ImageFileAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_image, parent, false);
         ViewHolder vh = new ViewHolder(v, itemClickListener);

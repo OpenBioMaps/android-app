@@ -15,7 +15,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
 
-public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.ViewHolder> {
+public class AudioFileAdapter extends RecyclerView.Adapter<AudioFileAdapter.ViewHolder> {
     private int imageSize = 600;
     private List<String> dataset;
     private AdapterView.OnItemClickListener itemClickListener;
@@ -41,7 +41,7 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
         }
     }
 
-    public AudioListAdapter(List<String> dataset) {
+    public AudioFileAdapter(List<String> dataset) {
         this.dataset = dataset;
     }
 
@@ -54,7 +54,7 @@ public class AudioListAdapter extends RecyclerView.Adapter<AudioListAdapter.View
     }
 
     @Override
-    public AudioListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public AudioFileAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item_audio, parent, false);
         ViewHolder vh = new ViewHolder(v, itemClickListener);

@@ -42,8 +42,8 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.AudioListAdapter;
-import hu.ektf.iot.openbiomapsapp.adapter.ImageListAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.AudioFileAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.ImageFileAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.FileHelper;
 import hu.ektf.iot.openbiomapsapp.helper.GpsHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
@@ -69,8 +69,8 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     private Button buttonPosition, buttonShowMap, buttonAudioRecord, buttonCamera, buttonSave, buttonSetLocation, buttonPickOnMap;
     private ProgressBar progressGps;
     private RecyclerView imageRecycler, audioRecycler;
-    private ImageListAdapter adapterImage;
-    private AudioListAdapter adapterAudio;
+    private ImageFileAdapter adapterImage;
+    private AudioFileAdapter adapterAudio;
 
     // Gps stuffs
     private GpsHelper gpsHelper;
@@ -499,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements OnConnectionFaile
     private void createAdapters() {
         int unitWidth = getListItemWidth();
         //adapterImage = new ImageListAdapter(note.getImagesList());
-        adapterAudio = new AudioListAdapter(note.getFiles());
+        adapterAudio = new AudioFileAdapter(note.getFiles());
         adapterImage.setImageSize(unitWidth);
         adapterAudio.setImageSize(unitWidth - 5);
         imageRecycler.setHasFixedSize(true);

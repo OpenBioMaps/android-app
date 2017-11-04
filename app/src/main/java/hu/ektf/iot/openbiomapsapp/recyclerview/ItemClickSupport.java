@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.view;
+package hu.ektf.iot.openbiomapsapp.recyclerview;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;

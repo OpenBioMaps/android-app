@@ -23,7 +23,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.recyclerview.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.adapter.FormDataAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;

@@ -19,7 +19,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.FormAdapter;
+import hu.ektf.iot.openbiomapsapp.adapter.FormControlAdapter;
 import hu.ektf.iot.openbiomapsapp.helper.JsonHelper;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
@@ -28,11 +28,10 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class FormActivity extends BaseActivity {
-
     public static final String EXTRA_FORM_ID = "EXTRA_FORM_ID";
 
     private RecyclerView recyclerView;
-    private FormAdapter adapter = new FormAdapter();
+    private FormControlAdapter adapter = new FormControlAdapter();
 
     private int formId;
 
@@ -67,7 +66,7 @@ public class FormActivity extends BaseActivity {
         repo.loadForm(formId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(controls -> adapter.setControls(controls), throwable -> Timber.e(throwable));
+                .subscribe(controls -> adapter.swapItems(controls), Timber::e);
     }
 
     private JSONObject getFormJson() {

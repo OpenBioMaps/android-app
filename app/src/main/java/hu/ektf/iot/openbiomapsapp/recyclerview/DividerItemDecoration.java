@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.adapter;
+package hu.ektf.iot.openbiomapsapp.recyclerview;
 
 import android.content.Context;
 import android.content.res.TypedArray;

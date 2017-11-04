@@ -15,8 +15,9 @@ android {
 
         javaCompileOptions {
             annotationProcessorOptions {
-                arguments = ["room.schemaLocation":
-                                     "$projectDir/schemas".toString()]
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString(),
+                             "resourcePackageName": android.defaultConfig.applicationId,
+                             "classSuffix": "Impl"]
             }
         }
     }
@@ -67,11 +68,12 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.android.support:recyclerview-v7:26.1.0'
     implementation 'com.android.support:design:26.1.0'
-    implementation 'android.arch.persistence.room:runtime:1.0.0-rc1'
-    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-rc1"
-    implementation 'android.arch.persistence.room:rxjava2:1.0.0-rc1'
     implementation 'com.google.android.gms:play-services-location:11.4.2'
     implementation 'com.google.android.gms:play-services-places:11.4.2'
+    implementation 'android.arch.persistence.room:runtime:1.0.0-rc1'
+    annotationProcessor "android.arch.persistence.room:compiler:1.0.0-rc1"
+    implementation "org.androidannotations:androidannotations-api:4.4.0"
+    annotationProcessor "org.androidannotations:androidannotations:4.4.0"
     implementation 'fr.avianey.com.viewpagerindicator:library:2.4.1@aar'
     implementation 'com.squareup.picasso:picasso:2.5.2'
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
