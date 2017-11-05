@@ -13,7 +13,7 @@ import org.androidannotations.annotations.res.DimensionPixelSizeRes;
 
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.model.Form;
-import hu.ektf.iot.openbiomapsapp.recyclerview.BindableRecycleViewAdapter;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.BindableRecycleViewAdapter;
 
 @EViewGroup(R.layout.list_item_form)
 public class FormItemView extends LinearLayout implements BindableRecycleViewAdapter.Bindable<Form> {

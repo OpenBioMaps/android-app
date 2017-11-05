@@ -77,7 +77,7 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Observable<List<FormData>> getSavedFormDataAsync() {
-       return Observable.fromCallable(() -> database.formDataDao().getFormDataList());
+        return Observable.fromCallable(() -> database.formDataDao().getFormDataList());
     }
 
     @Override
@@ -87,7 +87,8 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Completable saveData(final FormData formData) {
-        return Completable.fromAction(() -> database.formDataDao().insert(formData));
+        return Completable.fromAction(() -> database.formDataDao().insert(formData))
+                .doOnCompleted(application::requestSync);
     }
 
     @Override

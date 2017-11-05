@@ -7,10 +7,10 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.FormAdapter;
+import hu.ektf.iot.openbiomapsapp.view.adapter.FormAdapter;
 import hu.ektf.iot.openbiomapsapp.model.Form;
-import hu.ektf.iot.openbiomapsapp.recyclerview.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.recyclerview.ItemClickSupport;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.ItemClickSupport;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
