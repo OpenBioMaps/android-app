@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.view.input.BaseFormInputView;
 import hu.ektf.iot.openbiomapsapp.view.input.CheckBoxInputViewImpl;
+import hu.ektf.iot.openbiomapsapp.view.input.DateInputViewImpl;
 import hu.ektf.iot.openbiomapsapp.view.input.NumberInputViewImpl;
 import hu.ektf.iot.openbiomapsapp.view.input.TextInputViewImpl;
 import hu.ektf.iot.openbiomapsapp.view.input.UnknownInputViewImpl;
@@ -15,6 +16,7 @@ public class FormInputAdapter extends BindableRecycleViewAdapter<FormControl, Ba
     private static final int VIEW_TYPE_CHECKBOX = 0;
     private static final int VIEW_TYPE_TEXT = 1;
     private static final int VIEW_TYPE_NUMBER = 2;
+    private static final int VIEW_TYPE_DATE = 3;
 
     @Override
     protected BaseFormInputView onCreateItemView(ViewGroup parent, int viewType) {
@@ -25,6 +27,8 @@ public class FormInputAdapter extends BindableRecycleViewAdapter<FormControl, Ba
                 return TextInputViewImpl.build(parent.getContext());
             case VIEW_TYPE_NUMBER:
                 return NumberInputViewImpl.build(parent.getContext());
+            case VIEW_TYPE_DATE:
+                return DateInputViewImpl.build(parent.getContext());
             default:
                 return UnknownInputViewImpl.build(parent.getContext());
         }
@@ -43,6 +47,8 @@ public class FormInputAdapter extends BindableRecycleViewAdapter<FormControl, Ba
                 return VIEW_TYPE_CHECKBOX;
             case NUMERIC:
                 return VIEW_TYPE_NUMBER;
+            case DATE:
+                return VIEW_TYPE_DATE;
             default:
                 return VIEW_TYPE_TEXT;
         }

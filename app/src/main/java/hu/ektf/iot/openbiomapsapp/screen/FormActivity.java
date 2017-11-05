@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.helper.JsonHelper;
+import hu.ektf.iot.openbiomapsapp.helper.JsonUtil;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.view.adapter.FormInputAdapter;
@@ -100,7 +100,7 @@ public class FormActivity extends BaseActivity {
     private void saveFormData() {
         JSONObject formJson = getFormJson();
         JSONArray columns = formJson.names();
-        List<String> columnList = JsonHelper.arrayAsList(columns);
+        List<String> columnList = JsonUtil.arrayAsList(columns);
 
         FormData data = new FormData();
         data.setFormId(formId);

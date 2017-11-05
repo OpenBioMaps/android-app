@@ -16,28 +16,51 @@ import java.util.zip.ZipOutputStream;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import timber.log.Timber;
 
-public class ExportHelper {
-    public static File createFolderToNote(String date) throws Exception {
-        File folder = new File(Environment.getExternalStorageDirectory() + File.separator + "openbiomaps" +
-                File.separator + date);
-        boolean success = true;
+public final class ExportUtil {
+
+    private ExportUtil() {
+        // Util class
+    }
+
+    public static void exportNote(FormData note) throws Exception {
+        File folder = createFolderToNote(String.valueOf(note.getDate()));
+
+        if (note.getJson() != null) {
+            createFileToFolder("data.json", note.getJson(), folder);
+        }
+
+        copyAttachmentsToFolder(note, folder);
+        zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
+        deleteFolder(note.getDate().toString());
+
+        Timber.d("exportnote finished" + note.getDate().toString());
+    }
+
+    private static File createFolderToNote(String date) throws Exception {
+        File folder = new File(Environment.getExternalStorageDirectory() + "/openbiomaps/" + date);
+        boolean success = false;
+
         if (!folder.exists()) {
             success = folder.mkdirs();
         }
+
         if (success) {
             Timber.d("Folder successfully created." + folder.getName());
         } else {
             throw new Exception("FolderNotCreated" + folder.getName());
         }
+
         return folder;
     }
 
-    public static void createFileToFolder(String filename, String content, File folder) {
+    private static void createFileToFolder(String filename, String content, File folder) {
         try {
             File root = new File(folder.getPath());
+
             if (!root.exists()) {
                 root.mkdirs();
             }
+
             File myFile = new File(root, filename);
             FileWriter writer = new FileWriter(myFile);
             writer.append(content);
@@ -49,12 +72,13 @@ public class ExportHelper {
         }
     }
 
-    public static void copyAttachmentsToFolder(FormData formData, File folder) {
+    private static void copyAttachmentsToFolder(FormData formData, File folder) {
         for (String file : formData.getFiles()) {
             String sourcePath = file;
             File source = new File(sourcePath);
             String destinationPath = folder.getPath() + File.separator + source.getName();
             File destination = new File(destinationPath);
+
             try {
                 FileUtils.copyFile(source, destination);
                 Timber.d("copy attachments file copy success: " + destinationPath);
@@ -72,6 +96,7 @@ public class ExportHelper {
             File srcFile = new File(inputFolderPath);
             File[] files = srcFile.listFiles();
             Log.d("", "Zip directory: " + srcFile.getName());
+
             for (int i = 0; i < files.length; i++) {
                 Log.d("", "Adding file: " + files[i].getName());
                 byte[] buffer = new byte[1024];
@@ -88,16 +113,6 @@ public class ExportHelper {
         } catch (IOException ioe) {
             Timber.d("zipping folder failed:" + inputFolderPath + " to: " + outZipPath);
         }
-    }
-
-    public static void exportNote(FormData note) throws Exception {
-        File folder = ExportHelper.createFolderToNote(String.valueOf(note.getDate()));
-        if (note.getJson() != null)
-            ExportHelper.createFileToFolder("data.json", note.getJson(), folder);
-        ExportHelper.copyAttachmentsToFolder(note, folder);
-        ExportHelper.zipFolder(folder.getPath(), Environment.getExternalStorageDirectory() + "/openbiomaps/" + note.getDate() + ".zip");
-        deleteFolder(note.getDate().toString());
-        Timber.d("exportnote finished" + note.getDate().toString());
     }
 
     public static void deleteFolder(String folderName) throws IOException {

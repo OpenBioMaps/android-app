@@ -6,10 +6,10 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
-public final class JsonHelper {
+public final class JsonUtil {
 
-    private JsonHelper() {
-
+    private JsonUtil() {
+        // Util class
     }
 
     public static List<String> arrayAsList(JSONArray array) {
