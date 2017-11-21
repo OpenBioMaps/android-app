@@ -17,7 +17,6 @@ import rx.Completable;
 import rx.Observable;
 
 public class ObmRepoImpl extends ObmRepo {
-
     private static final String CLIENT_ID = "mobile";
     private static final String CLIENT_SECRET = "123";
     private static final String GRANT_TYPE_PASSWORD = "password";
@@ -61,13 +60,22 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<List<Form>> loadFormList() {
         return service.getForms("get_form_list")
-                .doOnNext(forms -> database.formDao().insertAll(forms))
+                .doOnNext(forms -> {
+                    database.formDao().deleteAll();
+                    database.formDao().insertAll(forms);
+                })
                 .onErrorReturn(throwable -> database.formDao().getForms());
     }
 
     @Override
     public Observable<List<FormControl>> loadForm(int formId) {
-        return service.getForm("get_form_data", formId);
+        return service.getForm("get_form_data", formId)
+                .doOnNext(formControls -> {
+                    Form form = database.formDao().getForm(formId);
+                    form.setFormControls(formControls);
+                    database.formDao().update(form);
+                })
+                .onErrorReturn(throwable -> database.formDao().getForm(formId).getFormControls());
     }
 
     @Override

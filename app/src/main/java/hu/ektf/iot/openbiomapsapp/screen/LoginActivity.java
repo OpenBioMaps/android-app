@@ -55,8 +55,6 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             return false;
         });
 
-        emailEdit.setText("szugyiczkicsaba@gmail.com");
-
         Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(view -> attemptLogin());
 

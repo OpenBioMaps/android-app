@@ -42,8 +42,10 @@ public class BioMapsApplication extends BaseApplication {
 
         repo = new ObmRepoImpl(this);
         storage = new StorageHelper(this);
-        database = Room.databaseBuilder(this,
-                AppDatabase.class, "OBM-database").build();
+        database = Room.databaseBuilder(this, AppDatabase.class, "OBM-database")
+                // TODO Turn off after development period
+                .fallbackToDestructiveMigration()
+                .build();
     }
 
     private void setupRetrofit() {
