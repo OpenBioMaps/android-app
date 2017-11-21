@@ -10,6 +10,7 @@
     <string name="no">No</string>
     <string name="note">Note</string>
     <string name="save">Save</string>
+    <string name="form_saved">Form saved</string>
     <string name="sd_card">SD card</string>
     <string name="take_photo">Take photo</string>
     <string name="waiting_for_gps">Acquiring position…</string>

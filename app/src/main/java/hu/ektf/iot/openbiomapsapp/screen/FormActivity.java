@@ -3,12 +3,12 @@ package hu.ektf.iot.openbiomapsapp.screen;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,22 +17,21 @@ import org.json.JSONObject;
 import java.util.Date;
 import java.util.List;
 
-import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.FormAdapter;
-import hu.ektf.iot.openbiomapsapp.helper.JsonHelper;
+import hu.ektf.iot.openbiomapsapp.helper.JsonUtil;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.view.adapter.FormInputAdapter;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.FormLinearLayoutManager;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class FormActivity extends BaseActivity {
-
     public static final String EXTRA_FORM_ID = "EXTRA_FORM_ID";
 
     private RecyclerView recyclerView;
-    private FormAdapter adapter = new FormAdapter();
+    private FormInputAdapter adapter = new FormInputAdapter();
 
     private int formId;
 
@@ -48,8 +47,12 @@ public class FormActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
 
+        FormLinearLayoutManager layoutManager = new FormLinearLayoutManager(this);
+        layoutManager.setListener(() -> {
+            saveFormData();
+        });
+
         recyclerView = findViewById(R.id.list);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
         recyclerView.setAdapter(adapter);
@@ -57,8 +60,6 @@ public class FormActivity extends BaseActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> {
             saveFormData();
-
-            ((BioMapsApplication) getApplication()).requestSync();
         });
         loadForm();
     }
@@ -67,7 +68,7 @@ public class FormActivity extends BaseActivity {
         repo.loadForm(formId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(controls -> adapter.setControls(controls), throwable -> Timber.e(throwable));
+                .subscribe(controls -> adapter.setItems(controls), Timber::e);
     }
 
     private JSONObject getFormJson() {
@@ -99,7 +100,7 @@ public class FormActivity extends BaseActivity {
     private void saveFormData() {
         JSONObject formJson = getFormJson();
         JSONArray columns = formJson.names();
-        List<String> columnList = JsonHelper.arrayAsList(columns);
+        List<String> columnList = JsonUtil.arrayAsList(columns);
 
         FormData data = new FormData();
         data.setFormId(formId);
@@ -107,9 +108,14 @@ public class FormActivity extends BaseActivity {
         data.setColumns(columnList);
         data.setDate(new Date());
         data.setState(FormData.State.CLOSED);
+
         repo.saveData(data)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe(() -> {
+                    Toast.makeText(this, R.string.form_saved, Toast.LENGTH_SHORT).show();
+                    adapter.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(0);
+                }, Timber::e);
     }
 }

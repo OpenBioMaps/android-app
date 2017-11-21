@@ -15,14 +15,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-
 public class FileHelper {
-
-    Context context;
-
-    public FileHelper(Context context) {
-        this.context = context;
-    }
 
     /**
      * This method creates an File object helping the image uploading process.
@@ -32,14 +25,11 @@ public class FileHelper {
      */
     public File createImageFile() throws IOException {
         // Create an image file name
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss")
-                .format(new Date());
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "IMG_" + timeStamp + ".jpg";
-        File storageDir = Environment
-                .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
 
-        File image = new File(storageDir.getPath() + File.separator
-                + imageFileName);
+        File image = new File(storageDir.getPath() + File.separator + imageFileName);
         return image;
     }
 
@@ -143,7 +133,6 @@ public class FileHelper {
         }
         return null;
     }
-
 
     /**
      * @param uri The Uri to check.
