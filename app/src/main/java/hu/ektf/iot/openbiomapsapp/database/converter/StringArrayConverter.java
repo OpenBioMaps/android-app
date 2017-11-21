@@ -1,18 +1,21 @@
 package hu.ektf.iot.openbiomapsapp.database.converter;
 
 import android.arch.persistence.room.TypeConverter;
+import android.text.TextUtils;
 
-import java.util.Date;
+import java.util.Arrays;
+import java.util.List;
 
 public class StringArrayConverter {
+    private static final String SEPARATOR = ",";
 
     @TypeConverter
-    public static Date fromTimestamp(Long value) {
-        return value == null ? null : new Date(value);
+    public static List<String> fromString(String value) {
+        return value == null ? null : Arrays.asList(value.split(SEPARATOR));
     }
 
     @TypeConverter
-    public static Long dateToTimestamp(Date date) {
-        return date == null ? null : date.getTime();
+    public static String listToString(List<String> list) {
+        return list == null ? null : TextUtils.join(SEPARATOR, list);
     }
 }

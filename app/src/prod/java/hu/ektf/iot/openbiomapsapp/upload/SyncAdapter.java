@@ -10,6 +10,7 @@ import android.os.Bundle;
 import com.google.gson.Gson;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
+import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
@@ -20,6 +21,7 @@ import timber.log.Timber;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private DynamicEndpoint endpoint;
+    private AppDatabase database;
     private ObmRepoImpl repo;
     private Gson gson;
 
@@ -28,10 +30,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         init(context);
     }
 
-    public SyncAdapter(
-            Context context,
-            boolean autoInitialize,
-            boolean allowParallelSyncs) {
+    public SyncAdapter(Context context, boolean autoInitialize, boolean allowParallelSyncs) {
         super(context, autoInitialize, allowParallelSyncs);
         init(context);
     }
@@ -39,14 +38,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private void init(Context context) {
         BioMapsApplication bioMapsApplication = (BioMapsApplication) context.getApplicationContext();
         endpoint = bioMapsApplication.getDynamicEndpoint();
+        database = bioMapsApplication.getAppDatabase();
         repo = new ObmRepoImpl(context);
         gson = new Gson();
     }
 
     @Override
     public void onPerformSync(Account account, Bundle bundle, String s, ContentProviderClient contentProviderClient, SyncResult syncResult) {
-        Timber.v("Wow! Such sync, so upload!");
-
         if (!isSyncing) {
             isSyncing = true;
             doSync();
@@ -60,6 +58,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         try {
             formData = repo.getSavedFormDataByState(State.CLOSED);
+
             if (formData == null) {
                 Timber.v("There was nothing to sync");
                 isSyncing = false;
@@ -68,11 +67,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             Timber.d("Upload started");
             formData.setState(State.UPLOADING);
-            repo.saveData(formData).subscribe();
+            database.formDataDao().update(formData);
 
             endpoint.setUrl(formData.getUrl());
-            // Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
+            
             // TODO: Add files
+            // Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
             Response response = repo.uploadData(formData.getFormId(), gson.toJson(formData.getColumns()), formData.getJson());
             String respStr = new String(((TypedByteArray) response.getBody()).getBytes());
             formData.setResponse(respStr);
@@ -88,7 +88,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 Timber.e(e, "Upload response contained error");
             }
 
-            repo.saveData(formData).subscribe();
+            database.formDataDao().update(formData);
             doSync();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -97,7 +97,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 try {
                     formData.setResponse("EXCEPTION: " + ex.toString());
                     formData.setState(State.UPLOAD_ERROR);
-                    repo.saveData(formData).subscribe();
+                    database.formDataDao().update(formData);
                     doSync();
                 } catch (Exception e) {
                     ex.printStackTrace();
