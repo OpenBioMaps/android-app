@@ -23,9 +23,9 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.adapter.FormDataAdapter;
-import hu.ektf.iot.openbiomapsapp.helper.ExportHelper;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.DividerItemDecoration;
+import hu.ektf.iot.openbiomapsapp.view.adapter.FormDataAdapter;
+import hu.ektf.iot.openbiomapsapp.helper.ExportUtil;
 import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import rx.android.schedulers.AndroidSchedulers;
@@ -226,7 +226,7 @@ public class UploadActivity extends BaseActivity {
                     if (isCancelled()) break;
                     if (notes.get(i).getState() == FormData.State.CREATED) continue;
 
-                    ExportHelper.exportNote(notes.get(i));
+                    ExportUtil.exportNote(notes.get(i));
                     publishProgress((int) ((i / (float) count) * 100));
                 }
             } catch (RemoteException e) {

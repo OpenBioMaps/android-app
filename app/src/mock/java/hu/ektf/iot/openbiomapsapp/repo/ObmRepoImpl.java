@@ -7,8 +7,10 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import retrofit.client.Response;
+import rx.Completable;
 import rx.Observable;
 
 public class ObmRepoImpl extends ObmRepo {
@@ -153,7 +155,32 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
-    public Response putData(int formId, String columns, String valuesJson) {
+    public List<FormData> getSavedFormData() {
+        return new ArrayList<>();
+    }
+
+    @Override
+    public Observable<List<FormData>> getSavedFormDataAsync() {
+        return Observable.just(new ArrayList<>());
+    }
+
+    @Override
+    public FormData getSavedFormDataByState(FormData.State state) {
         return null;
+    }
+
+    @Override
+    public Completable saveData(FormData formData) {
+        return Completable.complete();
+    }
+
+    @Override
+    public Completable deleteData(FormData formData) {
+        return Completable.complete();
+    }
+
+    @Override
+    public Response uploadData(int formId, String columns, String valuesJson) {
+        return new Response("http://google.com", 200, "", new ArrayList<>(), null);
     }
 }

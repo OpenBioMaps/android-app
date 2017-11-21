@@ -7,12 +7,12 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.SparseArray;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Locale;
+
+import hu.ektf.iot.openbiomapsapp.helper.DateUtil;
 
 @Entity(tableName = "form_data")
 public class FormData implements Parcelable {
@@ -52,8 +52,6 @@ public class FormData implements Parcelable {
     private static final String STATE = "state";
     private static final String URL = "url";
 
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.ENGLISH);
-
     @PrimaryKey(autoGenerate = true)
     private Integer id;
     private List<String> columns;
@@ -87,7 +85,7 @@ public class FormData implements Parcelable {
     }
 
     public String getDateString() {
-        return date == null ? DATE_FORMAT.toPattern() : DATE_FORMAT.format(date);
+        return date == null ? "-" : DateUtil.formatFullDate(date);
     }
 
     public Date getDate() {

@@ -10,7 +10,7 @@ import com.viewpagerindicator.CirclePageIndicator;
 import java.util.ArrayList;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.adapter.ImagePagerAdapter;
+import hu.ektf.iot.openbiomapsapp.view.adapter.ImagePagerAdapter;
 
 
 public class ImagePagerActivity extends Activity {
