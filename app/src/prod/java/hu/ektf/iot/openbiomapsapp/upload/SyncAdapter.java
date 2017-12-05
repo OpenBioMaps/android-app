@@ -83,9 +83,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if (!respObj.getError().isEmpty()) {
                     formData.setState(State.UPLOAD_ERROR);
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 formData.setState(State.UPLOAD_ERROR);
-                Timber.e(e, "Upload response contained error");
+                Timber.e(ex, "Upload response contained error");
             }
 
             database.formDataDao().update(formData);
