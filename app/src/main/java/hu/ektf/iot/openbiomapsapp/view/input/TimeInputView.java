@@ -12,7 +12,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.helper.DateUtil;
+import hu.ektf.iot.openbiomapsapp.util.DateUtil;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import timber.log.Timber;
 

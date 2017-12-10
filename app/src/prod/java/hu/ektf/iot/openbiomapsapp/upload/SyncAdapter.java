@@ -68,8 +68,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Timber.d("Upload started");
             formData.setState(State.UPLOADING);
             database.formDataDao().update(formData);
-
-            endpoint.setUrl(formData.getUrl());
             
             // TODO: Add files
             // Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());

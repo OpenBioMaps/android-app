@@ -7,7 +7,7 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
-import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.util.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;

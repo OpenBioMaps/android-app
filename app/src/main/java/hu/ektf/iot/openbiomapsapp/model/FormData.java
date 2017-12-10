@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
 
-import hu.ektf.iot.openbiomapsapp.helper.DateUtil;
+import hu.ektf.iot.openbiomapsapp.util.DateUtil;
 
 @Entity(tableName = "form_data")
 public class FormData implements Parcelable {
