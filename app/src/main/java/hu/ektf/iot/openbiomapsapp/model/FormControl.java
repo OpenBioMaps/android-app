@@ -11,6 +11,7 @@ public class FormControl {
         @SerializedName("numeric")NUMERIC,
         @SerializedName("point")POINT,
         @SerializedName("text")TEXT,
+        @SerializedName("time")TIME,
     }
 
     private String column;

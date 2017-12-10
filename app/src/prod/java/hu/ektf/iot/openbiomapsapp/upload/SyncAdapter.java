@@ -68,8 +68,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Timber.d("Upload started");
             formData.setState(State.UPLOADING);
             database.formDataDao().update(formData);
-
-            endpoint.setUrl(formData.getUrl());
             
             // TODO: Add files
             // Map<String, TypedFile> fileMap = FileMapCreator.createFileMap(formData.getFiles());
@@ -83,9 +81,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if (!respObj.getError().isEmpty()) {
                     formData.setState(State.UPLOAD_ERROR);
                 }
-            } catch (Exception e) {
+            } catch (Exception ex) {
                 formData.setState(State.UPLOAD_ERROR);
-                Timber.e(e, "Upload response contained error");
+                Timber.e(ex, "Upload response contained error");
             }
 
             database.formDataDao().update(formData);

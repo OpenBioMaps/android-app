@@ -1,4 +1,4 @@
-package hu.ektf.iot.openbiomapsapp.helper;
+package hu.ektf.iot.openbiomapsapp.util;
 
 
 

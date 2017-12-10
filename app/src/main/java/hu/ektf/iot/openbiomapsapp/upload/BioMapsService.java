@@ -9,6 +9,7 @@ import retrofit.client.Response;
 import retrofit.http.Field;
 import retrofit.http.FormUrlEncoded;
 import retrofit.http.POST;
+import retrofit.http.Path;
 import rx.Observable;
 
 public interface BioMapsService {
@@ -32,17 +33,20 @@ public interface BioMapsService {
                                @Field("scope") String scope);
 
     @FormUrlEncoded
-    @POST("/projects/checkitout/pds.php")
-    Observable<List<Form>> getForms(@Field("scope") String scope);
+    @POST("/projects/{project}/pds.php")
+    Observable<List<Form>> getForms(@Path("project") String project,
+                                    @Field("scope") String scope);
 
     @FormUrlEncoded
-    @POST("/projects/checkitout/pds.php")
-    Observable<List<FormControl>> getForm(@Field("scope") String scope,
+    @POST("/projects/{project}/pds.php")
+    Observable<List<FormControl>> getForm(@Path("project") String project,
+                                          @Field("scope") String scope,
                                           @Field("value") Integer formId);
 
     @FormUrlEncoded
-    @POST("/projects/checkitout/pds.php")
-    Response putData(@Field("scope") String scope,
+    @POST("/projects/{project}/pds.php")
+    Response putData(@Path("project") String project,
+                     @Field("scope") String scope,
                      @Field("put_api_form") Integer formId,
                      @Field("value") String columns,
                      @Field("api_form_data") String values);

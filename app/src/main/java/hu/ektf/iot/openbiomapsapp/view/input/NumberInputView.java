@@ -39,7 +39,7 @@ public class NumberInputView extends TextInputView {
         try {
             return Integer.parseInt(input.getText().toString());
         } catch (NumberFormatException ex) {
-            Timber.e("Could not parse number input", ex);
+            Timber.e(ex, "Could not parse number input");
         }
 
         return 0;

@@ -1,12 +1,13 @@
 package hu.ektf.iot.openbiomapsapp.repo;
 
 import android.content.Context;
+import android.net.Uri;
 
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
-import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.util.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
@@ -28,12 +29,32 @@ public class ObmRepoImpl extends ObmRepo {
     private final StorageHelper storage;
     private final AppDatabase database;
 
+    private String projectName;
+
     public ObmRepoImpl(Context context) {
         super(context);
         this.application = ((BioMapsApplication) context.getApplicationContext());
         this.service = application.getMapsService();
         this.storage = new StorageHelper(context);
         this.database = application.getAppDatabase();
+
+        this.projectName = storage.getProjectName();
+        application.getDynamicEndpoint().setUrl(storage.getServerUrl());
+    }
+
+    @Override
+    public Completable setUrl(String url) {
+        return Completable.fromAction(() -> {
+            Uri uri = Uri.parse(url);
+            String baseUrl = uri.getScheme() + "://" + uri.getHost();
+            String projectName = uri.getLastPathSegment();
+
+            storage.setServerUrl(baseUrl);
+            storage.setProjectName(projectName);
+
+            application.getDynamicEndpoint().setUrl(baseUrl);
+            this.projectName = projectName;
+        });
     }
 
     @Override
@@ -50,6 +71,13 @@ public class ObmRepoImpl extends ObmRepo {
                 });
     }
 
+    @Override
+    public Completable logout() {
+        return Completable.fromAction(() -> {
+            storage.clearTokens();
+        });
+    }
+
     public TokenResponse refreshToken(String refreshToken) {
         TokenResponse tokenResponse = service.refreshToken(refreshToken, CLIENT_ID, CLIENT_SECRET, GRANT_TYPE_REFRESH, SCOPE);
         storage.setAccessToken(tokenResponse.getAccessToken());
@@ -59,7 +87,7 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Observable<List<Form>> loadFormList() {
-        return service.getForms("get_form_list")
+        return service.getForms(projectName, "get_form_list")
                 .doOnNext(forms -> {
                     database.formDao().deleteAll();
                     database.formDao().insertAll(forms);
@@ -69,7 +97,7 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Observable<List<FormControl>> loadForm(int formId) {
-        return service.getForm("get_form_data", formId)
+        return service.getForm(projectName, "get_form_data", formId)
                 .doOnNext(formControls -> {
                     Form form = database.formDao().getForm(formId);
                     form.setFormControls(formControls);
@@ -106,6 +134,6 @@ public class ObmRepoImpl extends ObmRepo {
 
     @Override
     public Response uploadData(int formId, String columns, String values) {
-        return service.putData("put_data", formId, columns, values);
+        return service.putData(projectName, "put_data", formId, columns, values);
     }
 }

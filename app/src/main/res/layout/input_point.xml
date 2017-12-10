@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        tools:text="Label" />
+
+    <EditText
+        android:id="@+id/input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/location"
+        android:imeOptions="actionNext" />
+
+    <ProgressBar
+        android:id="@+id/progress"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/input"
+        android:layout_alignRight="@id/input"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"/>
+
+    <ImageButton
+        android:id="@+id/location"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignTop="@+id/input"
+        android:layout_marginRight="8dp"
+        android:layout_toLeftOf="@+id/map"
+        android:background="@drawable/circle"
+        android:src="@drawable/ic_my_location" />
+
+    <ImageButton
+        android:id="@+id/map"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/input"
+        android:background="@drawable/circle"
+        android:src="@drawable/ic_map" />
+
+</RelativeLayout>

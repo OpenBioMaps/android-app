@@ -5,10 +5,13 @@ import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.view.adapter.FormAdapter;
 import hu.ektf.iot.openbiomapsapp.model.Form;
+import hu.ektf.iot.openbiomapsapp.view.adapter.FormAdapter;
 import hu.ektf.iot.openbiomapsapp.view.recyclerview.DividerItemDecoration;
 import hu.ektf.iot.openbiomapsapp.view.recyclerview.ItemClickSupport;
 import rx.android.schedulers.AndroidSchedulers;
@@ -49,6 +52,24 @@ public class FormListActivity extends BaseActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.form_list, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                logout();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         ItemClickSupport.removeFrom(recyclerView);
@@ -64,5 +85,15 @@ public class FormListActivity extends BaseActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> refreshLayout.setRefreshing(false))
                 .subscribe(forms -> adapter.swapItems(forms), Timber::e);
+    }
+
+    private void logout() {
+        repo.logout()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(() -> {
+                    Intent intent = new Intent(FormListActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                });
     }
 }

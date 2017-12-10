@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.net.Proxy;
 
 import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
-import hu.ektf.iot.openbiomapsapp.helper.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.util.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import hu.ektf.iot.openbiomapsapp.repo.ObmRepo;
 import hu.ektf.iot.openbiomapsapp.repo.ObmRepoImpl;
@@ -56,7 +56,7 @@ public class BioMapsApplication extends BaseApplication {
         okHttpClient.setAuthenticator(getOAuthAuthenticator());
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BuildConfig.BASE_URL) //dynamicEndpoint)
+                .setEndpoint(dynamicEndpoint)
                 .setClient(new OkClient(okHttpClient))
                 .setLogLevel(getRetrofitLogLevel())
                 .build();

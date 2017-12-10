@@ -1,6 +1,6 @@
 package hu.ektf.iot.openbiomapsapp.view.input;
 
-import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -17,10 +17,10 @@ import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import timber.log.Timber;
 
 @EViewGroup(R.layout.input_text)
-public class DateInputView extends TextInputView {
+public class TimeInputView extends TextInputView {
     private Calendar calendar = Calendar.getInstance();
 
-    public DateInputView(@NonNull Context context) {
+    public TimeInputView(@NonNull Context context) {
         super(context);
     }
 
@@ -37,31 +37,30 @@ public class DateInputView extends TextInputView {
         Date date = getValue();
         calendar.setTime(date);
 
-        new DatePickerDialog(getContext(),
-                (datePicker, year, month, day) -> {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month);
-                    calendar.set(Calendar.DAY_OF_MONTH, day);
+        new TimePickerDialog(getContext(),
+                (timePicker, hourOfDay, minute) -> {
+                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    calendar.set(Calendar.MINUTE, minute);
 
                     Date newDate = calendar.getTime();
                     setValue(newDate);
-                }, calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH))
+                }, calendar.get(Calendar.HOUR_OF_DAY),
+                calendar.get(Calendar.MINUTE),
+                true)
                 .show();
     }
 
     private Date getValue() {
         try {
-            return DateUtil.parseDate(input.getText().toString());
+            return DateUtil.parseTime(input.getText().toString());
         } catch (ParseException ex) {
-            Timber.e(ex, "Unable to parse date input");
+            Timber.e(ex, "Unable to parse time input");
         }
 
         return new Date();
     }
 
     private void setValue(Date value) {
-        input.setText(DateUtil.formatDate(value));
+        input.setText(DateUtil.formatTime(value));
     }
 }
