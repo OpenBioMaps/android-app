@@ -5,6 +5,7 @@ android:
   components:
   - tools
   - platform-tools
+  - tools
   - build-tools-27.0.0
   - android-27
   - extra-android-support
@@ -13,6 +14,7 @@ android:
   - extra-android-m2repository
 
 before_install:
+- yes | sdkmanager "platforms;android-27"
 - openssl aes-256-cbc -K $encrypted_62ed174ed142_key -iv $encrypted_62ed174ed142_iv
   -in obm.keystore.enc -out obm.keystore -d
 
