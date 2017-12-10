@@ -56,7 +56,7 @@ public class BioMapsApplication extends BaseApplication {
         okHttpClient.setAuthenticator(getOAuthAuthenticator());
 
         RestAdapter restAdapter = new RestAdapter.Builder()
-                .setEndpoint(BuildConfig.BASE_URL) //dynamicEndpoint)
+                .setEndpoint(dynamicEndpoint)
                 .setClient(new OkClient(okHttpClient))
                 .setLogLevel(getRetrofitLogLevel())
                 .build();

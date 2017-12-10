@@ -40,7 +40,6 @@ android {
         prod {
             dimension "default"
             manifestPlaceholders = [applicationLabel: "@string/app_name"]
-            buildConfigField "String", "BASE_URL", '"http://openbiomaps.org"'
         }
     }
 

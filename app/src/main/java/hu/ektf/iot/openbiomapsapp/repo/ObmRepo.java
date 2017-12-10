@@ -17,9 +17,13 @@ public abstract class ObmRepo {
     public ObmRepo(Context context) {
     }
 
+    public abstract Completable setUrl(String url);
+
     public abstract boolean isLoggedIn();
 
     public abstract Observable<TokenResponse> login(String username, String password);
+
+    public abstract Completable logout();
 
     public abstract TokenResponse refreshToken(String refreshToken);
 

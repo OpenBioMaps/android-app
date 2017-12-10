@@ -20,6 +20,11 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
+    public Completable setUrl(String url) {
+        return Completable.complete();
+    }
+
+    @Override
     public boolean isLoggedIn() {
         return false;
     }
@@ -27,6 +32,11 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<TokenResponse> login(String username, String password) {
         return Observable.just(new TokenResponse());
+    }
+
+    @Override
+    public Completable logout() {
+        return Completable.complete();
     }
 
     @Override

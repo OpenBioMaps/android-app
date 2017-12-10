@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
@@ -27,7 +28,7 @@ import rx.schedulers.Schedulers;
 import timber.log.Timber;
 
 public class LoginActivity extends BaseActivity implements LoaderCallbacks<Cursor> {
-
+    private EditText urlEdit;
     private AutoCompleteTextView emailEdit;
     private EditText passwordEdit;
     private View progressView;
@@ -43,6 +44,7 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
 
         setContentView(R.layout.activity_login);
 
+        urlEdit = findViewById(R.id.url);
         emailEdit = findViewById(R.id.email);
         populateAutoComplete();
 
@@ -67,8 +69,10 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
     }
 
     private void attemptLogin() {
+        urlEdit.setError(null);
         emailEdit.setError(null);
         passwordEdit.setError(null);
+        String url = urlEdit.getText().toString();
         String email = emailEdit.getText().toString();
         String password = passwordEdit.getText().toString();
         boolean cancel = false;
@@ -80,7 +84,10 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             cancel = true;
         }
 
-        if (TextUtils.isEmpty(email)) {
+        if (!isUrlValid(url)) {
+            focusView = urlEdit;
+            cancel = true;
+        } else if (TextUtils.isEmpty(email)) {
             emailEdit.setError(getString(R.string.error_field_required));
             focusView = emailEdit;
             cancel = true;
@@ -94,14 +101,27 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             focusView.requestFocus();
         } else {
             showProgress(true);
-            repo.login(email, password)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .doOnTerminate(() -> showProgress(false))
-                    .doOnNext(tokenResponse -> startFormsActivity())
-                    .doOnError(throwable -> Timber.e(throwable))
+            repo.setUrl(url).andThen(
+                    repo.login(email, password)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .doOnTerminate(() -> showProgress(false))
+                            .doOnNext(tokenResponse -> startFormsActivity())
+                            .doOnError(Timber::e))
                     .subscribe();
         }
+    }
+
+    private boolean isUrlValid(String url) {
+        if (!Patterns.WEB_URL.matcher(url).matches()) {
+            urlEdit.setError(getString(R.string.error_invalid_url));
+            return false;
+        } else if (!url.matches(".*\\/projects\\/.+")) {
+            urlEdit.setError(getString(R.string.error_no_project));
+            return false;
+        }
+
+        return true;
     }
 
     private boolean isEmailValid(String email) {

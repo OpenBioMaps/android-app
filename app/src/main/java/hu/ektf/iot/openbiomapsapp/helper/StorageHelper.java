@@ -9,8 +9,8 @@ public class StorageHelper {
     private static final String SHARED_PREFERENCES_NAME = "BIOMAPS_ANDROID_SHARED_PREFERENCES";
 
     private static final String KEY_SERVER_URL = "KEY_SERVER_URL";
+    private static final String KEY_PROJECT_NAME = "KEY_PROJECT_NAME";
     private static final String KEY_EXPORT_PATH = "KEY_EXPORT_PATH";
-    private static final String KEY_QUICK_NOTES = "KEY_QUICK_NOTES";
 
     private static final String KEY_ACCESS_TOKEN = "KEY_ACCESS_TOKEN";
     private static final String KEY_REFRESH_TOKEN = "KEY_REFRESH_TOKEN";
@@ -40,21 +40,21 @@ public class StorageHelper {
         editor.commit();
     }
 
+    public String getProjectName() {
+        return sharedPreferences.getString(KEY_PROJECT_NAME, null);
+    }
+
+    public void setProjectName(String projectName) {
+        editor.putString(KEY_PROJECT_NAME, projectName);
+        editor.commit();
+    }
+
     public String getExportPath() {
         return sharedPreferences.getString(KEY_EXPORT_PATH, DEFAULT_EXPORT_PATH);
     }
 
     public void setExportPath(String newPath) {
         editor.putString(KEY_EXPORT_PATH, newPath);
-        editor.commit();
-    }
-
-    public String getQuickNote(String noteLetter) {
-        return sharedPreferences.getString(KEY_QUICK_NOTES + noteLetter, null);
-    }
-
-    public void setQuickNote(String noteLetter, String newNote) {
-        editor.putString(KEY_QUICK_NOTES + noteLetter, newNote);
         editor.commit();
     }
 
