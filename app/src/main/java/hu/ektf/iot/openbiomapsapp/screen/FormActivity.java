@@ -99,12 +99,15 @@ public class FormActivity extends BaseActivity {
 
     private void saveFormData() {
         JSONObject formJson = getFormJson();
+        JSONArray dataArray = new JSONArray();
+        dataArray.put(formJson);
+
         JSONArray columns = formJson.names();
         List<String> columnList = JsonUtil.arrayAsList(columns);
 
         FormData data = new FormData();
         data.setFormId(formId);
-        data.setJson(formJson.toString());
+        data.setJson(dataArray.toString());
         data.setColumns(columnList);
         data.setDate(new Date());
         data.setState(FormData.State.CLOSED);
