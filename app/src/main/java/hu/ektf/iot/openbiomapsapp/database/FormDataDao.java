@@ -13,7 +13,7 @@ import hu.ektf.iot.openbiomapsapp.model.FormData;
 @Dao
 public interface FormDataDao {
 
-    @Query("SELECT * FROM form_data")
+    @Query("SELECT * FROM form_data ORDER BY date DESC")
     List<FormData> getFormDataList();
 
     @Query("SELECT * FROM form_data WHERE state == :state ORDER BY date LIMIT 1")

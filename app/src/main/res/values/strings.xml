@@ -2,7 +2,7 @@
     <!-- Titles -->
     <string name="app_name" translatable="false">OpenBioMaps</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="title_activity_upload">Upload</string>
+    <string name="title_activity_saved_data">Saved data</string>
 
     <!-- General -->
     <string name="cancel">Cancel</string>
@@ -84,6 +84,7 @@
     <string name="error_field_required">This field is required</string>
     <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
 
+    <string name="menu_saved_data">Saved data</string>
     <string name="menu_logout">Logout</string>
 
 </resources>

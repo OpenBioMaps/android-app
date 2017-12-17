@@ -65,16 +65,16 @@ public class UploadActivity extends BaseActivity {
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(this, R.drawable.divider));
 
-        adapter.setOnItemClickListener((adapterView, view, position, id) -> {
-            FormData note = adapter.getItem(position);
-            showDetailDialog(note);
-        });
-
-        adapter.setOnItemLongClickListener((parent, view, position, id) -> {
-            FormData note = adapter.getItem(position);
-            showContextMenu(note);
-            return false;
-        });
+//        adapter.setOnItemClickListener((adapterView, view, position, id) -> {
+//            FormData note = adapter.getItem(position);
+//            showDetailDialog(note);
+//        });
+//
+//        adapter.setOnItemLongClickListener((parent, view, position, id) -> {
+//            FormData note = adapter.getItem(position);
+//            showContextMenu(note);
+//            return false;
+//        });
 
         recyclerView.setAdapter(adapter);
 

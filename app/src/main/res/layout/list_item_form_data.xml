@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:layout_height="wrap_content"
+    tools:layout_width="match_parent"
+    tools:orientation="horizontal"
+    tools:padding="8dp"
+    tools:parentTag="android.widget.LinearLayout">
 
     <LinearLayout
         android:id="@+id/layoutTexts"
@@ -48,13 +51,13 @@
             android:src="@drawable/ic_audiotrack" />
 
         <TextView
+            android:id="@+id/tvNumOfFiles"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:layout_marginRight="1dp"
             android:layout_weight="7"
             android:text="0"
-            android:id="@+id/tvNumOfFiles"
             android:textStyle="bold" />
 
         <ImageView
@@ -66,4 +69,4 @@
             android:src="@drawable/ic_cloud_done" />
     </LinearLayout>
 
-</LinearLayout>
+</merge>

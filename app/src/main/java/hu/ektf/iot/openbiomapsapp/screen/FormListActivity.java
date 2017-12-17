@@ -61,6 +61,10 @@ public class FormListActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.menu_saved_data:
+                Intent intent = new Intent(this, SavedDataActivity.class);
+                startActivity(intent);
+                return true;
             case R.id.menu_logout:
                 logout();
                 return true;

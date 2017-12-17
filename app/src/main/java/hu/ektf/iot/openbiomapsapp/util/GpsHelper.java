@@ -160,8 +160,9 @@ public class GpsHelper {
         public void onLocationChanged(Location location) {
             Location currentLocation = getLocation();
             if (externalListener != null) {
-                externalListener.onLocationChanged(currentLocation);
+                externalListener.onLocationChanged(location);
             }
+
             if (isBetterLocation(location, currentLocation)) {
                 setLocation(location);
             }
