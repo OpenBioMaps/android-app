@@ -1,4 +1,4 @@
-# Open Bio Maps - Android client
+# OpenBioMaps - Android client
 
 This application is made for [OpenBioMaps](http://openbiomaps.org/) users, to make offline data collection easier.
 
