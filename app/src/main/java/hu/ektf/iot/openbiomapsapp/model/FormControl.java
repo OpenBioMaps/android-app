@@ -8,6 +8,7 @@ public class FormControl {
         @SerializedName("autocomplete")AUTOCOMPLETE,
         @SerializedName("boolen")BOOLEAN,
         @SerializedName("date")DATE,
+        @SerializedName("datetime")DATE_TIME,
         @SerializedName("numeric")NUMERIC,
         @SerializedName("point")POINT,
         @SerializedName("text")TEXT,

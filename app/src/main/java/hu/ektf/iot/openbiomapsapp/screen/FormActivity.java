@@ -48,9 +48,7 @@ public class FormActivity extends BaseActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
 
         FormLinearLayoutManager layoutManager = new FormLinearLayoutManager(this);
-        layoutManager.setListener(() -> {
-            saveFormData();
-        });
+        layoutManager.setListener(this::saveFormData);
 
         recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(layoutManager);
@@ -58,9 +56,8 @@ public class FormActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> {
-            saveFormData();
-        });
+        fab.setOnClickListener(view -> saveFormData());
+
         loadForm();
     }
 
