@@ -18,9 +18,9 @@ import java.util.Date;
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.util.JsonUtil;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.util.JsonUtil;
 import hu.ektf.iot.openbiomapsapp.view.adapter.FormInputAdapter;
 import hu.ektf.iot.openbiomapsapp.view.recyclerview.FormLinearLayoutManager;
 import rx.android.schedulers.AndroidSchedulers;
