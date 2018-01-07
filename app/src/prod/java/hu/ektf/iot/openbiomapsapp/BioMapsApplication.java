@@ -49,7 +49,6 @@ public class BioMapsApplication extends BaseApplication {
     }
 
     private void setupRetrofit() {
-        // TODO: Will we handle dynamic endpoint?
         dynamicEndpoint = new DynamicEndpoint();
         OkHttpClient okHttpClient = new OkHttpClient();
         okHttpClient.networkInterceptors().add(getAuthInterceptor());
@@ -90,6 +89,7 @@ public class BioMapsApplication extends BaseApplication {
             @Override
             public Request authenticate(Proxy proxy, Response response) throws IOException {
                 String refreshToken = storage.getRefreshToken();
+
                 if (TextUtils.isEmpty(refreshToken)) {
                     return null;
                 }

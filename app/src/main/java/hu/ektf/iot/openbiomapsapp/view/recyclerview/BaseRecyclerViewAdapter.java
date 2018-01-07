@@ -46,8 +46,14 @@ public abstract class BaseRecyclerViewAdapter<T, V extends View> extends Recycle
         result.dispatchUpdatesTo(this);
     }
 
-    public void setItems(List<T> items) {
-        this.items = items;
+    // TODO DiffUtil does not work with FormControl lists. Investigate why?
+    public void setItems(List<T> newItems) {
+        this.items.clear();
+
+        if (newItems != null) {
+            this.items.addAll(newItems);
+        }
+
         notifyDataSetChanged();
     }
 
