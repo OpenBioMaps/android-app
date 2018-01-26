@@ -37,8 +37,8 @@ public class FormLinearLayoutManager extends LinearLayoutManager {
 
         final int firstVisibleItemPosition = findFirstVisibleItemPosition();
         final int lastItemPos = getChildCount() - 1;
-        if (firstVisibleItemPosition == NO_POSITION
-                || lastItemPos < 0) {
+
+        if (firstVisibleItemPosition == NO_POSITION || lastItemPos < 0) {
             return;
         }
 

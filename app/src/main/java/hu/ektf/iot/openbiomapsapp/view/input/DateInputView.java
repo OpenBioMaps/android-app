@@ -1,57 +1,33 @@
 package hu.ektf.iot.openbiomapsapp.view.input;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
+import android.view.View;
 
-import org.androidannotations.annotations.Click;
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EViewGroup;
 
 import java.text.ParseException;
-import java.util.Calendar;
 import java.util.Date;
 
 import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.util.DateUtil;
-import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import timber.log.Timber;
 
-@EViewGroup(R.layout.input_text)
-public class DateInputView extends TextInputView {
-    private Calendar calendar = Calendar.getInstance();
+@EViewGroup(R.layout.input_date_time)
+public class DateInputView extends DateTimeInputView {
 
     public DateInputView(@NonNull Context context) {
         super(context);
     }
 
+    @AfterViews
+    void init() {
+        pickTimeButton.setVisibility(View.GONE);
+    }
+
     @Override
-    public void bind(FormControl control) {
-        super.bind(control);
-
-        setValue(new Date());
-        input.setKeyListener(null);
-    }
-
-    @Click
-    void inputClicked() {
-        Date date = getValue();
-        calendar.setTime(date);
-
-        new DatePickerDialog(getContext(),
-                (datePicker, year, month, day) -> {
-                    calendar.set(Calendar.YEAR, year);
-                    calendar.set(Calendar.MONTH, month);
-                    calendar.set(Calendar.DAY_OF_MONTH, day);
-
-                    Date newDate = calendar.getTime();
-                    setValue(newDate);
-                }, calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH),
-                calendar.get(Calendar.DAY_OF_MONTH))
-                .show();
-    }
-
-    private Date getValue() {
+    protected Date getValue() {
         try {
             return DateUtil.parseDate(input.getText().toString());
         } catch (ParseException ex) {
@@ -61,7 +37,8 @@ public class DateInputView extends TextInputView {
         return new Date();
     }
 
-    private void setValue(Date value) {
+    @Override
+    protected void setValue(Date value) {
         input.setText(DateUtil.formatDate(value));
     }
 }

@@ -7,6 +7,8 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
+import hu.ektf.iot.openbiomapsapp.model.response.FormControlResponse;
+import hu.ektf.iot.openbiomapsapp.model.response.FormResponse;
 import hu.ektf.iot.openbiomapsapp.util.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
@@ -88,6 +90,7 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<List<Form>> loadFormList() {
         return service.getForms(projectName, "get_form_list")
+                .map(FormResponse::getData)
                 .doOnNext(forms -> {
                     database.formDao().deleteAll();
                     database.formDao().insertAll(forms);
@@ -98,6 +101,7 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<List<FormControl>> loadForm(int formId) {
         return service.getForm(projectName, "get_form_data", formId)
+                .map(FormControlResponse::getData)
                 .doOnNext(formControls -> {
                     Form form = database.formDao().getForm(formId);
                     form.setFormControls(formControls);

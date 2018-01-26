@@ -4,6 +4,8 @@ import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
+import hu.ektf.iot.openbiomapsapp.model.response.FormControlResponse;
+import hu.ektf.iot.openbiomapsapp.model.response.FormResponse;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
 import retrofit.client.Response;
 import retrofit.http.Field;
@@ -34,20 +36,20 @@ public interface BioMapsService {
 
     @FormUrlEncoded
     @POST("/projects/{project}/pds.php")
-    Observable<List<Form>> getForms(@Path("project") String project,
-                                    @Field("scope") String scope);
+    Observable<FormResponse> getForms(@Path("project") String project,
+                                            @Field("scope") String scope);
 
     @FormUrlEncoded
     @POST("/projects/{project}/pds.php")
-    Observable<List<FormControl>> getForm(@Path("project") String project,
-                                          @Field("scope") String scope,
-                                          @Field("value") Integer formId);
+    Observable<FormControlResponse> getForm(@Path("project") String project,
+                                            @Field("scope") String scope,
+                                            @Field("value") Integer formId);
 
     @FormUrlEncoded
     @POST("/projects/{project}/pds.php")
     Response putData(@Path("project") String project,
                      @Field("scope") String scope,
-                     @Field("put_api_form") Integer formId,
-                     @Field("value") String columns,
-                     @Field("api_form_data") String values);
+                     @Field("form_id") Integer formId,
+                     @Field("header") String columns,
+                     @Field("data") String values);
 }

@@ -14,6 +14,7 @@ import hu.ektf.iot.openbiomapsapp.database.AppDatabase;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 import hu.ektf.iot.openbiomapsapp.model.FormData.State;
 import hu.ektf.iot.openbiomapsapp.model.response.BioMapsResponse;
+import hu.ektf.iot.openbiomapsapp.model.response.Status;
 import hu.ektf.iot.openbiomapsapp.repo.ObmRepoImpl;
 import retrofit.client.Response;
 import retrofit.mime.TypedByteArray;
@@ -78,7 +79,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
             try {
                 BioMapsResponse respObj = gson.fromJson(respStr, BioMapsResponse.class);
-                if (!respObj.getError().isEmpty()) {
+                if (respObj.getStatus() != Status.SUCCESS) {
                     formData.setState(State.UPLOAD_ERROR);
                 }
             } catch (Exception ex) {

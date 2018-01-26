@@ -85,7 +85,7 @@ public class FormData implements Parcelable {
     }
 
     public String getDateString() {
-        return date == null ? "-" : DateUtil.formatFullDate(date);
+        return date == null ? "-" : DateUtil.formatDateTime(date);
     }
 
     public Date getDate() {
