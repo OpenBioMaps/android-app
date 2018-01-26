@@ -1,17 +1,22 @@
 package hu.ektf.iot.openbiomapsapp.model.response;
 
-import java.util.ArrayList;
+public class BioMapsResponse<T> {
+    private Status status;
+    private T data;
 
-
-public class BioMapsResponse {
-    ArrayList<String> error;
-    ArrayList<String> result;
-
-    public ArrayList<String> getError() {
-        return error;
+    public Status getStatus() {
+        return status;
     }
 
-    public void setError(ArrayList<String> error) {
-        this.error = error;
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
     }
 }
