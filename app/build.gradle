@@ -9,8 +9,8 @@ android {
         applicationId "hu.ektf.iot.openbiomapsapp"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 6
-        versionName "0.5.4"
+        versionCode 7
+        versionName "0.5.5"
         multiDexEnabled false
 
         javaCompileOptions {
