@@ -1,9 +1,9 @@
 package hu.ektf.iot.openbiomapsapp.repo;
 
-import android.content.Context;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
@@ -15,8 +15,8 @@ import rx.Observable;
 
 public class ObmRepoImpl extends ObmRepo {
 
-    public ObmRepoImpl(Context context) {
-        super(context);
+    @Inject
+    public ObmRepoImpl() {
     }
 
     @Override

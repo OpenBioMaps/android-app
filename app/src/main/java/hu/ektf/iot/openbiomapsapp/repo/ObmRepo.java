@@ -1,7 +1,5 @@
 package hu.ektf.iot.openbiomapsapp.repo;
 
-import android.content.Context;
-
 import java.util.List;
 
 import hu.ektf.iot.openbiomapsapp.model.Form;
@@ -13,9 +11,6 @@ import rx.Completable;
 import rx.Observable;
 
 public abstract class ObmRepo {
-
-    public ObmRepo(Context context) {
-    }
 
     public abstract Completable setUrl(String url);
 
