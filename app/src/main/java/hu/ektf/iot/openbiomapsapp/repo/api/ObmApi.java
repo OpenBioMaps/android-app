@@ -1,9 +1,5 @@
 package hu.ektf.iot.openbiomapsapp.repo.api;
 
-import java.util.List;
-
-import hu.ektf.iot.openbiomapsapp.model.Form;
-import hu.ektf.iot.openbiomapsapp.model.FormControl;
 import hu.ektf.iot.openbiomapsapp.model.response.FormControlResponse;
 import hu.ektf.iot.openbiomapsapp.model.response.FormResponse;
 import hu.ektf.iot.openbiomapsapp.model.response.TokenResponse;
