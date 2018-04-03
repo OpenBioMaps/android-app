@@ -21,13 +21,15 @@ import org.json.JSONObject;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import hu.ektf.iot.openbiomapsapp.BioMapsApplication;
 import hu.ektf.iot.openbiomapsapp.R;
-import hu.ektf.iot.openbiomapsapp.view.recyclerview.DividerItemDecoration;
-import hu.ektf.iot.openbiomapsapp.view.adapter.FormDataAdapter;
-import hu.ektf.iot.openbiomapsapp.util.ExportUtil;
-import hu.ektf.iot.openbiomapsapp.util.StorageHelper;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
+import hu.ektf.iot.openbiomapsapp.util.ExportUtil;
+import hu.ektf.iot.openbiomapsapp.repo.database.StorageHelper;
+import hu.ektf.iot.openbiomapsapp.view.adapter.FormDataAdapter;
+import hu.ektf.iot.openbiomapsapp.view.recyclerview.DividerItemDecoration;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import timber.log.Timber;
@@ -41,7 +43,9 @@ public class UploadActivity extends BaseActivity {
     private TextView tvEmpty;
 
     private ExportAsyncTask exportTask;
-    private StorageHelper sharedPrefStorage;
+
+    @Inject
+    StorageHelper sharedPrefStorage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

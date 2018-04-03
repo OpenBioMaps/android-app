@@ -11,7 +11,7 @@ import hu.ektf.iot.openbiomapsapp.R;
 import hu.ektf.iot.openbiomapsapp.model.FormControl;
 
 @EViewGroup(R.layout.input_unknown)
-public class UnknownInputView extends BaseFormInputView {
+public class UnknownInputView extends TextInputView {
 
     @ViewById
     TextView text;
@@ -22,6 +22,10 @@ public class UnknownInputView extends BaseFormInputView {
 
     @Override
     public void bind(FormControl item) {
-        text.setText(text.getContext().getString(R.string.unknown_input_type, item.getColumn()));
+        super.bind(item);
+
+        text.setText(text.getContext().getString(R.string.unknown_input_type,
+                item.getColumn(),
+                item.getTypeName()));
     }
 }

@@ -48,7 +48,7 @@
             android:parentActivityName=".screen.FormListActivity"
             android:label="@string/title_activity_saved_data" />
 
-        <service android:name=".upload.AuthenticatorService">
+        <service android:name=".sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -59,13 +59,13 @@
         </service>
 
         <provider
-            android:name=".upload.StubContentProvider"
+            android:name=".sync.StubContentProvider"
             android:authorities="hu.ektf.iot.openbiomapsapp"
             android:exported="false"
             android:syncable="true" />
 
         <service
-            android:name=".upload.SyncService"
+            android:name=".sync.SyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>
