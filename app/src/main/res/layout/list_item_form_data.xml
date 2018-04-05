@@ -40,7 +40,8 @@
         android:layout_toRightOf="@+id/layoutTexts"
         android:layout_weight="1"
         android:orientation="horizontal"
-        android:weightSum="100">
+        android:weightSum="100"
+        android:gravity="right">
 
         <ImageView
             android:id="@+id/ivFiles"
@@ -48,6 +49,7 @@
             android:layout_height="match_parent"
             android:layout_toRightOf="@+id/ivImages"
             android:layout_weight="28"
+            android:visibility="gone"
             android:src="@drawable/ic_audiotrack" />
 
         <TextView
@@ -57,8 +59,9 @@
             android:layout_gravity="bottom"
             android:layout_marginRight="1dp"
             android:layout_weight="7"
-            android:text="0"
-            android:textStyle="bold" />
+            android:visibility="gone"
+            android:textStyle="bold"
+            tools:text="0" />
 
         <ImageView
             android:id="@+id/ivStatus"

@@ -101,14 +101,12 @@ public class LoginActivity extends BaseActivity implements LoaderCallbacks<Curso
             focusView.requestFocus();
         } else {
             showProgress(true);
-            repo.setUrl(url).andThen(
-                    repo.login(email, password)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(AndroidSchedulers.mainThread())
-                            .doOnTerminate(() -> showProgress(false))
-                            .doOnNext(tokenResponse -> startFormsActivity())
-                            .doOnError(Timber::e))
-                    .subscribe();
+            repo.setUrl(url)
+                    .andThen(repo.login(email, password))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnTerminate(() -> showProgress(false))
+                    .subscribe(tokenResponse -> startFormsActivity(), Timber::e);
         }
     }
 
