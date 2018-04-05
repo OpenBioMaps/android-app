@@ -16,8 +16,11 @@ public interface FormDao {
     @Query("SELECT * FROM form")
     List<Form> getForms();
 
-    @Query("SELECT * FROM form WHERE id=:id")
-    Form getForm(int id);
+    @Query("SELECT * FROM form WHERE projectName=:projectName")
+    List<Form> getFormsByProjectName(String projectName);
+
+    @Query("SELECT * FROM form WHERE projectName=:projectName AND id=:id")
+    Form getForm(String projectName, int id);
 
     @Insert
     void insertAll(List<Form> forms);

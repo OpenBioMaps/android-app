@@ -96,10 +96,16 @@ public class ObmRepoImpl extends ObmRepo {
         return api.getForms(projectName, "get_form_list")
                 .map(FormResponse::getData)
                 .doOnNext(forms -> {
+                    for (Form form : forms) {
+                        form.setProjectName(projectName);
+                    }
+                })
+                .doOnNext(forms -> {
                     database.formDao().deleteAll();
                     database.formDao().insertAll(forms);
                 })
-                .onErrorReturn(throwable -> database.formDao().getForms());
+                .onErrorReturn(throwable -> database.formDao()
+                        .getFormsByProjectName(projectName));
     }
 
     @Override
@@ -107,11 +113,14 @@ public class ObmRepoImpl extends ObmRepo {
         return api.getForm(projectName, "get_form_data", formId)
                 .map(FormControlResponse::getData)
                 .doOnNext(formControls -> {
-                    Form form = database.formDao().getForm(formId);
+                    Form form = database.formDao()
+                            .getForm(projectName, formId);
                     form.setFormControls(formControls);
                     database.formDao().update(form);
                 })
-                .onErrorReturn(throwable -> database.formDao().getForm(formId).getFormControls());
+                .onErrorReturn(throwable -> database.formDao()
+                        .getForm(projectName, formId)
+                        .getFormControls());
     }
 
     @Override
