@@ -29,11 +29,13 @@ import timber.log.Timber;
 
 public class FormActivity extends BaseActivity {
     public static final String EXTRA_FORM_ID = "EXTRA_FORM_ID";
+    public static final String EXTRA_FORM_DATA_ID = "EXTRA_FORM_DATA_ID";
 
     private RecyclerView recyclerView;
     private FormInputAdapter adapter = new FormInputAdapter();
 
     private int formId;
+    private int formDataId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,7 @@ public class FormActivity extends BaseActivity {
         setContentView(R.layout.activity_form);
 
         formId = getIntent().getIntExtra(EXTRA_FORM_ID, -1);
+        formDataId = getIntent().getIntExtra(EXTRA_FORM_DATA_ID, -1);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -62,10 +65,13 @@ public class FormActivity extends BaseActivity {
     }
 
     private void loadForm() {
-        repo.loadForm(formId)
+        repo.loadForm(formId, formDataId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(controls -> adapter.setItems(controls), Timber::e);
+                .subscribe(controls -> {
+                    adapter.setItems(controls);
+                    recyclerView.postDelayed(() -> recyclerView.smoothScrollToPosition(0), 100);
+                }, Timber::e);
     }
 
     private JSONObject getFormJson() {
@@ -109,13 +115,17 @@ public class FormActivity extends BaseActivity {
         data.setDate(new Date());
         data.setState(FormData.State.CLOSED);
 
+        if (0 <= formDataId) {
+            data.setId(formDataId);
+        }
+
         repo.saveData(data)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(() -> {
                     Toast.makeText(this, R.string.form_saved, Toast.LENGTH_SHORT).show();
-                    adapter.notifyDataSetChanged();
-                    recyclerView.scrollToPosition(0);
+                    formDataId = -1;
+                    loadForm();
                 }, Timber::e);
     }
 }

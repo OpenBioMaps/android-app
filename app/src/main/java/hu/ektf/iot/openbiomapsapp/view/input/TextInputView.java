@@ -27,7 +27,7 @@ public class TextInputView extends BaseFormInputView {
     @Override
     public void bind(FormControl control) {
         label.setText(control.getShortName());
-        input.setText("");
+        input.setText(control.getValue() != null ? control.getValue().toString() : "");
         input.setTag(R.id.tag_form_control, control);
     }
 }

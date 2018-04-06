@@ -6,6 +6,8 @@ import org.json.JSONException;
 import java.util.ArrayList;
 import java.util.List;
 
+import timber.log.Timber;
+
 public final class JsonUtil {
 
     private JsonUtil() {
@@ -18,7 +20,7 @@ public final class JsonUtil {
             try {
                 list.add(array.getString(i));
             } catch (JSONException e) {
-                e.printStackTrace();
+                Timber.e(e, "Parsing JSON array failed");
             }
         }
         return list;

@@ -22,7 +22,9 @@ public class NumberInputView extends TextInputView {
     public void bind(FormControl control) {
         super.bind(control);
 
-        setValue(DEFAULT_VALUE);
+        if (control.getValue() == null) {
+            setValue(DEFAULT_VALUE);
+        }
     }
 
     @Click

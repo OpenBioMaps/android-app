@@ -103,7 +103,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             database.formDataDao().update(formData);
             doSync();
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Timber.e(ex, "Sync failed");
 
             if (formData != null) {
                 try {
@@ -112,7 +112,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     database.formDataDao().update(formData);
                     doSync();
                 } catch (Exception e) {
-                    ex.printStackTrace();
+                    Timber.e(e, "Retry sync failed");
                 }
             }
 

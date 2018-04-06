@@ -24,5 +24,6 @@ public class CheckBoxInputView extends BaseFormInputView {
     public void bind(FormControl control) {
         input.setText(control.getShortName());
         input.setTag(R.id.tag_form_control, control);
+        input.setChecked(control.getValue() != null ? (Boolean) control.getValue() : false);
     }
 }

@@ -12,7 +12,7 @@ import hu.ektf.iot.openbiomapsapp.model.Form;
 import hu.ektf.iot.openbiomapsapp.model.FormData;
 
 // TODO We only need the database in integration
-@Database(entities = {Form.class, FormData.class}, version = 2)
+@Database(entities = {Form.class, FormData.class}, version = 4)
 @TypeConverters({DateConverter.class, FormControlListConverter.class,
                  StateConverter.class, StringArrayConverter.class})
 public abstract class AppDatabase extends RoomDatabase {

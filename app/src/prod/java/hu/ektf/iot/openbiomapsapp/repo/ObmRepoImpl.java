@@ -2,6 +2,10 @@ package hu.ektf.iot.openbiomapsapp.repo;
 
 import android.net.Uri;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -20,6 +24,7 @@ import hu.ektf.iot.openbiomapsapp.repo.database.StorageHelper;
 import retrofit.client.Response;
 import rx.Completable;
 import rx.Observable;
+import timber.log.Timber;
 
 public class ObmRepoImpl extends ObmRepo {
     private static final String CLIENT_ID = "mobile";
@@ -96,22 +101,63 @@ public class ObmRepoImpl extends ObmRepo {
         return api.getForms(projectName, "get_form_list")
                 .map(FormResponse::getData)
                 .doOnNext(forms -> {
+                    for (Form form : forms) {
+                        form.setProjectName(projectName);
+                    }
+                })
+                .doOnNext(forms -> {
                     database.formDao().deleteAll();
                     database.formDao().insertAll(forms);
                 })
-                .onErrorReturn(throwable -> database.formDao().getForms());
+                .onErrorReturn(throwable -> database.formDao()
+                        .getFormsByProjectName(projectName));
     }
 
     @Override
     public Observable<List<FormControl>> loadForm(int formId) {
+        return loadForm(formId, null);
+    }
+
+    @Override
+    public Observable<List<FormControl>> loadForm(int formId, Integer formDataId) {
         return api.getForm(projectName, "get_form_data", formId)
                 .map(FormControlResponse::getData)
                 .doOnNext(formControls -> {
-                    Form form = database.formDao().getForm(formId);
+                    Form form = database.formDao()
+                            .getForm(projectName, formId);
                     form.setFormControls(formControls);
                     database.formDao().update(form);
                 })
-                .onErrorReturn(throwable -> database.formDao().getForm(formId).getFormControls());
+                .onErrorReturn(throwable -> database.formDao()
+                        .getForm(projectName, formId)
+                        .getFormControls())
+                .map(formControls -> {
+                    if (formDataId == null) {
+                        return formControls;
+                    }
+
+                    FormData formData = getSavedFormData(formDataId);
+                    return populateFormControls(formControls, formData);
+                });
+    }
+
+    private List<FormControl> populateFormControls(List<FormControl> formControls, FormData formData) {
+        if (formData == null) {
+            return formControls;
+        }
+
+        try {
+            JSONArray jsonArray = new JSONArray(formData.getJson());
+            JSONObject json = jsonArray.getJSONObject(0);
+
+            for (FormControl formControl : formControls) {
+                formControl.setValue(json.get(formControl.getColumn()));
+            }
+        } catch (JSONException e) {
+            Timber.e(e, "Could not populate FormControls");
+        }
+
+        return formControls;
     }
 
     @Override
@@ -125,13 +171,21 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
+    public FormData getSavedFormData(int id) {
+        return database.formDataDao().getFormData(id);
+    }
+
+    @Override
     public FormData getSavedFormDataByState(FormData.State state) {
         return database.formDataDao().getFormDataListByState(state);
     }
 
     @Override
     public Completable saveData(final FormData formData) {
-        return Completable.fromAction(() -> database.formDataDao().insert(formData))
+                return Completable.fromAction(() -> {
+                    formData.setProjectName(storage.getProjectName());
+                    database.formDataDao().insert(formData);
+                })
                 .doOnCompleted(application::requestSync);
     }
 

@@ -10,6 +10,7 @@ public class Form {
 
     @PrimaryKey
     private int id;
+    private String projectName;
     private String visibility;
     private List<FormControl> formControls;
 
@@ -19,6 +20,14 @@ public class Form {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
     }
 
     public String getVisibility() {
