@@ -2,9 +2,6 @@ package hu.ektf.iot.openbiomapsapp.model;
 
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.SparseArray;
 
 import java.util.ArrayList;
@@ -15,7 +12,7 @@ import java.util.List;
 import hu.ektf.iot.openbiomapsapp.util.DateUtil;
 
 @Entity(tableName = "form_data")
-public class FormData implements Parcelable {
+public class FormData {
 
     public enum State {
         CREATED(0), CLOSED(1), UPLOADING(2), UPLOADED(3), UPLOAD_ERROR(4);
@@ -42,16 +39,6 @@ public class FormData implements Parcelable {
         }
     }
 
-    private static final String ID = "id";
-    private static final String COLUMNS = "columns";
-    private static final String DATE = "date";
-    private static final String FILES = "files";
-    private static final String FORM_ID = "formId";
-    private static final String JSON = "json";
-    private static final String RESPONSE = "response";
-    private static final String STATE = "state";
-    private static final String URL = "url";
-
     @PrimaryKey(autoGenerate = true)
     private Integer id;
     private List<String> columns;
@@ -61,6 +48,7 @@ public class FormData implements Parcelable {
     private String json;
     private State state;
     private String response;
+    private String projectName;
     private String url;
 
     public FormData() {
@@ -136,6 +124,14 @@ public class FormData implements Parcelable {
         this.response = response;
     }
 
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
     public String getUrl() {
         return url;
     }
@@ -143,51 +139,4 @@ public class FormData implements Parcelable {
     public void setUrl(String url) {
         this.url = url;
     }
-
-    // Parcelable implementation
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        Bundle bundle = new Bundle();
-        bundle.putLong(DATE, getDate() == null ? -1 : getDate().getTime());
-        if (getId() != null) bundle.putInt(ID, getId());
-        if (getColumns() != null) bundle.putStringArrayList(COLUMNS, new ArrayList<>(getColumns()));
-        if (getFiles() != null) bundle.putStringArrayList(FILES, new ArrayList<>(getFiles()));
-        if (getFormId() != null) bundle.putInt(FORM_ID, getFormId());
-        if (getJson() != null) bundle.putString(JSON, getJson());
-        if (getState() != null) bundle.putSerializable(STATE, state);
-        if (getResponse() != null) bundle.putString(RESPONSE, getResponse());
-        if (getUrl() != null) bundle.putString(URL, getUrl());
-
-        dest.writeBundle(bundle);
-    }
-
-    private FormData(Parcel in) {
-        Bundle bundle = in.readBundle();
-
-        long dateTime = bundle.getLong(DATE);
-        setDate(dateTime == -1 ? null : new Date(dateTime));
-        if (bundle.containsKey(ID)) setId(bundle.getInt(ID));
-        if (bundle.containsKey(COLUMNS)) setColumns(bundle.getStringArrayList(COLUMNS));
-        if (bundle.containsKey(FILES)) setFiles(bundle.getStringArrayList(FILES));
-        if (bundle.containsKey(FORM_ID)) setFormId(bundle.getInt(FORM_ID));
-        if (bundle.containsKey(JSON)) setJson(bundle.getString(JSON));
-        if (bundle.containsKey(STATE)) setState((State) bundle.getSerializable(STATE));
-        if (bundle.containsKey(RESPONSE)) setResponse(bundle.getString(RESPONSE));
-        if (bundle.containsKey(URL)) setUrl(bundle.getString(URL));
-    }
-
-    public static final Creator<FormData> CREATOR = new Creator<FormData>() {
-        public FormData createFromParcel(Parcel in) {
-            return new FormData(in);
-        }
-
-        public FormData[] newArray(int size) {
-            return new FormData[size];
-        }
-    };
 }

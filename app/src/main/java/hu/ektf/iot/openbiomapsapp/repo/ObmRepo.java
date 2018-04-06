@@ -26,9 +26,13 @@ public abstract class ObmRepo {
 
     public abstract Observable<List<FormControl>> loadForm(int formId);
 
+    public abstract Observable<List<FormControl>> loadForm(int formId, Integer formControlId);
+
     public abstract List<FormData> getSavedFormData();
 
     public abstract Observable<List<FormData>> getSavedFormDataAsync();
+
+    public abstract FormData getSavedFormData(int id);
 
     public abstract FormData getSavedFormDataByState(FormData.State state);
 

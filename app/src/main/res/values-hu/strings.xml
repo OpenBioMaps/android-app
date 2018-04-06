@@ -48,6 +48,7 @@
     <!-- Errors -->
     <string name="error_no_file">Fájl létrehozása nem sikerült</string>
     <string name="error_no_location">Pozíció rögzítése kötelező</string>
+    <string name="error_another_project">Másik projektbe vagy bejelentkezve</string>
 
     <!-- Texts -->
     <string name="tv_location">szélesség: %1$f \nhosszúság: %2$f</string>

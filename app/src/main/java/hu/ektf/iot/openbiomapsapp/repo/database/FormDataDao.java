@@ -3,6 +3,7 @@ package hu.ektf.iot.openbiomapsapp.repo.database;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
+import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
 
@@ -19,7 +20,10 @@ public interface FormDataDao {
     @Query("SELECT * FROM form_data WHERE state == :state ORDER BY date LIMIT 1")
     FormData getFormDataListByState(FormData.State state);
 
-    @Insert
+    @Query("SELECT * FROM form_data WHERE id == :id LIMIT 1")
+    FormData getFormData(int id);
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insert(FormData formData);
 
     @Update

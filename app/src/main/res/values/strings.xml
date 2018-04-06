@@ -34,7 +34,7 @@
 
     <!-- Dialog strings -->
     <string name="dialog_change_url_title">Change url</string>
-    <string name="dialog_details_message" translatable="false">Url: %1$s\n\nResponse: %2$s</string>
+    <string name="dialog_details_message" translatable="false">Project: %1$s\n\nResponse: %2$s</string>
     <string name="dialog_details_title">Details</string>
     <string name="dialog_export_path">Export path:\n%1$s</string>
     <string name="dialog_export_text_yes">Export</string>
@@ -61,6 +61,7 @@
     <!-- Errors -->
     <string name="error_no_file">Unable to create file</string>
     <string name="error_no_location">You must acquire location first</string>
+    <string name="error_another_project">You are logged into another project</string>
 
     <!-- Texts -->
     <string name="tv_current_time" translatable="false">YYYY.MM.DD - HH:mm:ss</string>
@@ -74,7 +75,7 @@
     <string name="default_url">http://openbiomaps.org/projects/checkitout</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
-    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_url">This url is invalid</string>
     <string name="error_no_project">The url must containt the project</string>
