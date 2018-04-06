@@ -165,6 +165,11 @@ public class ObmRepoImpl extends ObmRepo {
     }
 
     @Override
+    public Observable<List<FormControl>> loadForm(int formId, Integer formControlId) {
+        return loadForm(formId);
+    }
+
+    @Override
     public List<FormData> getSavedFormData() {
         return new ArrayList<>();
     }
@@ -172,6 +177,11 @@ public class ObmRepoImpl extends ObmRepo {
     @Override
     public Observable<List<FormData>> getSavedFormDataAsync() {
         return Observable.just(new ArrayList<>());
+    }
+
+    @Override
+    public FormData getSavedFormData(int id) {
+        return null;
     }
 
     @Override
