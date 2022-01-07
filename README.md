@@ -1,4 +1,4 @@
-# This project moved to https://gitlab.com/openbiomaps/mobila-app
+# This project moved to https://gitlab.com/openbiomaps/openbiomaps-mobile
 
 ## OpenBioMaps - Android client
 
